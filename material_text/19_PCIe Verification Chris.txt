@@ -1,0 +1,456 @@
+1
+Verification
+of
+High Speed IO Design
+Chris Runhaar
+Nvidia
+July 1, 2025
+
+2
+•Overview of HSIO Design
+•HSIO Verification Targets
+•Verification Process, applied to HSIO
+•Engineering AdviceAgenda
+
+3Overview of HSIO Design
+What is it?
+•Goal of HSIO : transfer data between chips (within a package, across a board, over a cable, etc.)
+•Example: GPU connecting to CPU
+•Example: Ethernet switches connecting over a cable
+•Data is assembled into packets to allow routing, processing, etc.
+•Off-chip communication is more complicated than on- chip communication
+•More difficult electrical environment: need error detection and correction
+•Need compatibility with wide range of vendors, devices, applications (data center, auto, PC, mobile)
+•Plug new GPU into10 -year -old motherboard
+•CPU connects to GPU, Ethernet, memory expansion, camera, PCIe switch (with GPU and PCIe below it)
+•Require standard software interface to OS and applications
+•Result: complicated design and huge specifications; a big DV challenge!
+This will be a fast -paced, high- level overview, intended to help the audience understand the basics.  Each bullet point on these  slides could be expanded into its own lecture.  Many of the 
+bullet points could be expanded to fill a semester course.
+The terms and concepts in these slides are based on the author’s experience at Nvidia, and may not match the terms and concep ts used in textbooks or in other engineering organizations.
+
+4Overview of HSIO Design
+Design hierarchy
+•This presentation uses PCIe, but the principles apply to most 
+(all?) HSIO protocols
+•Transaction Layer
+•Sends and receives TLPs (Transaction Layer Packets)
+•Data Link Layer
+•Traffic management on the link: credits, error checking, replays
+•Physical Layer
+•Turns packets into bits and vice versa
+•Split / recombine packets across multiple lanes
+•Serialization / deserialization on each lane
+
+
+5Overview of HSIO Design
+Packet construction and flow
+•As packets flow through Transmit pipe:
+•Transaction Layer
+•Adds header containing packet information
+•Address/destination
+•Source and “tag” – globally unique
+•Priority/channel
+•Type of data (read, write, message, read response)
+•Much, much more
+•Optional CRC to detect errors end-to -end
+•Data Link Layer
+•Link CRC to detect errors on link
+•Sequence number is link -local pkt id
+•Ensure all pkts received; no skipped numbers
+•Request re- transmission of specific packets
+•Physical Layer
+•Adds framing: start/end of TLP packet
+•Receive pipe reverses the packaging process
+
+
+6Overview of HSIO Design
+DL and PL packets
+•TLPs (Transaction Layer Packets) share the link with link -management packets
+•Physical Layer uses packets called Ordered Sets
+•Communication between the PLs on each side of the link
+•Negotiate and maintain physical link: transmitter analog settings, link width, link speed, alignment between lanes, scrambler  
+reset, etc.
+•Data Link Layer uses packets called DLPs
+•Manage the link state: flow control, power management, ack/nak of TLPs, etc.
+•OS and DLPs are not seen by the Transaction Layer
+•OS created by PL on one side, consumed by PL on other side
+•DLP created by DL on one side, consumed by DL on other side
+•Unique “framing” symbols differentiate TLP , DLP , and OS
+•Where packets start/end
+•What type of packet it is: TLP , DLP , OS
+
+7Overview of HSIO Design
+Link enablement
+•The design is enabled sequentially: PL, then DL, then TL
+•PL init  = “link training”
+•Establish basic communications
+•Decipher “noise” into individual bits
+•Decipher Ordered Sets from stream of bits (look for framing symbols and align to them)
+•Send/receive OS to communicate and establish link width, lane numbering, link speed, analog settings, etc.
+•Once the PL is “up”: DL init
+•Establish communication channels on the link
+•Send/Receive DLPs to initialize flow control and a few other things
+•Once the DL is “up”: TL init = enumeration and device configuration
+•Send TLPs to read/write the device’s register space
+•Identify device type, requirements, capabilities
+•Program device ID, address ranges, etc.
+•Load the device driver software, which will continue configuring the device
+•Once the TL is configured, applications can be loaded and start transferring data across the link
+
+8HSIO Verification Targets
+Datapath
+•The datapath contains combinatorial logic, sequential logic, FIFOs
+•Packet variations
+•TLPs
+•Sizes: 0 to 1000’s of bytes
+•Types: read, write, read response, message, atomics, translation req/rsp , etc.)
+•Header fields like channel, byte enables, ordering and cache properties
+•Variety of DLPs and OS also
+•Interleaving
+•Alignment of packets across lanes
+•Interleaving of TLPs, DLPs, and OS
+•Backpressure: credits, ordering rules, insufficient tags, link unavailability, etc.
+•Errors
+•Sources: bit flip, bit slip, buggy link partner, our own bugs
+•Results
+•FEC or CRC or parity failures
+•Illegal packet (recognized, not allowed)
+•Malformed packet (not recognized)
+
+
+9HSIO Verification Targets
+State Machines
+Physical Layer
+•LTSSM
+•Equalization 
+(transmitter tuning)
+•Lane alignment
+•More…
+Transaction Layer
+•Power management
+•Not much more…Data Layer
+•Link Control
+•Credit init
+•More…
+
+
+10HSIO Verification Targets
+Registers
+•Registers are software’s interface to hardware
+•Status registers: information reported -- from device
+•Example: error detected (what type, where), current link speed
+•Control registers: configuration, or action requested -- to device
+•Example: address range, power management enable, device number
+•Example: change link speed, reset error status
+•Registers are required to have specific read/write characteristics
+•read -write, read-only, write-1-to -clear
+•Reset behavior
+•Different levels of reset affect different registers:
+•Function reset (devices can have multiple functions, reset independently)
+•Link reset
+•Device reset
+
+
+11HSIO Verification Targets
+Performance and Power
+•Performance verification
+•Bandwidth (GB/s) with various traffic patterns
+•Writes, reads, interleaved reads/writes
+•Payload size (constant header/framing overhead, variable data payload size)
+•Uni-directional, bi- directional
+•Various latencies (how long does it take memory to return the read data)
+•Latency
+•How long does it take various packets to get through DUT
+•Measured in both directions
+•Can measure other latencies (credit return, register access)
+•Freight train full of hard drives = Huge bandwidth, high latency
+•Online gaming (low latency) vs. streaming a movie (high bandwidth)
+•Power verification
+•Less power consumption = longer battery life, less cooling required, more power 
+budget for other parts of the system, etc.
+•Measure: Max power, idle power
+•Response time from idle to max power/performance
+•Can “go to sleep” more often if link can “wake up” quickly
+
+
+12Verification Process
+High Level Goal
+•All code will have bugs (including DV code!)
+•Not possible to write bug-free code
+•Need a rigorous process for finding bugs and verifying fixes
+•Verification > Testing
+•Testing = see if it works – a path through the minefield
+•Verification = ensure it will always work in all conditions – clear the minefield
+•Cannot “test” all conditions
+•Too many conditions for simulation
+•32-bit adder = 2^64 conditions (500,000+ years at 1,000,000 calc/sec)
+•Device doing billions of calculations per second for multiple seconds?
+•Cannot predict all conditions: how will the device be used 2-5 years from now when it’s in production?
+•Verification requires:
+•Choosing a (tiny!) subset of tests/conditions to represent all possible conditions
+•A good definition of “pass” and “fail”
+•Ways to measure progress so we know when we’re done
+•Done = high confidence we’ve found all the fatal bugs (cleared all mines, plus as many rocks as we can find)
+
+13Verification Process
+Planning documents
+•DV Strategy Document
+•Purpose: align DV team, review with other teams (arch, design, other DV)
+•List of device features – what are we going to verify
+•Reference documents – what are we basing our plans on
+•Goals and non-goals for our team, including assumptions about what other teams will do
+•Testbench structure, including code reused or shared with others
+•Schedule and processes the team will follow (code reviews, tools, metrics/goals, milestones)
+•Testplans (Detailed Verification Plans)
+•Separate DVP for each feature or major area
+•Coverage goals – what scenarios and conditions do we want to “hit” (exercise)
+•Stimulus – what our testbench will send into the device
+•Checking – enforcing rules and expectations for design behavior
+
+14Verification Process
+Coverage
+•State machines
+•Each state
+•Each arc between states
+•Each condition for each arc between states: if (A || B) next_state  = CONFIG
+•Competing conditions: if (A) next_state  = CONFIG else if (B) next_state  = RESET
+•Datapath
+•Various packet sizes
+•Various packet types
+•Various packet interleave patterns, by size (S, M, L) and type (R, W, RR, etc.)
+•Error conditions
+•Backpressure conditions (e.g.. fifo depth)
+•Register space
+•All bits have toggled (1 ->0 and 0->1)
+•Bins for important configuration fields (e.g. max_packet_size, encryption on/off, link speed, link 
+width)
+•Many of these coverage bins seem trivial (or redundant with code coverage), but they are 
+building blocks for …
+
+
+15Verification Process
+Coverage Crosses
+•Cross coverage bins to measure quality of stimulus randomization
+•State machine fully covered, but only at one link speed
+•Packet sizes fully covered, but only at one link width
+•All error types covered, but only in one link state
+•Cross state machines
+•Within PL: Link State Machine X Phy Control State Machine (analog tuning)
+•Alignment state machine X Link State Machine
+•Power management X Link State Machine
+•Cross datapath conditions
+•All packet types X all packet sizes
+•All error types X all packet channels
+•Datapath X state machines
+•Receiver Errors X Link state
+•Backpressure X Power management
+•Registers (device configuration) X datapath
+•Link width X packet types
+•Encoding/encryption X backpressure
+•Registers X state machines
+•Link speed X Link state
+•Number of channels X Data Layer state
+
+
+16Verification Process
+Coverage Crosses continued
+•Number of crosses can get HUGE!
+•E.g. crossing all packet header fields creates 2^32 bins
+•Coverage cannot record everything the stimulus has done
+•Coverage ensures that stimulus covers the state space – find blind spots, overconstraints
+•Strategy 1: Pairwise crosses
+•AxB, BxC, AxC instead of A x B x C
+•10x10 + 10x10 + 10x10 = 300
+•10x10x10 = 1000
+•Strategy 2: coverage binning
+•Treat similar values as a single coverage item
+•Small = 1..10, Medium = 11..100, Large=101..1000
+•Posted = wr , msg, rd resp; non-posted = rd , atomic, translation req
+•{S, M, L} X {posted, non -posted} X link speed
+
+17Verification Process
+Stimulus: Agents
+•The DUT is a piece of a chip, which is a piece of a system
+•Model the parts of the chip/system which aren’t in the Design Under Test, to 
+send/receive signals to/from DUT
+•“BFM” (Link Interface Agent) is industry standard (PCIe, USB, Ethernet)
+•Can be acquired from Verification IP vendors (Synopsys, Cadence, Siemens)
+•Can be developed internally
+•Using more than one model can improve coverage (and checking)
+•Agents for internal interfaces
+•Data interfaces (can be proprietary or industry standard like AXI)
+•Control/register interfaces (one or more)
+•Clocks and Resets
+•Agents are generally reused across testbenches
+•Owned by one team, used by dozens of teams
+
+
+18Verification Process
+Stimulus: Sequences
+•Stimulus sends/receives sequences to/from Agents
+•Beginning: Init sequence –  common to all tests
+•Middle:
+•Enable one of many, many Testcases
+•Reactive sequences run in background
+•End: end- of-sim sequence – common to all tests
+
+
+19Verification Process
+Stimulus: Init and End
+•Initialization
+•Configure agents and the DUT
+•DUT initialization is the process described on slide 7 (Link Enablement)
+•Vertical reuse – higher level testbenches use (slim) init  from unit -level TB
+•Can take a long time and be repetitive (every testcase similar coverage)
+•Various strategies to optimize and speed up init : save/restore, “backdoor” access, 
+shortened timer values
+•End-of-Sim
+•After testcase finishes, run common sequence to flush packets, quiesce state 
+machines, etc.
+•Sometimes called “test shutdown”
+•DUT stays “up” but we’re done using it
+•Trigger end -of-sim checks (described in Checker slides)
+
+
+20Verification Process
+Stimulus: Testcases
+•Generally have specific coverage target(s)
+•E.g. Datapath:backpressure
+•E.g. State machine arc(s)
+•Random or directed (“more random” and “less random”)
+•Directed test may randomize minor things like number of packets, link speed
+•Random tests will have constraints; not “anything goes”
+•Modular and reuseable within testbench and across testbenches
+•Object oriented structure: base test and inheritance
+•Abstraction layers, defines, etc. allow testcase reuse with different hierarchy, etc.
+
+
+21Verification Process
+Stimulus: Reactive Sequences
+•Cause collision scenarios – coverage unlikely from testcase randomization
+•Wait for <trigger>, then (randomly) do <action>
+•Examples
+•Randomize read response delay
+•Inject traffic at state machine transitions (power management, LTSSM)
+•Mimic an application: receive msg pkt, change BFM config and send msgs back
+
+
+22Verification Process
+Checkers
+•Checkers are always- on: active for all tests, for duration of test
+•Commonly reused: all tests -> all testbenches
+•Can be configured by test or testcase, but this is rare
+•Severity/verbosity can be adjusted (for debug)
+•Can be predictive, but often have to have gray area between 
+“must always” and “must never” (e.g. multiple legal packet splitting options: 1x256 or 2x128 or 4x64)
+
+
+23Verification Process
+Checkers: Scoreboard
+•Scoreboard monitors multiple points in DUT
+•At least the two datapath  agents
+•Possibly registers, state machines, other interfaces
+•Generally only monitors major interfaces via Agents: more stability 
+and easier reuse
+•Datapath checks (end- to-end data checks)
+•Packet ordering, and no dropped packets
+•Data correctness (mostly: DUT output matches DUT input)
+•Header correctness (generally: DUT modifies or creates header)
+•Packet routing (if multiple ports exist)
+•Additional checks (state machines and registers)
+•Error handling (if input packet has error)
+•Packet side -effects (e.g. messages that trigger state machine)
+
+
+24Verification Process
+Checkers: RAL
+•RAL = Register Abstraction Layer
+•Contains a model of the registers, so it can check functionality as 
+registers are read and written
+•Can be pointed to the actual DUT registers to perform “backdoor” access and checking
+•Can use predictors to check for expected status values
+
+
+25Verification Process
+Checkers: interface checkers and assertions
+•Interface checkers
+•Generally attached to Agents, either active (BFM) or passive (snooper)
+•Check for validity of protocol at one interface
+•Example: packet header field values are valid, handshake protocol is correct
+•Often, only check legality, not correctness (unlike scoreboards)  E.g. 
+duplicate packet is properly formatted, but not expected
+•Generally, DUT -agnostic: enforce protocol rules with limited configurability 
+to check for DUT -specific behaviors (e.g. which power modes the DUT 
+supports)
+•Relatively easy to reuse because they are dependent only on one DUT interface
+•Assertions
+•Generally, written by designers (or formal verif  engineers) and bound to the 
+RTL code
+•Formal verif  reuses the assertions as properties and constraints
+•Generally, have an “always”, “never”, or “within interval” syntax
+•Since they are close to the RTL, they tend to enforce DUT -specific 
+behavoirs ; DUT checkers, not protocol checkers
+•Great for reuse: dependent only on RTL block
+
+
+26Verification Process
+Checkers: misc
+•End-of-sim
+•All fifos  empty
+•All credits returned
+•All packets acknowledged
+•All registers have expected values
+•All state machines are in expected state
+•Post -processing of logs
+•Typical use cases: performance and power verification
+•Complicated processing of log files to calculate metrics, then compare against results
+•Post -processing can be iterated separately from simulation
+•Can enhance/fix script without having to re -run simulations
+•Self-checking tests
+•If access to DUT is limited, difficult to connect checkers
+•Real silicon, fpga , emulator – may want to run in simulation also
+•Testcase provided by external testcase vendor, perhaps provided with Link -side BFM
+•Always -on reuseable checkers far better than one -time check in a testcase
+
+27Verification Process
+Quick Review
+•Coverage – what scenarios and conditions do we want to “hit” (exercise)
+•Start with coverage; knowing targets helps plan stimulus and checking
+•Wise selection of crosses = confirm stimulus can hit all legal cases
+•If stimulus can hit all legal cases, likely that stimulus can uncover all meaningful bugs
+•Stimulus –  what our testbench will send into the device
+•Several pieces ( init, testcase, reactive, end-of-sim) work together to hit coverage and enable checking
+•Modular for efficient reuse
+•Checking – enforcing rules and expectations for design behavior
+•Scoreboards, interface checkers, assertions, etc.
+•Prediction is difficult; always/never rules are better for always -on checkers
+
+28General Engineering Advice
+Engineering Habits
+•Habits don’t require much thought or “willpower”
+•Takes a sustained investment of “willpower” to create a habit through consistency and repetition
+•Invest early, reap dividends throughout your career
+•Engineers automate processes for efficiency and reliability – nurturing good habits is behavioral automation
+•Your “willpower” is limited; invest wisely (pick a few good investments at a time)
+•Comment as you code – answer “why” questions, not “what”
+•Use descriptive variable names – answer “what” questions in the name
+•Include units (“ delay_ns ”, not “delay”)
+•Include source and destination (“req2ack_delay_ns”)
+•Plan before starting, evaluate plan during/after execution
+•Eisenhower “Planning is essential, but plans are useless.”
+•“Slow is smooth, smooth is fast.”
+•Trying to go fast causes lots of little mistakes.
+•Slow down a little, you’ll be faster right away, and you’ll reinforce the habits that allow greater speed in the future.
+
+29General Engineering Advice
+Organizing, planning, tracking
+•Being smart and hard- working will always be beneficial
+•Sufficient to excel in school and early career
+•Big problems require coordination and phasing – skills that many new engineers haven’t developed
+•Invest in planning and organization now.
+•Will be more important as AI improves speed and consistency of code generation
+•AI can “make it pass”.  But can it make it right?  (Too many humans also don’t think beyond “make it pass”!)
+•Humans need to set the right goals and constraints for AI to achieve, organize the work AI will do, and evaluate the output.
+
+30

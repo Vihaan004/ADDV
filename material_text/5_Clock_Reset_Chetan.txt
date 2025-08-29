@@ -1,0 +1,526 @@
+From Clock Edges to Safe Transfers:
+A deep dive into Clocking, CDC, and RDC
+Chetan Sudarshan
+Marvell Technology
+
+2
+Agenda
+•Introduction
+•Timing basics
+•Clocking 
+•CDC and Synchronization
+•RDC and resolving RDC 
+
+3
+Introduction
+•Growth in devices over the years 
+•Have you wondered how 
+the clock has changed? 
+Source: How Product D esigns Evolve
+
+4
+Agenda
+•Introduction
+•Timing basics
+•Clocking 
+•CDC and Synchronization
+•RDC and resolving RDC 
+
+5
+Timing basics
+•Static Timing Analysis (
+ STA) 
+–Verify timing correctness of digital circuits 
+without simulations
+•Setup time (
+ t
+SetUp)
+–Minimum amount of time before the clock edge, the data must be stable 
+•Hold time (
+ t
+hold)
+–The minimum time after the clock edge, the data must remain stable 
+•Clock -to-Q delay (
+ t
+clock
+ -
+Q)
+–Time from clock edge to output change of 
+a flip -flop
+Source: https://colinoflynn.com/2020/12/experimenting -with -metastability -and-multiple -clocks -on-fpgas/
+
+6
+Timing basics
+•Combinational delay 
+–Delay between flip-flops caused by logic 
+gates, muxes, wires
+
+
+7
+Timing basics
+𝑇𝑇+𝑇𝑇𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠=𝑇𝑇𝑐𝑐𝑐𝑐𝑠𝑠−𝑄𝑄+𝑇𝑇𝑑𝑑𝑑𝑑+𝑇𝑇𝑠𝑠𝑐𝑐𝑠𝑠𝑐𝑐𝑠𝑠+𝑇𝑇𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑑𝑑
+𝑇𝑇𝑐𝑐𝑐𝑐𝑠𝑠−𝑄𝑄+𝑇𝑇𝑑𝑑𝑑𝑑≥𝑇𝑇ℎ𝑜𝑜𝑐𝑐𝑑𝑑+𝑇𝑇𝑠𝑠𝑠𝑠𝑠𝑠𝑠𝑠
+Source: https://schaumont.dyn.wpi.edu/ece574f24/05timinganalysis.html
+
+
+8
+Agenda
+•Introduction
+•Timing basics
+•Clocking 
+•CDC and Synchronization
+•RDC and resolving RDC 
+
+9
+Clocking
+•What is a clock? 
+–A clock is a periodic signal oscillating 
+between a high and a low state at a 
+constant frequency. 
+–Mainly used for synchronization and 
+coordination of operations and data 
+movement. 
+Source: Wikipedia
+
+
+10
+Types of clock sources
+•Crystal Oscillator 
+–Generates highly stable and accurate frequency 
+using a quartz crystal 
+–Used as a reference clock for PLLs 
+•Phase- Locked Loop (PLL)
+–Locks an internal oscillator to an external reference clock using a feedback control loop. Ability to 
+multiply/divide frequency. 
+•Delay -Locked Loop (DLL)
+–Aligns the phase of the delayed version of the input clock using delay elements. (DDR)
+•RC Oscillator 
+–Uses resistors and capacitors to generate oscillations. 
+
+
+11
+Clock distribution
+•Clock Tree
+–Hierarchical branching, distributing the clock 
+–Buffer insertion used to balance delay, introduces 
+clock skew  
+•X-Tree
+–Shaped like X, fanout is diagonally from the center. 
+–Common in asymmetric layout or when load balance is complex, used in custom analog- mixed signal chips.
+•H-Tree
+–Symmetrical layout to minimize skew 
+–Used in mesh or grid- based designs like CPUs
+•Tapered H- Tree 
+–H-Tree but with different wire widths and buffer size
+–Helps handle high capacitance near the source. 
+Source: https://users.ece.utexas.edu/~mcdermot/vlsi1/main/lectures/lecture_9.pdf
+
+12
+Clock distribution contd …
+Source: https://users.ece.utexas.edu/~mcdermot/vlsi1/main/lectures/lecture_9.pdf
+Source: https://www.mouser.com/pdfdocs/clock -tree-101-timing -basics.pdf
+
+13
+Clock Gating and Optimizations
+•Clock toggling consumes significant power even if logic is idle. 
+•Clock gating helps reduce dynamic power effectively 
+•Simple clock gating ( clk& enable) is prone to glitching 
+Source: https://anysilicon.com/the- ultimate -guide- to-clock -gating/
+
+14
+Clock Gating and Optimizations
+•Use an integrated gated clock cell to help with glitches 
+•Negative level -sensitive latch helps make sure we can avoid glitches 
+•Used in regional and local clock buffers (RCBs, LCBs) 
+Source: https://anysilicon.com/the- ultimate -guide- to-clock -gating/
+
+
+15
+Agenda
+•Introduction
+•Timing basics
+•Clocking 
+•CDC and Synchronization
+•RDC and resolving RDC 
+
+16
+Types of clocks
+•Synchronous clocks 
+–Same source
+–Have an easily established timing relationship
+–Static Timing Analysis works
+•Asynchronous clocks
+–From different sources
+–Timing relationship unknown or difficult to establish
+–Static Timing Analysis doesn’t work
+•Mesochronous clocks
+–Clocks share the same frequency as the reference clock 
+but have a phase offset that is not known or controlled. 
+•Plesiochronous clocks 
+–Clocks have slightly different frequencies from a reference 
+clock, causing their phase difference to drift over time.
+Source: https://www.realworldtech.com/terascale/5/
+
+17
+Why multi -domain?
+
+
+18
+Why multi -domain?
+•Performance Optimization 
+–Different functional blocks (GPU, CPU, DSP, I/O, etc ) 
+require different operating speeds.
+–High-speed cores run at GHz range, while interface 
+signals need tens of MHz.
+•Power efficiency 
+–Helps with enabling dynamic frequency scaling (DFS) 
+–Lower frequency domain consumes less dynamic power 
+•Scalability and Reusability 
+–Many 3rdparty IPs have their own clocking requirements, 
+such as DDR, PCIe, USB, etc. 
+–Having clock domains modularized helps in easier development and verification 
+•Clock source 
+–Not all clocks can be derived from a single PLL 
+–There may be cases when we need async clocks from 
+external sources 
+
+
+19
+Synchronization
+•Why do we need synchronization
+–Clock domain crossing, data from one clock is captured (sampled) in another clock domain 
+–Clock domains are groups of clocks that are synchronous to one another
+–Metastability is observed during crossings if they are not synchronized  
+A_inA1 B1
+Clk_A
+Clk_BB_in B_out
+Clk_A
+Clk_BA1.D
+A1.Q
+B1.Q
+Metastability
+
+20
+Multibit bus needs care
+•Multibit bus 
+–With double FF (DFF), we can address metastability problems, but there might be 
+data coherency problems 
+–If multiple bits change at the same cycle, the result of each bit is random by the DFF 
+–This synchronization works only if the data is gray coded (one bit change) 
+D2 Q2
+F2
+dst_clk
+ src_clkDm Qm
+Fmsync_2[2:0] src_cnt[2:0]
+D1 Q1
+F1
+
+21
+Different CDC schemes
+•DFF is most commonly used synchronizer 
+•Optimized by design houses and included in libraries 
+•Mux synchronizer is another technique used for multi -bit buses 
+D Q
+Clk
+D Q
+ClkD Q
+ClkA1 A2 B1 B2
+C1
+C2Transmitting Clock Domain Receiving Clock Domain
+clk2
+Domain A Domain B
+clk2 clk1
+clk1Bus[N -1:0]
+Double -FF synchronizer MUX synchronizer
+
+22
+Different CDC schemes
+•We have handshake synchronization where the TX and RX talk with req 
+and ack for seamless data transfer 
+•FIFO synchronization, as you all know, is widely used, where the rdand wr
+pointers are synchronized across the domains 
+Handshake synchronizer
+Bus[N -1:0]
+Request
+AcknowledgmentDestination 
+Domain
+Source
+Grey to Binary 
+Converter
+Binary to 
+Gray
+Converter
+wdata rdata
+wen
+waddr raddr
+Write Domain Read Domain
+Write Data
+Write Enable
+Write Addr
+Full Flag 
+Generation
+Grey to Binary 
+Converter
+Binary to 
+Gray
+Converter
+Read Data
+Read Addr
+Empty Flag 
+Generation
+wptrrptr
+FullEmptyMemory
+FIFO synchronizer
+
+23
+Tools for CDC analysis
+•Industry tools are used to perform static analysis on the CDC to find CDC bugs 
+•Common CDC analysis tools : 
+–Spyglass CDC 
+–Questa CDC
+–Meridian CDC 
+•The tools examine all possible data and control path combinations across the clock 
+domains 
+•As the design complexity increases, the number of combinations grows exponentially, leading to significant run times 
+•The tools often require manual constraints to manage noise and false violations
+–Static, constant, etc. 
+
+24
+Hierarchical flow in CDC analysis
+IP3
+clk_3
+clk_4
+clk_1
+clk_2
+Enable
+clk_7
+clk_8
+clk_5
+clk_6
+Clock, Reset, 
+Power, Boot 
+Management
+Reset_1
+Reset_2
+Core
+Core
+Core
+Processor
+Bridge_
+N
+Bridge_
+1
+Bridge_
+2IP1
+IP2 IP4Tool A Tool C
+Tool B Tool D
+Boundary information only•Bottom -up approach 
+•IP-to-IP paths need to be 
+taken care from CDC 
+•CDC models are 
+currently lacking 
+standardization. 
+•CDC models from different 
+tools are not compatible.
+
+25
+Agenda
+•Introduction
+•Timing basics
+•Clocking 
+•CDC and Synchronization
+•RDC and resolving RDC 
+
+26
+Synchronous vs Asynchronous Reset
+•Synchronous reset 
+always @(posedge clk) begin
+if (!rstn) q<=‘0;
+else       q<=d;
+end
+–Works only when the clock is toggling 
+–Need for additional gates outside the FF 
+for blocking the data 
+–Need the clock to be running to drive the flop to its reset state, which will delay the 
+reset until the next clock edge
+Source: https://besttechviews.com/reset -domain- crossing -asynchronous -resets -rdc/
+
+27
+Synchronous vs Asynchronous Reset
+•Asynchronous reset 
+always @(posedge clkor negedge rstn)begin
+if(!rstn) q<=‘0;
+else      q<=d;
+end
+–No need for additional logic in data path 
+–Async resets are independent of clock 
+toggling
+–Consume less power and area compared to a sync reset 
+–Accelerates reset sequence, since it drives the FF to reset state immediately 
+Source: https://besttechviews.com/reset -domain- crossing -asynchronous -resets -rdc/
+
+28
+Types of reset in a design
+•Cold Power on reset 
+–Cold power -on-reset is done when the chip is 
+completely powered off, and the power is then 
+reapplied to initialize the system
+•Warm Power on reset 
+–Warm power -on-reset is performed when the chip is 
+already operational, and a restart is initiated without 
+completely taking away the power
+•Hardware HW Reset 
+–These resets are automatically triggered by built -in 
+hardware mechanisms in response to certain 
+events/conditions.
+•Software SW Reset
+–Software-triggered resets have a more limited impact 
+on the system -on-chip (SoC) compared to hardware 
+resets.
+Source: https://iccircle.com/static/upload/img20250107182411.pdf
+
+29
+Reset deassertion issue
+•In addition to setup- and hold- , DFF 
+models also have recovery -time
+–Time between asynchronous Set/Reset
+release and clock when data and
+output are different
+–Violating recovery time is no different 
+than violating setup/hold
+•Possible to synchronize asynchronous 
+reset on release edge only
+–Static analysis is sufficient to 
+make this determinationAsync 
+RST
+D Q
+R1 D2 Q2
+F2Q2
+CLK0D Q
+R2Sync RSTAsync RSTQ1
+CLK0D1 Q1
+F1
+CLK0
+AsyncRST
+Q1
+SyncRST
+Q2
+
+30
+Reset domain crossing (RDC)
+Source: https://besttechviews.com/reset -domain- crossing -asynchronous -resets -rdc/
+
+31
+Reset domain crossing (RDC)
+How are these resolved??
+
+32
+Reset Synchronizers
+Missing Reset Synchronizer
+Reset Clock CrossingAsync 
+RST1
+D QR
+CLKD QR
+CLKD QR
+CLK CLK1D QR
+CLK CLK1
+Valid Reset Synchronizer
+•Reset signal crossing from one clock domain to another
+–The asynchronous de-assertion of the reset signal at the destination flop can cause the 
+signal to become metastable
+–Reset signals are required to be synchronized to destination domains for synchronous de-assertions
+
+33
+Resolving RDCs
+•Resolving RDC issues
+–Adding synchronizer in the destination domain
+–Reset ordering of different resets in the design
+Source: https://dvcon- proceedings.org/wp- content/uploads/comprehensive- and-automated- static -tool-based- strategies -for-the-detect ion-and-resolution- of-reset -domain- crossings -presentation.pdf 
+
+34
+Reset ordering
+•Make sure we have some reset conditions between the multiple resets we have 
+in the design 
+•When rst2 asserts, we do not care if rst1 is asserted or deasserted
+dff2
+ dff1
+rst1 rst2
+clk
+ONOFF 
+
+35
+Reset ordering
+•Make sure we have some reset conditions between the multiple resets we have 
+in the design 
+•When rst2 asserts, we do not care if rst1 is asserted or deasserted
+•But when rst1 asserts, we need to make sure rst2 is asserted
+dff2
+ dff1
+rst1 rst2
+clk
+ONOFF If ON 
+Metastable 
+
+36
+Reset ordering
+•Make sure we have some reset conditions between the multiple resets we have 
+in the design 
+•When rst2 asserts, we do not care if rst1 is asserted or deasserted
+•But when rst1 asserts, we need to make sure rst2 is asserted 
+dff2
+ dff1
+rst1 rst2
+clk
+ONOFF Must be OFF
+
+37
+Resolving RDCs
+•Resolving RDC issues
+–Reset -less paths: Clock gate the downstream flops for some cycles when rst1 asserts to 
+avoid glitch capture 
+–Multipower domain designs: reset ordering, isolation enable asserted 
+dff2
+ dff1
+rst1
+clk
+CLK 
+GATE
+dff2
+ dff1
+rst1
+clk
+ALWAYS ON 
+DomainSwitchable Power
+Domain
+Iso en
+
+38
+Resolving RDCs
+•We have three types of qualifiers
+–Data qualifier
+–Clock qualifier 
+–Enable qualifier 
+•Ensure the qualifier must arrive before 
+the reset assertion edge 
+•Qualifier must be sampled in RX that is reset, and the clock of the receiving 
+domain 
+Data Qualifier
+Enable QualifierClock Qualifier
+
+39
+Thank you! 
+
+40
+Reset domain crossing (RDC)
+dff
+2
+dff
+1
+rst1 rst2
+clkasynchronous 
+path
+•Asynchronous reset domains causes meta- stability
+–Contain registers whose resets are asserted asynchronously
+–Originate in one asynchronous reset domain​
+–Sampled by register(s) in a different reset domain​
+–Reset ordering of different resets in the design

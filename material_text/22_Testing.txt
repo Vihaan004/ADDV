@@ -1,0 +1,1334 @@
+Introduction to Testing of 
+Digital Systems
+
+Logistics
+•Due Wed night Lab 6 
+•Due Fri night (no late submissions allowed) Quiz 4 
+•Due Sunday 12pm (no late submissions allowed) Project Milestone 2
+•Plan to release to students Sunday nightGrades for all labs, all quizzes, 
+participation
+•Plan to release to students around Monday 12pm Final course grades 
+•Monday 5pm Grades due to be submitted
+2
+
+Outline
+•Basics
+•Logic Testing
+•Scan
+•BIST
+•Memory Testing
+•BIST
+•Other Testing
+•Testing Equipment
+3
+
+Basics
+4
+
+Defects in Silicon
+IC manufacturing process is defect -prone
+5
+OPEN
+Short
+Good Via
+Malformed
+Via
+
+Types of Defects
+•Functional defects
+•Causes a logical failure in the 
+design (opens/shorts)
+•Stuck- at faults
+•Speed defects
+•Affects the timing/performance of the design (weak transistors/resistive vias)
+•Transition faults
+•Path delay faults
+•Leakage defects
+•Cause high (unexpected) Iddq current in static conditions
+6Functional
+Defects
+Leakage
+DefectsAt-speed
+Defects
+
+How to Screen Manufacturing Defects
+•Test each device ( different from verification )
+•Apply a stimulus
+•Measure the response
+•Compare expected and measured response
+•The stimulus should be chosen such that good and bad device responses 
+are different
+A defect is detected by observing an error caused by it
+8
+
+Fault Models
+•Manufacturing defects are a physical phenomena
+•Surface impurities, dielectric breakdown…
+•Need to be correlated to circuit behavior
+•Fault models – a view/abstraction of the defects
+•Logic
+• Stuck- at faults
+• Transition faults
+• Path -delay faults
+• Bridging faults
+• IDDQ faults
+•Memory
+• Stuck- at faults
+• Transition faults
+• Coupling faults
+• Neighborhood pattern sensitive faults
+9
+
+Goals of Testing
+•Determine that the manufactured chip matches the designed chip
+•Cover high percentage of modeled faults
+•Minimize test time (and hence device cost)
+•Support debug and fault diagnosis
+10
+
+Coverage Analysis
+11
+Typically reported metricPercentage of faults detected among the total faults. 
+
+Fault Coverage and Grading
+•Fault coverage
+•Percentage of faults detected among the total faults tested. 
+•Want higher fault coverage to higher quality testing
+•Fault grading
+•How many faults does a pattern  detect?
+•The higher the fault grade of a pattern set, the greater the probability of 
+obtaining fault -free circuits.
+12
+
+Can Use Functional Tests (aka Verification Stimulus)
+•Not suitable for exhaustive testing of all manufacturing defects
+• Cost of such tests will make any chip unsellable
+•4-bit counter takes 24 patterns to verify complete functionality but 
+only 8 patterns for structural testingVector
+(A,B,C)Required for 
+VerificationRequired for 
+TestStuck -at faults 
+tested
+000 Yes No
+001 Yes No
+010 Yes No
+011 Yes Yes sa1@A, sa1@Z
+100 Yes No
+101 Yes Yes sa1@B
+110 Yes Yes sa1@C
+111 Yes Yessa0@A, sa0@B, 
+sa0@C, sa0@Z
+13A
+B
+CZ0
+1
+1 0sa1
+sa101
+1sa1
+3-input AND gate requires 8
+functional vectors but only 4
+ vectors for manufacturing defects
+
+Testing vs. Verification
+•Verification checks compliance of implementation vis -a-vis the 
+specification
+•Testing (aka Manufacturing Test) check compliance of silicon vis-
+a-vis design implementation
+14SpecificationImplement -
+ationSilicon
+Verification Testing
+
+What is Testability?
+15.
+.
+...
+.
+.
+.
+.A
+BFault
+Input Cone
+of A
+Input Coneof BZOutput 
+Cone of Z
+Combinational Circuit
+All internal nodes of interest can be controlled 
+to logic 0 or 1, and any change in the desired logic value at a node of interest, due to a fault, 
+can be observed externallyA “testable” circuit
+
+What is DFT?
+•Design For Test
+•Design features to enable controllability and observability for exhaustive 
+testing – Scan, BIST
+•Enable direct testing of critical IPs – Analog expose, etc
+•Debug/corrective features – Scan debug, Memory repair/diagnostics, etc
+•Test time optimization – Scan compression
+•Chip mode configuration and on-board testing – JTAG 
+16
+
+17
+RAMRAM
+ANALOGANALOG
+Digital Block
+Digital BlockDigital Block
+Digital BlockClk & Rst 
+JTAG PADMUX
+ Test ControllerClk & Rst 
+with test muxing
+PADMUX 
+with test muxingANALOG
+with wrapper
+ANALOG
+with wrapperRAM
+with RAM BIST
+RAM
+with RAM BISTDigital Block
+(scan inserted)Digital Block
+(scan inserted)
+Digital Block
+(scan inserted)
+DIGITAL 
+Block
+(scan inserted)
+
+
+Logic Testing
+18
+
+Logic Faults
+Stuck- At faults
+•Most commonly used fault 
+model
+•Each node in circuit can be Stuck -at-0 or Stuck -at-1
+19A
+BCs-a-1
+s-a-0
+6 stuck -at faults associated with a 2 -input gate
+ s-a-0 on A, s -a-1 on A
+ s-a-0 on B, s -a-1 on B
+ s-a-0 on C, s -a-1 on C
+
+Logic Faults
+20
+A
+BCs-t-r
+s-t-f
+6 Transition faults associated with a 
+2-input gate
+s-t-r on A, s -t-f on A
+s-t-r on B, s -t-f on B
+s-t-r on C, s -t-f on CBulk defect at node (Transition fault )
+Distributed delay across path ( Path -delay fault)Delay faults
+
+Logic Faults
+21
+Bridging faults
+• Logic/transition on 1 net
+can effect unrelated net inproximityIDDQ faults
+• Source -drain of transistor shorted leading 
+to increased current flow at quiscient  state 
+(not switching)
+
+
+Detecting stuck -at faults
+•To detect stuck -at fault
+•Need to use test pattern that causes output to be 
+different if fault present
+22
+s-a-0 s-a-1
+s-a-1 s-a-0
+
+Testing AND- OR circuit
+•Applying exhaustive test requires 512 patterns
+23
+
+
+Testing AND- OR circuit
+•Find a test for a stuck -at-0 in the following circuit
+24
+
+
+Testing AND- OR circuit
+25
+               g0, h0, i0, r0111XX0XX0d0, e0, f0, q0XX0111XX0a0, b0, c0, p0XX0XX0111Faults Testedihgfedcba
+               g0, h0, i0, r0111XX0XX0d0, e0, f0, q0XX0111XX0a0, b0, c0, p0XX0XX0111Faults Testedihgfedcbas-a-0
+s-a-0
+
+Testing AND- OR circuit
+26
+c1, f1, i1, p1, q1, r1011011011b1, e1, h1, p1, q1, r1101101101a1, d1, g1, p1, q1, r1110110110g0, h0, i0, r0111XX0XX0d0, e0, f0, q0XX0111XX0a0, b0, c0, p0XX0XX0111Faults Testedihgfedcba
+c1, f1, i1, p1, q1, r1011011011b1, e1, h1, p1, q1, r1101101101a1, d1, g1, p1, q1, r1110110110g0, h0, i0, r0111XX0XX0d0, e0, f0, q0XX0111XX0a0, b0, c0, p0XX0XX0111Faults Testedihgfedcba
+6 patternss-a-0 s-a-1
+s-a-0
+s-a-1
+
+Fault detection using path sensitization
+27
+
+
+Scan and ATPG
+28
+
+To test logic, I need to apply “patterns” or values to the internal nodes.
+How can I do that? Is there a way I can access the nodes from PIs/POs?
+Idea: Stitch all FFs in a long shift register. Now use this to set values to internal nodes.
+This chain is called a Scan Chain
+
+Scan
+•Most widely used DFT technique in industry
+•Every flip -flop in the design is converted to a scannable flop
+•Once the FFs are converted, they are stitched together to form one or more 
+shift registers referred to as scan chain(s)
+•Types of Scan methodologies
+•Clocked Scan FF
+•LSSD
+•Multiplexed FF
+•Multiplexed flip -flop scan is the mostly used style.
+30
+
+Multiplexed Flip flop
+31SE0
+1Q/SO D      Q
+CLKSID
+CLKQ D      Q
+CLKD
+CLKBefore Scan Insertion
+After Scan InsertionScan -In
+Scan -EnableScan -Out
+
+Design Before Scan Insertion
+32DTC10
+CLRZCLKD Q
+QZ
+DTC10
+CLRZCLKD Q
+QZ
+DTC10
+CLRZCLKD Q
+QZ
+DTC10
+CLRZCLKD Q
+QZ
+CLK
+RESETOUTPUT1
+OUTPUT2
+OUTPUT3
+OUTPUT4
+
+Design After Scan Insertion
+33DTC10
+CLRZCLKD Q
+QZ
+DTC10
+CLRZCLKD Q
+QZ
+DTC10
+CLRZCLKD Q
+QZ
+DTC10
+CLRZCLKD Q
+QZ
+CLK
+RESETOUTPUT1
+OUTPUT2
+OUTPUT3
+OUTPUT4DTC10
+CLRZCLKD Q
+QZSI
+SE
+DTC10
+CLRZCLKD Q
+QZSI
+SE
+DTC10
+CLRZCLKD Q
+QZSISE
+DTC10
+CLRZCLKD Q
+QZSI
+SESCAN ENABLESCAN DATA IN
+SCAN DATA OUT
+
+Shift Mode & Capture Mode
+34SE0
+1Q/SO D      Q
+CLKSID
+CLK
+
+Shift Mode & Capture Mode
+35SE0
+1Q/SO D      Q
+CLKSID
+CLK
+SCAN_ENCLK
+SERIAL SHIFT
+
+Shift Mode & Capture Mode
+36SE0
+1Q/SO D      Q
+CLKSID
+CLK
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURE
+
+Scan Waveform
+37COMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+X
+X
+XX X XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+1X X XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+10 X XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+1
+10 0 XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+1
+11 0 0Z
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+11 1 0Z
+Z
+Z
+0
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAN1
+0
+1
+0
+0
+01 1 0Z
+Z
+Z
+0
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAN1
+0
+1
+0
+01 0 11
+1
+0
+1
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+1
+10 1 0Z
+Z
+Z
+1
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURECOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+11 0 1Z
+Z
+Z
+0
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURECOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+10 1 0Z
+Z
+Z
+1
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURESERIAL SHIFTD
+SISEDSISEDSISEDSISE
+
+Scan Waveform
+38COMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+X
+X
+XX X XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+1X X XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+10 X XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+1
+10 0 XZ
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+1
+11 0 0Z
+Z
+Z
+X
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+11 1 0Z
+Z
+Z
+0
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLKCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAN1
+0
+1
+0
+0
+01 1 0Z
+Z
+Z
+0
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAN1
+0
+1
+0
+01 0 11
+1
+0
+1
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTCOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+1
+10 1 0Z
+Z
+Z
+1
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURECOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+11 0 1Z
+Z
+Z
+0
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURECOMBINATIONAL LOGIC
+D
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCAND
+Q
+CLKSD
+SCANX
+X
+X
+0
+10 1 0Z
+Z
+Z
+1
+SCAN_ENCLKSCAN_IN
+SCAN_OUT
+SCAN_ENCLK
+SERIAL SHIFTPARALLEL
+CAPTURESERIAL SHIFTD
+SISEDSISEDSISEDSISE
+At-Speed Testing.
+For delay faults.
+The capture pulse has to be “at -speed” .
+Need expensive ATE.
+
+Ports Required for Scan
+39Meaning Ports
+Scan Data Input to the 
+Chain
+Scan Chain EnableScan Data Output of the ChainNumber
+One required for each chain
+Only one per designOne required for 
+each chain SCAN_OUT
+SCAN_ENABLESCAN_IN
+Scan_Enable  switches between
+scan mode & functional mode
+
+ATPG
+•Automatic Test Pattern Generation
+•Test vectors / patterns contain:
+•Stimulus to be applied to primary inputs
+•Expected values to be checked at primary outputs
+•Involves performing Fault Simulation to evaluate coverage
+40
+
+Pattern Generation
+41Create Faultlist
+Create random patterns
+Fault Simulation
+Pick a fault
+Create a patternTest Pattern SetRandom ATPG
+Deterministic
+ ATPG
+Fault Simulation
+
+Fault Simulation
+•Given
+•A circuit
+•A test vector/pattern
+•A fault model
+•Determine
+•Fault coverage
+•Set of detected faults
+•Set of undetected faults
+•Update fault list
+42
+
+BIST
+43
+
+Built -In-Self -Test (BIST)
+•Add hardware so chip can test itself
+•Test pattern generator
+•Output response analyzer
+•Advantages of BIST
+•Can use less expensive test equipment
+•Apply more patterns
+•Can reuse for field testing (called online 
+testing)
+44
+Original 
+CircuitCircuit with BIST capability
+
+Built -In-Self -Test (BIST)
+•Disadvantages of BIST
+•Hardware overhead
+•Fault coverage may not be high 
+enough
+•May detect faults that don’t affect functional operation
+•False paths
+•Unreachable states
+•Need BIST -ready design
+•No X sources
+•No bus contention
+•No uninitialized registers etc.
+45
+Original 
+CircuitCircuit with BIST capability
+
+Logic BIST
+47
+
+Logic BIST
+•BIST test for the digital logic on the chip
+•This logic is usually tested using Scan on the ATE
+•But in cases where online/field testing is required, Logic BIST is 
+used
+•Many architectures
+48
+
+
+LBIST Advantages and Disadvantages
+•Advantages
+•Stimulus generation and response analysis done on-chip
+•Reduced test generation and application time
+•Can be run on low cost testers
+•Disadvantages
+•Area overhead
+•Need design modifications
+
+Logic BIST
+50
+•Multiple Chains 
+•Shortens Scan Length
+•Less Test TimeScan inserted 
+design
+
+Pattern Generation and Output Analysis
+51 
+ Internal Scan ChainsPRPG
+MISRPseudo Random Pattern Generator
+Multiple Input Signature RegisterCan’t store all required test patterns on chip. 
+So, use a PRPG. Reduces test length but sacrifices fault coverage.
+Combines and compresses input data into a signature.Can simply perform a checksum operation.
+
+Linear Feedback Shift Register
+•A shift register whose serial input bit is a linear function of the 
+current register bits
+•Call “linear” because uses mod-2 addition (XORs)
+•Proper choice of feedback connections ( taps)
+•Gives 2n-1 different patterns (misses all 0’s)
+•1000, 1100, 1110, 1111, 0111, 1011, 0101, 1010, 1101, 0110, 0011, 
+1001, 0100, 0010, 0001, 1000, … 
+
+
+Linear Feedback Shift Register
+•Feedback for maximum length sequence
+   n  Feedback  
+4,6,7   Q1 ⊕ Qn 
+5  Q2 ⊕ Q5 
+8  Q2 ⊕ Q3 ⊕ Q4 ⊕ Q8 
+12  Q1 ⊕ Q4 ⊕ Q6 ⊕ Q12 
+14,16   Q3 ⊕ Q4 ⊕ Q5 ⊕ Qn 
+24  Q1 ⊕ Q2 ⊕Q7 ⊕ Q24 
+32  Q1 ⊕ Q2 ⊕ Q22 ⊕ Q32 
+
+Modified LFSR
+•Modified LFSR
+•Generates all -0 pattern
+•Add an AND gate
+•When state is 0001, next state is 0000
+•When state is 0000, next state is 1000
+•Otherwise, the sequence is the same as before
+
+
+Multiple Input Signature Register
+•MISR
+•Compacts input stream into n-bit signature
+•2n possible signatures
+•Only 1 is correct and others indicate an error has occurred
+•“Aliasing”
+•Faulty signature maps to fault -free signature
+•Probability on order of 1/2n
+
+
+Memory Testing
+56
+
+Testing Memories
+•Embedded memories are the densest components within a 
+system -on-chip (SOC)
+•Memories are most sensitive to process defects
+•Memories account for large part of SOC area
+
+Memory Faults
+•Stuck -At Fault
+–Control signal or 
+Memory cell stuck -at 
+particular value
+•Stuck -at 0 
+•Stuck -at 1
+
+
+Memory Faults
+•Transition Faults
+–Control signals or memory cells cannot make transition from
+•1 to 0 (Down transition Fault)
+•0 to 1 (Up Transition fault) 
+
+
+Memory Faults 
+•Coupling Faults
+•One cell’s transition impacts the value in another cell
+
+Memory Faults
+•Neighborhood Pattern Sensitive Faults
+–Write operation on a group of surrounding cells 
+effects the value of one or more neighboring cells.
+
+Memory Testing Techniques
+•Direct access to embedded memories from an external Automatic 
+Test Equipment
+•Patterns are applied from an external ATE
+•Advantages
+•Straightforward to change the test algorithms
+•Disadvantages
+•Increasing memory sizes require larger test set, this increases tester cost
+•For proper testing of memories at high speed memory test must operate at high speed as 
+well. This requires very expensive ATE
+•Due to pin constraints, it is difficult to provide direct access for every embedded memory
+
+Memory Testing Techniques
+•Embedded CPU
+•Advantages
+•No hardware modifications are required (assuming a CPU is available on the chip 
+already)
+•Test algorithms can be modified
+•Disadvantages
+•Might not always have access to all memories
+•Hard to test memories that store memory test programs
+
+Memory Testing Techniques
+•Built In Self Test (BIST)
+•Advantages
+•BIST can run at system speed which improves fault detection capability. Don’t need 
+a costly ATE.
+•A chip spends much less amount of time on the ATE (compared to if the ATE was 
+sending in all patterns)
+•BIST can provide diagnostic resolution down to one memory cell
+•Allows testing multiple memory blocks in parallel → reduced test time
+•Disadvantage
+•Hardware overhead
+•However with increase memory sizes the overhead is relatively small
+•Performance penalty
+
+BIST Area overhead
+
+
+Memory Testing Algorithms
+•Address Decoder Algorithm
+•Used to check stuck-at faults in address decoder
+•Write to a neighboring address with hamming distance of one and check if 
+this also writes to the base cell
+•Steps
+•Step 1: Write 000..0 at address location 1010 (base address)
+•Step 2: Write 111..1 at address location 1000 (testing address)
+•Step 3: Read the data at base address and testing address
+•Step 4: If base address shows a value of 1 then error on address[1]
+
+Memory Testing Algorithms
+•March Algorithm
+–Run with varying data backgrounds
+
+
+Memory Testing Algorithms
+•March Algorithm
+•Variations
+•March X, March C, March C -
+•Test Length
+•7N, 11N, 13N (N=no of memory locations)
+•Fault Coverage
+•Stuck at Faults (SAFs), Transition Faults (TFs), Address Decoder Faults (AFs), 
+Inversion Coupling Faults ( CFins ), Static/State Coupling Faults ( CFsts ) and 
+Idempotent coupling Faults (CFid ).
+
+Memory Testing Algorithms
+•Checkerboard Algorithm
+–Cells are divided into two groups cell -a and cell -b, 
+forming  a checkerboard pattern such that every 
+neighboring cell is in different group
+•Step 1:Write 1 in all cell -a and 0 in cell -b
+•Step 2:Read all cells
+•Step 3:Write 0 in all cell -a and 1 in cell -b
+•Step 4:Read all cells
+
+Memory Testing Algorithms
+•Checkerboard Algorithm 
+•Detects shorts between adjacent cells
+•Not all address decoder faults are detected
+•Stuck -at faults can be detected as long as address decoder is correct
+•Not all coupling faults are detected
+•Worst case test for leakage between adjacent cells
+–Each cell containing a one is surrounded by zeros
+•Test Length =                 (N=Total Address Bits)
+
+Memory BIST Architecture
+71
+MemoryBIST 
+Controller
+
+Memory BIST Architecture
+72
+Memory BIST 
+Controller
+Test Controller
+Test Pattern
+ Generator
+Comparator
+For ROM, comparator is MISR
+
+Memory BIST Architecture
+73
+Memory
+BIST CollarFunctional I/Os 
+BIST 
+Controller
+Test Controller
+Test Pattern
+ Generator
+Comparator
+Why need the BIST collar?
+
+Memory BIST Architecture
+74
+Memory
+BIST CollarFunctional I/Os 
+BIST 
+Controller
+Diagnostic Block
+Test Controller
+Test Pattern
+ Generator
+Comparator
+Why need the diagnostic block?
+
+Memory BIST Architecture
+75
+Memory
+BIST CollarFunctional I/Os 
+BIST 
+Controller
+Bypass Logic
+Diagnostic Block
+Test Controller
+Test Pattern
+ Generator
+Comparator
+Why need the bypass logic?
+
+Sharing of BIST controllers
+76
+Memory BIST
+controller
+Memory
+#1
+Memory
+#2
+Functional logic
+
+Memory BIST operation sequence
+78
+
+
+Other Testing Aspects
+79
+
+Testing Analog Blocks
+•Multiple methods
+•Analog BIST
+•Add BIST logic that applies inputs and compares outputs
+•Generating analog inputs takes a lot of hardware
+•Storing expected analog outputs also is impractical
+•Very simple testing can usually be done using BIST
+•Expose analog block inputs and outputs to the PIs and POs of the chip
+•More common method
+•Use ATE to apply inputs and compare outputs
+•Analog Blocks during Scan
+•Add additional “wrappers” to avoid X poisoning
+80
+
+MEMORYMEMORY
+ANALOGANALOG
+DIGITAL BLOCK
+DIGITAL 
+BLOCKDIGITAL 
+BLOCK
+DIGITAL BLOCKClk & Rst 
+JTAG PADMUX
+ANALOG
+Test ControllerPADMUXPADMUXExposing Analog Blocks to PI/PO
+
+IDDQ Testing
+82
+
+Burn -In
+•To accelerate device aging and screen out devices which can have 
+infant mortality. Stress testing.
+83
+
+Testing Equipment
+84
+
+Testers
+•Automated Test Equipment (ATE)
+•Very expensive
+•Each second on tester adds significantly to cost of chip
+•Test time very important
+•Limited amount of memory, channels, speed
+
+86TEST HEADCONSOLETEST 
+SYSTEM
+DUTTeradyne J973 Test System
+
+87
+Teradyne J750Test System
+
+Automatic Test Equipment
+89
+
+
+Low Cost Testers
+91
+
+
+Different levels of testing
+•Wafer test 
+•Test device while it is still on the wafer
+•Try to do as much testing as possible here
+•Separate good die from bad die before packaging
+•Chip level test
+•Test device after it is packaged
+•Ensure assembly/packaging is correct
+•Board level test
+•After the chip has been installed on the board (PCB)
+•Ensure connectivity with other chips
+92
+
+
+Yield and DPPM
+•Yield :
+•The fraction of good chips produced during manufacturing
+•DPPM :
+•Defective parts per million
+93
+
+Test Cost
+94Source: ITRS Test and Test Equipment 2007DPPM

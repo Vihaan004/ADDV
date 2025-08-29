@@ -1,0 +1,676 @@
+BY : AKARSH HEBBAR
+O VERVIEW O F SYSTEM O N C HIP
+A  Compr ehens i v e Gui de t o S oC A r ch &  D es i gn
+
+I ntr oducti on to S oC
+U nder sta ndi ng So C
+S oC Desi gn Cha l l enges
+I P ' s  t o t he r es cue
+S oC Components [ M obi l e]
+CPU a nd  GPU
+AI a n d  Me m o ry
+Me m o ry Sub syste m  –  I nt er connect ,  S L C &  M emor y  Cont r ol l er
+C lo c ks, Inte rrup ts a nd  Syste m  Ad d re ss Ma p
+S oC Compar i s onsO u tlin e
+
+So C
+S oC’ s  ar e ev er ywher e…
+
+
+Wha t is a  Syste m -on-Chip (SoC)?
+De fin itio n : 
+uAn So C  is a sin g le  c h ip  tha t i nte gra te s  a ll m a jo r  components  of a 
+computi ng  syste m : C PU,  G P U,  NPU,  CP/M odem,  memor y,  an al og/di gi t al  
+m o d u le s,  i nt er f aces ,  a nd  o fte n  so ftwa re .
+An a lo g y : If the CPU  is the b ra in ,  So C  is the e n tire  body  — in t e g ra tin g  
+h e a rt,  ey es ,  a nd  ha nds .
+Sc o p e :
+uNa rro w : C o re  in te g ra tio n  on a c h ip .
+uBro a d : A compl et e m in ia tu re  syste m .
+
+S oC Composi ti on
+K ey M odul es :
+XP U’ s -> C PU, G PU, NPU….
+I nt er connect  and S y s t em l ev el  Cache – Coher ent, Non-Coher ent 
+Me m o ry – Me m o ry c o n tro lle r, PHY, DRAM…
+Multim e d ia , Aud io , Se nso rs, DSP, Se c urity
+I /O i nt er f aces  ( U S B ,  P CI e,  CX L ,  et c. )
+A D C/D A C f or  anal og i nt er f aces
+P ower  and Cl ock  management
+RF m o d u le s
+So ftw a re :
+Of t en i ncl udes  embedded OS ,  dr i v er s ,  or  appl i cat i on s of t war e.
+
+uA syste m -on-chi p ar chi t ect ur e i nt egr at es  s ev er al  het er ogeneous  
+components on a  si ngl e chi pT yp ic a l So C  A r chi t ect ur e
+A  k ey  chal l enge i s  t o 
+desi gn the communi ca ti on or  i nt egr at ed bet ween t he di f f er ent  ent i t i es  of  a So C ….
+R esul ti ng 1 wor d : 
+C O M P LEXITY
+
+uS mal l er  dev i ce geomet r i es ,  new pr oces s  node 
+uNew pa cka gi ng techni ques
+uHig h e r d e n sit y in t e g ra t io n
+uL ow P ower  r equi r ement
+uH i gher  f r equenci es
+uDe sig n  C o m p le xit y 
+uV er i f i cat i on,  at  di f f er ent  l ev el s
+uTim e -to-m a rke t p re ssu reSo C  De sig n  C h a lle n g e s!!
+
+S oC D es i gn P r oces s  node chal l enges ! !
+
+
+T echnol ogy Ba s ic P ar adi gmB as i c M et hod o f 
+I mpr ovement s with in  
+T echnol ogy P ar adi gm
+C h ip s onBo a rd
+(C O B)Mounti ng ofICc h ip s
+di r ect l y onP C BsS ubsti tuti ng d iffe re n t
+mat er i al s to re d u c in g
+i nt er connect d e la ys
+Syste m inP ack age 
+(SIP )S t ack ed c h ip s o r 
+pack ages fo r r educed
+fo rm fa c to rIm p ro v in g per f or mance 
+a nd power ef f i ci ency b y 
+sh o rt di r ect connecti on 
+cha nnel s
+Syste m onC h ip
+(SO C )C o m p le te syste m on
+ac h ipR educi ng fo rm fa c to r, power
+consumpti on, he a t 
+d issip a t io n , an al og m ixe d  
+sig n a l in t e g ra t io nT echnol ogy  P ar adi gm
+
+Compar i son  of C O B,  SIP & SO C
+COB SIP SO C
+Pe rfo rm a n c e  
+( S peed, Po w e r, 
+F r equency )W M B
+Fo rm Fa c t o r W M B
+Sig n a l p ro c e ss
+p a c kin g d e n sit yW M B
+C o st inv o lu m e W M B
+Th e r m a l
+d issip a t io nB W M
+Fu n c t io n a lit y W M B
+
+•With thep ro c e sso r s peed
+re m a in in g consta nt
+•Sm a lle r c h ip =Poor er power  e ffi cency
+•Asthe p ro c e sso r s peed i ncr eas es , power
+consumpti on i ncr eas es atahi gher ra te
+C urre nt  L im its  of So C  - Po we r
+
+uU se a  known r ea l  enti ty
+uA p re -des i gned component  ( I P  r eus e)  or  I P  bas ed des i gn
+uA p la tfo rm  (a rc h ite c tu re  re u se ) o r Pla tfo rm  b a se d  d e sig n
+uPa rt it io n
+uB a sed on f uncti ona l i ty
+uH ar dw ar e an d s of t w ar e
+uMo d e lin g
+uA t  di f f er ent  l ev el
+uConsi stent a nd a ccur a teConqueri ng the compl exi ty
+
+
+uIn t e lle c t u a l Pro p e rt y
+uP ar amet er i z ed compon en t s  w i t h  s t an dar d i n t er f aces  f aci l i t at i n g 
+hi gh l evel  synthesi s
+uI P s  av ai l abl e i n t hr ee f or ms
+uHa rd
+uBla c k -box  i n opti mi z ed l a yout f or m a nd encr ypted si mul ati on 
+model .  E x ampl e:  mi cr opr oces s or s
+uFirm
+uS ynthesi z ed n e t list  whi ch ca n be si mul ated a nd cha nged i f  
+needed
+uSo ft
+uR egi s t er  t r ans f er  l ev el  ( R T L )  H D L s ;  us er  i s  r es pons i bl e f or  synthesi s a nd l a youtIP B a se d De sign
+
+Re u sa b ilit y 
+por tabi l i ty
+fle xib ilit y
+P r edi ct abi l i t y ,  per f or mance,  t i me t o mar k etSo ft
+Ma c ro
+Firm
+Ma c ro
+Ha rd
+Ma c roTr a d e -o ff a m o n g  so ft, firm , a n d  h a rd  Ma c ro sIP Re u s e
+
+IP’s w ith in  a  SO C
+
+T yp ic a l Sm a rtp h o n e  Pla tfo rm
+
+
+Components of  a T ypi cal  M obi l e S oC
+XPU’s :
+C e n tra l Pro c e ssin g  Un it (C PU)
+ARM -bas ed mul ti -c o re  p ro c e sso r (e .g ., C o rte x -A, c usto m  
+c o re s)
+M anages  gener al -pur pos e computi ng tas k s
+G ra p h ic s Pro c e ssin g  Un it (G PU)
+H a ndl es r ender i ng f or  U I , ga mes, a nd mul ti medi a
+S uppor ts API s l i ke V ul ka n, OpenGL
+N eur al  P r oces s i ng U ni t  ( N P U )  / A I  A ccel er at or
+E x ecutes ma chi ne l ea r ni ng ta sks ef f i ci entl y
+En a b le s fe a t u re s like  im a g e  re c o g n it io n  a n d  v o ic e  a ssist a n t s
+* I P ’ s  i n gol den ar e cov er ed i n t hi s  pr es ent at i on
+
+Components of  a T ypi cal  M obi l e S oC
+I mage S i gnal  P r oces s or  ( I S P )
+P r oces s es  camer a dat a f or  phot ogr aphy  and v i deo
+Supports mul ti -camer a i n pu t  an d r eal -t i me enhancement s
+Dig ita l Sig n a l Pro c e sso r (DSP)
+Opt i mi z ed f or  audi o,  v oi ce,  and s ens or  dat a pr oces s i ng
+Power s  l ow -pow er ,  al w ay s -on f ea tur es
+M odem / B as eband P r oces s or
+E nabl es  cel l ul ar  connect i v i t y  ( 4 G/5 G)
+Of t en i nt egr at ed or  pai r ed wi t h ex t er nal  R F  f r ont -end
+M emor y I nt er f aces
+LPDDR4/ 5 c o n tro lle r fo r syste m  m e m o ry
+I nt egr at ed cache memor y  ( L 1 ,  L 2 ,  L 3 )
+Mu ltim e d ia  En g in e
+H ar dwar e s uppor t  f or  v i deo encode/decode ( H . 2 6 4 ,  H E V C,  A V 1 )
+I nt egr at ed audi o codecs* I P ’ s  i n gol den ar e cov er ed i n t hi s  pr es ent at i on
+
+Components of  a T ypi cal  M obi l e S oC
+Disp la y C o n tro lle r
+Drive s d isp la y o u tp u t (re so lu tio n , re fre sh  ra te )
+S uppor ts hi gh-re fre sh -r at e di s pl ay s
+S ecur i t y S ubs ys t em
+T r usted E x ecuti on E nvi r onment (T E E )
+E ncr y pt i on engi nes  and bi omet r i c s ecur i t y
+Power Management U ni t (PMU )
+Dyna mi c power  sca l i ng a nd r egul a ti on
+S uppor t s  bat t er y  ef f i ci ency  and t her mal  cont r ol
+I nt er connect  / N oC ( N et wor k -on-C h ip )
+Hig h -s peed i n t er n al  dat a pat h w ay s  ( e. g. ,  A X I /A M B A )
+Lin ks C PU, G PU, m e m o ry, a n d  p e rip h e ra ls
+P er i pher al  I nt er f aces
+Sup p o rt fo r USB, PC Ie , SDIO , I2C , SPI, UART
+Connects to ex ter na l  components a nd sensor s* I P ’ s  i n gol den ar e cov er ed i n t hi s  pr es ent at i on
+
+CPU p ip e lin e
+
+
+H et er ogeneous  A r chi t ect ur e
+H et er ogeneous  A r chi t ect ur e: I t ' s  a het er ogeneous  comput i ng ar chi t ect ur e,  meani ng i t  us es  t wo 
+di f f er ent  t y pes  of  pr oces s or  cor es :  " bi g"  cor es  and " L I T T L E "  cor es .
+Big  C o re s: Desi gned for  hi gh per for ma nce a nd ha ndl i ng dema ndi ng ta sks l i ke ga mi ng or  web 
+b ro w sin g .
+LITTLE C o r e s : D es i gned f or  power  ef f i ci ency  and handl i ng l es s  demandi ng t as k s  l i k e t ex t i ng or  
+back gr ound pr oces s es .
+Dyn a m ic  Allo c a t io n : T he oper a ti ng system a nd schedul i ng softwa r e dyna mi cal l y a ssi gn ta sks to 
+t he appr opr i at e cor es  bas ed on t he r equi r ed per f or mance.  T hi s  opt i mi z es  bot h per f or mance and 
+b a tte ry li fe .
+
+G ra p h ic p ip e lin e inGPU
+
+CPU
+–Re a lly fa st caches (g re a t fo rd a ta re u se )
+–Fin e br a nchi ng g ra n u la rity
+–Lo t s ofd iffe re n t p ro c e sse s/ thre a d s
+–Hig h p e rfo rm a n c e onasin g le th re a d ofex ecut i on 
+GPU
+–Lo t s ofma th uni ts
+–Fa st acces s toonboar d memor y
+–Ru n ap ro g ra m oneach f r agment /v er t ex
+–Hig h thr oughput onp a ra lle l ta sks
+●C PUs a re g re a t fo rta sk p a ra lle lism
+●G PUs a re g re a t fo rd a ta p a ra lle lismCPU vsGPU (GPGPU)
+
+SIMD (sin g le i nstr ucti on, m u lt ip le
+da ta )
+8-16Stre a m c o re ineach p ro c e sso r
+PE( pr oces s el ement ) /A LU
+Id e a l  apps  to ta rg e t  GPGPU
+–La rg e  d a ta  se ts
+–Hig h  p a ra lle lism
+–Min im a l  dependenci es  bet ween  
+d a ta  el ement s
+–Hig h  a rit h m e t ic  in t e n sit y
+–Lo t s of wo rk  to do wi thout  CPU  
+in t e rv e n t io nGPGPU
+
+
+E dge A I C lo u d -based A I
+A r chi t ect ur e P r oces s i ng occur s  at  L ocal  
+dev i ceP r oces s i ng occur s  at  
+cent r al i z ed s er v er s
+L at ency Lo w e r Hig h e r
+B andwi dt h U sage L ower  ba ndwi dth usa ge H i gher  ba ndwi dth costs
+P r i v acy and S ecur i t y Se c u rit y risks a re  m it ig a t e d Risk in v o lv e d
+O fflin e  Fu n c tio n a lity I ndependent of  
+conti nuous i nter net 
+connect i v i t yConti nuous i nter net 
+connect i on
+Re so u rc e  Utiliza tio n Opt i mi z es  r es our ce 
+u t iliza t io nR obust cl oud i nf r a str uctur eE dge A I  V s Cl oud- based A I  
+
+uB as ed on  a s cal abl e 
+A I  comput e f abr i c
+uPip e lin e d  flo w fo r fa st l ea r ni ng a nd i nf er r i ng
+uF l ex i bl e ar chi t ect ur e su ita b le  fo r c lo u d , 
+gat eway  and edge 
+ai
+uAllo w s u p -sc a lin g  t o  
+m u lti -chi p sol uti onsAi c o m p u t e  fa b ric
+Mu lt ip le  p a ra lle l d a t a  
+stre a m sS cal abl e an d p a rtitio n a b leE ner gy  ef f i ci ent
+Fa st (up  to 2-4g hz)
+contr ol  pr oces s or  ( AN D E S ,  
+ARM, MIPS, risc -v, e tc .)
+L ea r ni ng (ca l cul a ti ons, 
+a l gor i thm ex ecuti on, c o m p a rin g , m o d e l updat es )
+In fe rrin g  [a lg o rith m  
+updat e,  deci s i on mak i ng)
+io i nte rfa c e  to multi -c h ip  
+sol uti onsAI Compute 
+FabricInput Data Buffer, 
+Memory & Control
+Output Data Buffer, 
+Memory & ControlControl 
+Processor
+IO 
+Inter
+face
+sROM/
+SRAM
+PLL & 
+PMM
+ultiple
+D
+ata
+ 
+StreamsAI-H W  H i gh l ev el  ar chi t ect ur e
+
+A I  accel er at or  A S I C pl at f or m:  mul t i -
+c h ip  so lu tio n s
+AI Compute FabricInput Data Buffer, 
+Memory & Control
+Output Data Buffer, 
+Memory & ControlAI Compute FabricInput Data Buffer, 
+Memory & Control
+Output Data Buffer, 
+Memory & Control
+AI Compute FabricInput Data Buffer, 
+Memory & Control
+Output Data Buffer, 
+Memory & ControlAI Compute FabricInput Data Buffer, 
+Memory & Control
+Output Data Buffer, 
+Memory & ControlHost IO: PCIe -4
+Switch & Flow 
+Control SOC To Cloud
+Or Cards/Racks
+Host IO: PCIe -4uUp-sc a la b le  SO C  & 
+s y s t em ar chi t ect ur e
+uSu ita b le  fo r m a ssiv e  d a ta  p ro c e ssing
+uConnect i v i t y  t o s er v er  ra c ks o r c lo u d  v ia  n e two rk
+
+Me m o ry subsyste m  A r chi t ect ur e
+
+
+Me m o ry Wa ll
+Wh a t  is t h e  m e m o ry w a ll?
+ T h e  g ro w in g  d isp a rity bet ween comput at i on s peed a nd memor y ba ndwi dth tha t l i mi t s  s y s t em per f or mance i n computi ng.
+T he r at e of  i mpr ov ement  i n 
+memor y  per f or mance due t o l i mi t ed I /O and decr eas i ng sig n a l in te g rity.
+W e s pend mor e t i me wai t i ng 
+fo r d a ta  fro m  m e m o ry, l eadi ng t o a bot t l eneck  i ns t ead of  bei ng comput e bound.
+
+I nterconnect i n S OC
+I nt er connect re fe rs to  th e n e two rk in fra stru c tu re t hat  connect s  al l  t he di f f er ent  
+f unct i onal  bl ock s  ( l i k e pr oces s or  cor es ,  memor y ,  per i pher al s ,  and ot her  s peci al i z ed 
+ha r dwa r e) wi thi n the si ngl e chi p. I t i s essenti a l l y the communi ca ti on ba ckbone tha t 
+al l ows  t hes e di v er s e component s  t o communi cat e and ex change dat a ef f i ci ent l y .
+Why?
+u En a b lin g  Da ta  Flo w a n d  C o m m u n ic a tio n :T he i nter connect a l l ows di ffer ent bl ocks wi thi n the 
+S oC t o s end and r ecei v e i ns t r uct i ons  and dat a,  enabl i ng t hem t o wor k  t oget her  t o per f or m 
+compl ex  t as k s .
+u Managi ng Perf ormance: A w e ll- des i gned i nt er connect  can mi ni mi z e l at ency  and max i mi z e 
+t hr oughput ,  l eadi ng t o i mpr ov ed ov er al l  s y s t em per f or mance.  T hi s  i s  es peci al l y  cr i t i cal  i n p e rfo rm a n c e -se n sitiv e  a p p lic a tio n s like  C PU a n d  G PU in t e ra c t io n s. Also  h a n d le  Q o S e ffe c t iv e ly.
+u Ad d re ssin g  Sc a la b ility Issu e s: A s  S oCs  become mor e compl ex  wi t h a gr owi ng number  of  cor es  
+a nd functi onal i ti es, tr a di ti onal  bus -bas ed i nt er connect s  can become bot t l eneck s .  M oder n 
+i nt er connect  t echnol ogi es  l i k e N et wor k -on-Chi p ( N oC)  addr es s  t hes e s cal abi l i t y  chal l enges .
+u E nabl i ng Cache Coherency: I n mul ti -pr oces s or  S oCs ,  mai nt ai ni ng dat a cons i s t ency  acr os s  
+di f f er ent  pr oces s or  caches  i s  cr uci al .  Coher ent  i nt er connect s  l i k e N oC hel p ens ur e cache coher ence,  pr ev ent i ng dat a i ncons i s t enci es .
+u S upporti ng Power Management: I nt er connect s  can f aci l i t at e power  management  by  enabl i ng 
+power -down of i na cti ve components, whi ch i s cr uci al  for  ener gy conser va ti on a nd ther ma l  
+management  i n por t abl e dev i ces .
+u S upport E ncrypti on and E CC: M echani s ms  t o det ect  and cor r ect  er r or s  i n dat a t r ans mi s s i on,  
+ensur i ng da ta  i ntegr i ty [S E CDE D]. Al so encr ypti on suppor t l i ke AE S . 
+
+I nt er connect  R es pons i bi l i t i es
+Communi cati on P r otocol s: T he i nter connect ena bl es communi ca ti on by ha ndl i ng 
+di f f er ent communi ca ti on pr otocol s used by va r i ous bl ocks wi thi n the So C .
+D at a and Cont r ol  T r ans por t : T he i nter connect i s r esponsi bl e f or  tr a nspor ti ng both 
+da ta  a nd contr ol  si gna l s between di f f er ent f uncti ona l  bl ocks.
+Arbi trati on and R outi ng: W hen mul t i pl e component s  t r y  t o acces s  t he s ame 
+r es our ce,  t he i nt er connect  us es  ar bi t r at i on l ogi c t o manage acces s  and ens ur e 
+ef f i ci ent  r es our ce al l ocat i on.  R out i ng mechani s ms  ens ur e dat a pack et s  r each t hei r  
+i ntended desti na ti ons.
+Q u a lity o f Se rvic e  (Q o S): A dv anced i nt er connect s  can i mpl ement  QoS  mechani s ms  
+to  p rio ritize  tra ffic  a n d  e n su re  re a l -t i me per f or mance f or  cr i t i cal  t as k s .
+P ower  D omai n Cr ossi ng: I nt er connect s  can handl e communi cat i on bet ween bl ock s  
+oper at i ng i n di f f er ent  cl ock  and power  domai ns .
+I n essence, the i nter connecti on i n a n S oC i s much mor e tha n j ust a  col l ecti on of  wi r es. 
+I t i s a  sop hi sti c a te d  ne twork tha t ma na ge s a ll a sp e c ts of on -chi p communi ca ti on, 
+ena bl i ng ef f i ci ent da ta  ex cha nge, f a ci l i ta ti ng system f uncti ona l i ty, a nd contr i buti ng to 
+t he ov er al l  per f or mance and power  ef f i ci ency  of  t he So C .
+
+E vol uti on of  I nterconnect
+Ba sic  t o p o lo g ie s
+
+N oC/I nt er connect  D es i gn f l ow
+
+
+I nt er connect  A r chi t ect ur e L ayer s  
+F uncti onal i ty i s gr ouped i nto the fol l owi ng l a yer s:
+u Th e  P r otocol  l ayer  i s  t he t opmos t  l ay er  i n t he ar chi t ect ur e.  T he 
+func tion of the  Protoc ol  la ye r is to :
+uGener at e and pr oces s  r eques t s  and r es pons es  at  t he 
+pr otocol  nodes .  
+uD ef i ne t he t r ans act i on f l ows  f or  each r eques t  t y pe.
+uM anage t he pr ot ocol  l ev el  f l ow cont r ol .
+u T he functi on of the Network la yer  is to  :
+uP ack et i z e t he pr ot ocol  mes s age.  
+uD et er mi ne t he s our ce and t ar get  N ode I D s  r equi r ed t o r out e t he pack et  ov er  t he i nt er connect  t o t he r equi r ed des t i nat i on and add t o t he pack et
+u T he functi on of the L in k la ye r is to  : 
+uP r ov i de f l ow cont r ol  bet ween net wor k  dev i ces .  
+uMa na ge l i nk cha nnel s to pr ovi de dea dl ock -f r ee s wi t chi ng 
+acr os s  t he net wor k .
+
+
+ARM AMBA ROADMAP
+
+
+A R M  I nt er connect  P r ot ocol s  -  AMBA
+uAMBA is a  fre e ly a v a ila b le , g lo b a lly a d o p t e d , o p e n  st a n d a rd  fo r t h e  
+connecti on a nd ma na gement of  f uncti ona l  bl ocks i n a  system -on-c h ip  (So C ).
+u It  fa c ilit a t e s rig h t -first-t i me dev el opment  of  mul t i -p ro c e sso r d e sig ns, with la rg e  
+n u m b e rs o f c o n tro lle rs a n d  p e rip h e ra ls.
+uCoher ent  H ub I nt er f ace ( CH I )  i s a n evol uti on of  the AX I  Coherency E xtensi ons 
+( AC E)  protoc ol . I t i s pa rt of the  A dv anced M i cr ocont r ol l er  B us  A r chi t ect ur e 
+(AMBA). 
+
+Fe a tu re AXI AHB
+Fu ll Fo rm A dv anced eX t ens i bl e I nt er f aceA dv anced H i gh -per f or mance 
+Bu s
+AMBA Ve rsion AMBA 3 & 4 AMBA 2
+A r chi t ect ur e T ype Po in t -to-p o in t S ha r ed bus
+Pip e lin in gD eep pi pel i ni ng ( r ead/wr i t e 
+addr es s  &  dat a)Lim ite d  p ip e lin in g
+Burst T ra nsfe rsY e s, with fle xib le  b urst typ e s 
+(INCR, WRAP, e tc .)Y e s, b ut le ss fle xib le
+Out-of-O rd e r T ra nsa c tio nsSu p p o rte d  (IDs a llo w  m u ltip le  outsta ndi ng tr a nsa cti ons)Not sup p orte d
+R ead/W ri te Channel sS epar at e channel s  ( 5 :  r ead addr es s ,  r ead dat a,  wr i t e 
+a d d re ss, w rite  d a ta , w rite  
+re sp o nse )Combi ned r ead/wr i t e dat a 
+a nd a ddr ess cha nnel
+Da ta  Bus Wid th 32, 64, 128, 256, 512, 1024 b i ts T yp i c a lly, 32 or 64 b i ts
+L at ency Lo w e r d u e  to  p a ra lle lism H i gher  compar ed t o A X I
+T hroughput Hig h e r Mo d e ra te
+Q o S Su p p o rt Ye s No
+Su p p o rt fo r Mu ltip le  Ma ste rsY e s (with a rb itra tion outsid e  of 
+i nt er f ace)Y e s (with c e ntra l a rb itra tion)
+Erro r Ha nd ling Ad va n c e d  e rro r sig n a lin g Ba sic  e rro r sig n a lin g
+U se  Ca se sHig h -per f or mance s y s t ems  
+(e .g ., CPUs, G PUs)Mid-per f or mance s y s t ems  ( e. g. ,  
+m ic ro c o n tro lle rs)AXI Vs AHB 
+
+ACE  vs CH I
+uACE  wa s desi gned a s a n ex tensi on to AX I  to ha ndl e coher ency, but i t 
+is no t witho ut sho rtfa lls. It se rve d  d e sig ns with sm a lle r c o he re nt c luste rs 
+wel l ,  but  as  S oCs  and s y s t em becomes  mor e compl ex  and t he 
+number  of  pr oces s or s  i ncr eas ed,  t he need f or  bet t er  coher ency  and ef f i ci ency  i ncr eas ed.
+uA r m r el eas ed a pack et -bas ed l ay er ed coher ency  ar chi t ect ur e,  
+wi thout dependenci es on AX I  or  ACE . CH I  wa s bui l t wi th per f or ma nce 
+i mpr ovement a nd sca l a bi l i ty i n mi nd of  a ppl i ca ti ons a nd systems such 
+as  mobi l e,  net wor k i ng,  aut omot i v e and dat a cent er .
+
+
+K ey CH I  F eat ur es
+u S cal abl e ar chi t ect ur e
+u I ndependent  l ay er ed appr oach,  compr i s i ng of  P r ot ocol ,  N et wor k ,  and L i nk  l ay er ,  wi t h di s t i nct  
+fu n c tio n a litie s.
+u P ack et -ba sed communi ca ti on.
+u Al l  tr a nsa cti ons ha ndl ed by a n i nter connect -bas ed H ome N ode t hat  co -o rd in a te s re q u ire d  sn o o p s, 
+cache,  and memor y  acces s es .
+u T he CH I  coher ence pr ot ocol  s uppor t s :  
+u Coher ency gr a nul e of  64 -by t e cache l i ne.
+u Sno o p  filte r a nd  d ire c to ry b a se d  syste m s fo r sno o p  sc a ling .
+u B ot h  M E S I  an d M OE S I  cach e model s  wi t h  f or war di n g of  dat a f r om an y  cach e s t at e.
+u A ddi t i onal  par t i al  and empt y  cache l i ne s t at es .
+u S uppor ts V i r tua l  Memor y Ma na gement thr ough DV M oper a ti ons.
+u S uppor ts Ca che S ta shi ng a nd a tomi c oper a ti ons
+u R eques t  R et r y  t o manage pr ot ocol  r es our ces .
+u Su p p o rt fo r e n d -to-e n d  Q o S.
+u R A S  f eat ur es .
+u S uppor t f or  MT E (Memor y T a ggi ng E x tensi on).
+
+D2D usi ng AMBA CHI C2C
+CH I  C2 C f ocus es  on t he pr ot ocol  and pack et i z at i on l ay er s .  CH I  C2 C l ev er ages  t he ex i s t i ng on -c h ip  C HI p ro to c o l a n d  d e fin e s h o w  it  is 
+pack et i z ed,  mak i ng i t  s ui t abl e t o be t r ans por t ed ov er  a chi p( l et ) -to-c h ip (le t) lin k. Th e  p a c ke tiza tio n  fo rm a t o p tim ize s fo r lin k  u tiliza tio n  
+and l at ency ,  whi l e av oi di ng compl ex  pack i ng and unpack i ng s chemes .
+U si ng CH I  and U CI e S tr eami ng
+Th is  pr ovi des  a mul t i -s t ack  appr oach,  whi ch al l ows  mul t i pl e pr ot ocol s  t o be us ed acr os s  a s i ngl e phy s i cal  l i nk .  
+P CI e and CX L  can be us ed f or  t r adi t i onal  of f -chi p dev i ces
+S t r eami ng i nt er f ace can be us ed t o pl ug i n ot her  pr ot ocol s  – ma ki ng i t i d e a l to tra nsp ort AMB A CHI .
+B el ow we i l l us t r at e an ex ampl e of  a mul t i -d ie , C HI -b a se d  syste m  using  UC Ie  Stre a m ing . It ha s sig nific a nt b e ne fits:
+S eaml es s  us e of  ar chi t ect ur e- s peci f i c f eat ur es  -- tra nsp orti ng the  sa me  on -chi p CH I  pr ot ocol  al l ows  s eaml es s  us e of  ar chi t ect ur e-
+s peci f i c f eat ur es  wi t hout  pr ot ocol  conv er s i on.
+L ink ro b ustne ss -- t he U CI e s t r eami ng i nt er f ace pr ov i des  l i nk  r obus t nes s  us i ng,  f or  ex ampl e,  U CI e def i ned dat a -l i nk CR C and r etr ie s.
+
+Syste m -L ev el  Cache ( S L C) /L as t -L ev el  Cache ( L L C)
+Th is  i s  a cache memor y  s har ed among t he di f f er ent  pr oces s i ng 
+uni t s  ( l i k e CP U  cor es ,  GP U s ,  and ot her  accel er at or s )  on t he 
+chi p.  T hi s  cont r as t s  wi t h t r adi t i onal  cache hi er ar chi es  wher e 
+l ower  l ev el s  ( l i k e L 1  or  L 2 )  mi ght  be pr i v at e t o i ndi v i dual  cor es .
+T hes e caches  can  be ei t her  Coher ent ,  I O -Coher ent or  N on -
+Coher ent.Purp o se  o f Syste m -L ev el  Cache:
+I mpr ov e per f or mance: B r i dges  t he s peed gap bet ween t he f as t  
+pr ocessi ng uni ts a nd the sl ower  ma i n memor y (DR AM). R educes 
+l a tency a nd i ncr ea ses da ta  thr oughput.
+F aci l i t at e dat a s har i ng and communi cat i on: I n a  multi c ore  syste m, a  
+s har ed S L C al l ows  di f f er ent  cor es  t o acces s  t he s ame dat a mor e qui ckl y a nd effi ci entl y wi thout ha vi ng to go thr ough the sl ower  ma i n 
+memor y.
+R educe power  cons umpt i on: A cces s i ng on -chi p cache i s  
+s i gni f i cant l y  mor e ener gy -ef f i ci ent  t han acces s i ng of f -c h ip  DRAM.
+Opt i mi z e memor y usage: S ha r i ng a  l a r ge ca che a mong mul ti pl e 
+cor es  can be mor e ef f i ci ent  t han hav i ng s mal l er ,  dedi cat ed caches  
+f or  each cor e,  es peci al l y  when cor es  don' t  need equal  amount s  of  cache s pace.
+
+Me m o ry c o n tro lle r’s p rim a ry fu n c tio n  is to man age t h e f l ow  of  dat a to a nd  
+f r om t he memor y  [ D R A M * ] ,  ens ur i ng ef f i ci ent  and accur at e r ead and wr i t e 
+oper ati ons .
+Ke y Re sp o n sib ilit ie s:
+E ns ur e cor r ect  oper at i on of  D R A M  ( r ef r es h and t i mi ng)
+S er v i ce D R A M  r eques t s  whi l e obey i ng t i mi ng cons t r ai nt s  of  D R A M  chi ps
+Constr a i nts: r esour ce conf l i cts (ba nk, bus, cha nnel ), mi ni mum wr i te -to-
+r ead del ay s
+T r ans l at e r eques t s  t o D R A M  command s equences
+B uf f er  and s chedul e r eques t s  t o f or  hi gh per f or mance +  QoS
+Re o rd e rin g , ro w -buf f er , ba nk, r a nk, bus ma na gement
+En c ryp tio n  a n d  Erro r C o rre c tio n
+M echani s ms  t o det ect  and cor r ect  er r or s  i n dat a t r ans mi s s i on,  
+ensur i ng da ta  i ntegr i ty [S E CDE D]. Al so encr ypti on suppor t l i ke AE S  
+Ma na ge power  consumpti on a nd ther ma l s i n DR AM
+T ur n on/of f  DR AM chi ps, ma na ge power  modesM emor y Contr ol l er
+
+M emor y Contr ol l er
+
+
+Dive rse  C lo c kin g  Do m a in s:  So C s o fte n  u tilize  m u ltip le  c lo c k d o m a in s w ith  
+va r yi ng f r equenci es a nd di str i buti on r equi r ements.
+C lo c k Distrib u tio n : Ma na gi ng cl ock di str i buti on a cr oss va r i ous I ntel l ectua l  
+P r oper t y  ( I P )  bl ock s  i s  cr uci al ,  es peci al l y  i n compl ex  S oCs .
+On-Chi p Cl ock Gener a ti on: S ome des i gns  i ncor por ate on -chi p cl ock  
+gener at i ng ci r cui t r y  l i k e P has e-L ock ed L oops  ( P L L s )  t o pr ov i de accur at e 
+t i mi ng and r educe r el i ance on ex t er nal  t es t er s .
+Cl ock  U ncer t ai nt y : C lo c k d istrib utio n issue s, suc h a s c lo c k ske w a nd  jitte r, 
+pos e chal l enges  t hat  need t o be addr es s ed i n S oC des i gn.
+F uncti ona l  Cl ocks f or  T esti ng: U si ng f uncti ona l  cl ocks f or  test pur poses ca n 
+of f er  adv ant ages  l i k e accur at e t es t  t i mi ng and r educed A ut omat i c T es t  E qui pment (AT E ) r equi r ements.Cl ock Management i n S oCs
+
+R es et  M anagement  i n S oCs
+R es et ' s  I mpor t ance: Re se t  is a  c rit ic a l c o m p o n e n t  in  So C s a s it  
+b rin g s t h e  c h ip  t o  a  fixe d  in it ia l st a t e , e n su rin g  p re d ic t a b le  
+b e h a v io r, w h ic h  is e sse n t ia l fo r v e rific a t io n  a n d  t e st  v e c t o r 
+gener a ti on.
+T y pes  of  R es et s : So C s e m p lo y va rio us re se t typ e s, inc lud ing  
+power -on r es et s ,  s of t war e r es et s ,  har dwar e r es et s ,  and debug 
+re se ts.
+R es et  A r chi t ect ur e Compl ex i t y : R es et  ar chi t ect ur es  can be 
+compl ex ,  es peci al l y  wi t h mul t i pl e r es et  s our ces  and i nt r i cat e 
+re se t tre e  stru c tu re s.
+R eset S ynchr oni z a ti on: Re se t sig na ls, e sp e c ia lly tho se  
+a synchr onous to i ncomi ng cl ock doma i ns, need pr oper  syn c h ro n iza t io n  t o  a v o id  m e t a st a b ilit y issu e s.
+Chal l enges  i n R es et  V er i f i cat i on: V er i f y i ng t he compl ex  
+i nt er act i ons  of  cl ock s  and r es et s  t o pr ev ent  met as t abi l i t y  and C lo c k Do m a in C ro ssing  (C DC ) issue s is a  m a jo r c ha lle ng e .
+
+uWh a t?
+uE v ent s  t hat  r equi r e i mmedi at e at t ent i on f r om t he pr oces s or ,  
+i nter r upti ng nor ma l  pr ogr a m ex ecuti on.
+uWh y?
+uE nsur i ng R esponsi veness a nd E f f i ci ency
+uH a ndl i ng r ea l -t i me ev ent s  ef f i ci ent l y  and r el i abl y  i n compl ex  S oCs .
+uSo u rc e s:
+uHa rd wa re  p e rip h e ra ls (tim e rs, n e two rk c a rd s)
+uExt e rn a l sig n a ls
+uSo ftwa re  instruc tio ns (syste m  c a lls)
+uPu rp o se :
+uAl l ow the pr oces s or  to r es pond to events  wi thout cons tant pol l i ng.I nterrupt management i n S OC
+
+I nterrupt management i n S OC
+In te rru p t Ha n d lin g  Pro c e ss: 
+In te rru p t T rig g e re d  (Ha rd w a re / So ftw a re ) - > C PU Susp e nd s T a sk - > Conte xt 
+Sa v in g  -> Jump  to I nte rrup t Se rvi c e  Routi ne  (I SR) -> I S R  H a ndl es I nter r upt a nd 
+C le a rs Sta tus -> Conte xt Re stora ti on a nd  Progra m Re sump ti on
+T yp e s o f In te rru p ts
+Ha rd w a re  In te rru p ts: Gener at ed by  har dwar e dev i ces .  Of t en as y nchr onous ,  can 
+be mas k ed ( di s abl ed) .  E x ampl es : Tim e r e xp ira t io n , d a t a  a rriv a l.
+So ftw a re  In te rru p ts: I ni ti a te d  b y softwa re  i nstruc ti ons. E xa mp le s: Syste m  c a lls, 
+ex cept i ons .
+In t e rru p t  Prio rit iza t io n : Assig n in g  p rio rit y le v e ls t o  e n su re  t im e ly h a n d lin g  o f c rit ic a l 
+ta sks.
+Prio rit y -b a se d  h a n d lin g : Hig h e r p rio rit y in t e rru p t s p ro c e sse d  first .
+In te rru p t n e stin g : Hig h e r p rio rity in te rru p ts c a n  in te rru p t lo w e r p rio rity o n e s.
+I nt er r upt  coal es ci ng:  Gr oupi ng mul t i pl e i nt er r upt s  t o r educe ov er head.
+
+Syste m Addre ss Ma p in a n SoC
+S A M  pr ov i des  a stru c tu re d  a n d  o rg a n ize d  w a y fo r th e  p ro c e sso r a n d  o th e r 
+s y s t em component s  t o acces s  memor y  and per i pher al s .  I t  def i nes  how di f f er ent  
+par t s  of  t he chi p ar e l ai d out  i n t he memor y  addr es s  s pace.
+Wh y?  
+E f f i ci ent  D at a A cces s  and S ys t em Or gani z at i on: A n  addr es s  map t r an s l at es  l ogi cal  
+memor y  addr es s es  us ed by  t he pr oces s or  t o t he phy s i cal  addr es s es  of  memor y  
+lo c a tio n s o r p e rip h e ra l re g iste rs.
+Fa c ilita tin g  Ha rd wa re -Softwa re  Inte ra c tion: T he memor y  map s er v es  as  a br i dge 
+between the S oC's ha r dwa r e components a nd the f i r mwa r e a nd sof twa r e r unni ng o n  it .
+E nabl i ng Memory Management and Protecti on: A ddr es s  maps  ar e f undament al  t o 
+Memor y Ma na gement U ni ts (MMU s), whi ch a r e i mpor ta nt f or  ta sks such a s vi r tua l  memor y and memor y pr otecti on.
+E nsuri ng S of tware Accuracy and R obustness: T he  a d d re ss m a p  e nsure s tha t 
+s of t war e can accur at el y  addr es s  har dwar e component s ,  whi ch i s  cr i t i cal  f or  
+cor r ect  s y s t em oper at i on.
+
+Syste m Addre ss Ma p
+u E ver y component i n the 
+syste m  is a ssig n e d  a  Un iq u e  N ode I D .  CH I  us es  t he S y s t em A ddr es s  M ap ( S A M )  to c onve rt p hysi c a l  
+addr es s es  t o a t ar get  N ode 
+ID.
+u T o be abl e t o det er mi ne t he ta rge t Nod e  I D of outgoi ng r eques t s ,  each R N  and H N  must ha ve a  S AM.1.T he  tra nsa c tion with a d d re ss 0x8000_0000 p a sse s through the  RN SAM in  No d e  0.
+2 .  T he R N  S A M  det er mi nes  t he des t i nat i on as  H N  node5 .
+3. T he  tra nsa c tion is route d  to the  HN.
+4 .  T he H N  r ecei v es  t he t r ans act i on.
+5. T he H N pa sses the a ddr ess thr ough i ts H N S AM a nd deter mi nes 
+the  d e stina tion a s Nod e  2.
+6. T he  tra nsa c tion ge ts route d  to the  SN with Nod e  2
+
+
+Qual comm V s A ppl e di e shot
+
+
+A17 Pro S napdragon 8 Gen 3
+CPU  Conf i g2x 3.78GHz (Hi gh -per f or mance)
+4x 2.11GHz (Ene rgy -ef f i ci ent )1x 3.3GHz (Corte x -X4 )
+3x 3.2GHz (Corte x -A720)
+2x 3GHz (Corte x -A720)
+2x 2.3GHz (Corte x -A520 Re fre sh)
+GPU6-cor e ( A ppl e -des i gned)
+Ha rd w a re  ra y -tra c in gAdr eno (Qua l comm -des i gned)
+Ha rd w a re  ra y -tra c in g
+AI 16-cor e A ppl e N eur al  E ngi ne He xa g o n  DSP
+R A M  s uppor t L PDDR5 L PDDR5X
+Vid e oHEVC , AV1 d e c o d e
+4K 60 c a p tureHEVC , AV1 d e c o d e4K 120, 8K 30 c a p ture
+4G/5G Mod e mX 70 L T E/5G10,000Mb p s d own3,500Mb p s upX 70 L T E/5G10,000Mb p s d own3,500Mb p s up
+Other  networ ki ngB lue tooth 5.3Wi-Fi 6 EB lue tooth 5.4Wi-Fi 7  Re a d y
+P r oces s T SMC 3nm (N3B ) T SMC 4nm (N4P)Snapdragon 8 Gen 3 vs Apple A17 Pro: Specs
+
+Sna pdra gon 8 Ge n 3 vs Apple  A17 Pro: 
+GB 6 benchmark
+
+
+Sna pdra gon 8 Ge n 3 vs Apple  A17 Pro: 
+Wild life  b e n c h m a rk
+
+Stre ng ths S napdr agon 8Gen 3 A ppl e A17 Pro
+Sin g le -cor e 
+CPU–
+ Hig h e st 
+sin g le -t hr ead s cor es
+Mu lti- cor e 
+CPU
+ S l i ght  edge –
+G PU & 
+Ra y-Tr a c i n g
+ F a ster  i n benchma r ks
+ B et t er  game 
+s uppor t  &  por t s
+AI Pe rfo rm a nc e
+  On-dev i ce L L M s ,  
+gener at i v e t as k s
+ I nte g ra te d  
+ex per i ence v i a A ppl e I nt el l i gence
+C o n n e c tivity & 
+Vid e o
+ Wi-Fi7, 8K  
+re c o rd in g / d isp la y
+ Ra y-tra c ing , AV1, 
+USB 3.2
+Pric e
+ Mo re  a ffo rd a b le  
+fla g sh ip s– Pre m iu m  p ric in g  in  
+cl os ed ecos y s t emuU l t i mat el y ,  i t ' s  a cl os e r ace:
+•S na pdr a gon ex cel s i n GPU , AI , 
+a nd connecti vi ty .
+•Ap p le  m a in ta in s le a d e rsh ip  in  per-cor e per f or mance,  game 
+sup p o rt, a nd  se a m le ss ecos y s t em i nt egr at i on.Snapdragon 8 Gen 3 vs Apple A17 Pro: 
+Fin a l T a ke
+
+
+
+S l i des  added by  A man l ater
+
+APB
+
+
+APB
+PREADY
+
+APB
+PREADY
+
+APB
+
+
+APB
+
+
+APB
+PREADY
+
+APB
+
+
+APB

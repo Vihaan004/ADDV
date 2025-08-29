@@ -1,0 +1,185 @@
+Jeetendra GuptaPCIE Overview And Design Concepts
+
+Agenda 
+•HSIO –quick overview
+•PCIE overview 
+•Data path 
+•PL layer
+•DL layer
+•TL layer
+•Enumeration process
+•Design concepts 
+•Arbiter
+•Design parameters
+•Q & A 
+
+HSIO – Quick overview 
+•HSIO interfaces are optimized for transmitting data at high 
+speeds(Gbps, Tbps).  E.g. PCIe, ethernet, USB. 
+•Due to high data rates, probability of reflections and interference 
+is high. 
+•Mainly used in high performance computing, storage, run time 
+applications, etc. 
+•These protocol transfers the data serially based on algorithm to make sure data can be detected on the receiver side without any 
+corruption.
+
+PCIE data path overview 
+•PCIE is referred as dual-simplex 
+connections, Packets are transmitted and received at same time. 
+•It supports up to 32 physical lanes. 
+•It transmits data serially over the physical lanes. 
+•PCIE spec is evolving with time to meet the high performance and throughput requirement. 
+•It supports 2.5GT/s(Gen1 speed) to 64GT/s (Gen6 speed). 
+•Clock transmitted within data stream. Receiver follows clock and data recovery scheme.  
+
+
+PCIE Topology
+
+
+PCIE functionality -  overview
+
+
+PCIE PL layer functionality 
+•Establish communication between the ports. Perform link training. 
+•Detect, polling, configuration, L0, low power states etc.
+•Perform encoding and decoding(8b -> 10b(Gen1, 2), 
+128b/130b(Gen3,4,5), PAM4(Gen6 onwards)) to maintain 
+transitions on link (0 -> 1, 1- > 0). 
+•Drive data bits on the link in serial fashion. 
+•Add start or end boundary for a packet. 
+•For Gen6, supports flit mode packaging. 
+
+Establishing link between ports
+•As both ports can support different configuration(link width, link 
+speed), both ports exchange the info over ordered sets and 
+establish a link connection(mutual configurations).
+•PCIE spec defines multiple ordered sets based on the use cases – 
+like TS1, TS2 are used in link training and exchanging the 
+information. 
+•STP , EDB, EDP are to define start, end or NULL TLP . 
+•IDLE symbols are required to keep the synchronization between 
+the ports.  
+
+PCIE TS1/TS2, LTSSM flow 
+
+
+PCIE DL layer overview
+•End -End communication happens 
+through credits to avoid overflow 
+of packets. 
+•DL layer exchanges credit 
+information. 
+•Generates Ack/Nak for good/bad packets to avoid data corruption 
+and data drop. 
+•Retry the packet if Ack is not 
+received from link partner. 
+•Add protection by adding LCRC which protects packet data + 
+sequence number. 
+•Power states transition(L1, L2) 
+happen through DLLP only and 
+handled by DL layer.
+
+
+PCIE DL state machine
+
+
+PCIE TL layer overview
+•Frame PCIe supported packets. 
+•Maintains ordering rules across 
+packet types to avoid deadlock.
+•Perform error checks for corrupted packets. 
+•Add end -end CRC for data 
+integrity. 
+•Implements the VC buffer to store the packets. 
+
+
+PCIE Enumeration process
+
+
+PCIE TL config space
+Type 0 config space(end point) Type 1 config space(end point)
+
+PCIE ordering rules
+•PCIE supports PW(posted, no response), NP(non -posted, expect a response), 
+CPL(completion, response for a NP). 
+•RO, IDO bits are defined to relax the ordering rules(Y/N). 
+
+
+PCIE design components 
+•FIFO/SRAM - To store the data and to create backpressures. 
+•To store the received packet(credits advertised to link partner)
+•To maintain PCIE ordering (allow PW to pass NP), Add multiple storage(possible 
+backpressure points) for NPs at different stages. 
+•To handle backpressure when next unit is not ready for transfer. 
+•Async FIFO – Exchange the info across clock domains. 
+•As PCIE has multiple layers, all layers may or not in the same clock domain. Hence, to avoid any data loss, Async FIFOs are required. 
+•FSM – To performs the events in sequential order. 
+•PCIE spec defined state machines –  LTSSM, DLCMSM
+
+PCIE design components 
+•Arbiters – When two request access the same resource, but only 
+one allowed. 
+•As both side traffic can flow, if ordering rules not followed and there is any 
+dependency on sequence, it can cause deadlock. 
+•When request is driven to arbiter, ordering rules should be followed. 
+•Type of arbiters – 
+•RR – Round robin grant.
+•WRR – Weighted round robin.
+•Priority arbiter.
+
+Arbiter implementation
+•This arbiter can be implemented as RR, WRR or priority based on the use case. 
+•Add functionality to mask the request, hold the grant, mask the grant for all. 
+
+
+Arbiter implementation( Cont …)
+•Same RR arbiter can be written by multiple ways, capturing a few. 
+•FSM based.
+•Case statement based. 
+•Supports like Holding the grant, grant busy, disabling a request 
+temporary can be added. 
+•Same RR arbiter can be extended for WRR or priority arbiter. 
+
+Design parameters 
+•While writing a design, consider below parameters – 
+•Area
+•Power
+•Latency
+•Timing
+•Each parameter is important. It’s always a trade off which one to 
+give priority. 
+•It depends on the platform where design would be used. Some systems are power efficient or area efficient. 
+•Identify a solution which is optimal on all fronts. 
+
+Example – Area/Power 
+•Storage type – A storage can be implemented flops based, latch -
+array based, or SRAM based. 
+•It depends on the size of storage – Depth and width. 
+Storage size FF based RAM based Comments
+4000x40 35043um2 7226um2 RAM approach is 
+better
+5x40 43um2 37um2 (33.68uW) FF approach is better
+
+Basic design concepts
+•CDC – Crossing of data across clock domains. 
+•When data traverse from one clock domain to another clock domain.
+•Data has to be latched properly else it can result in data loss or 
+metastability when clock edges go out of sync.  
+•Reset crossing 
+•Same as clock gating. When reset traverse from one block to other block, it has to synchronized properly and overlap across block is must to make sure both the blocks are in reset for some time. 
+
+Basic design concepts
+•Glitch –
+•Design has to make sure no combination loop is placed before sequential 
+flops. 
+•Combination logic output can produce the glitch and can be sampled by F F.  
+•To avoid these glitches, make sure the combination logic is stable before clock edge is snapped(follow set up and hold time).
+•Understand the inputs of the combination logic and logic depth for each input. Time to settle down the inputs should be less than set up time. 
+
+                      Q & A 
+
+CDR flow – Backup 
+•PLL uses the transition 0 -> 1 and 1- > 0 and generates a clock 
+which matches timing of these transactions. 
+•A reference clock of 100MHz is used for clock recovery. 
+•Initial data patterns contains data transitions to recover the clock.

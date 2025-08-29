@@ -1,0 +1,149 @@
+Assertion Based Verification
+Slides are adapted from Harry Foster (Siemens EDA), Kerstin Eder (Univ. of 
+Bristol), Rashmi Moudgil (NVIDIA)
+
+What is an assertion?
+•An assertion is a directive that a particular property is required to 
+be true
+•A property is a statement specifies behavior or intent
+
+
+Assertions in Software
+•Assertions have 
+been used in SW 
+development for a long time
+•Used to detect 
+NULL pointers, out -
+of-range data, 
+ensure loop invariants, etc.
+
+
+Hardware Assertions
+
+
+Safety and Liveness
+-- Safety properties can be falsified by a finite simulation run
+-- Ideally, liveness properties can only be falsified by an infinite simulation run.
+   Practically, we often assume that the “end- of-sim” represents infinite time
+
+Who writes assertions?
+
+
+Levels of  assertions
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Arbiter Example
+
+
+Observability and Controllability
+ABV improves observability and controllability
+
+
+All my assertions pass – now what?
+Assertions can either fire & pass , fire & fail, or never fire (vacuous pass).
+Bring in assertion coverage!
+
+
+Cost and benefits of ABV
+
+
+Do assertions really work?
+
+
+ABV Methodology
+
+
+System Verilog Assertions (SVA)
+Please complete: 
+https://training.synopsys.com/learn/courses/81/language -
+systemverilog -assertions 
+
+Connecting Simulation and 
+Formal Verification
+
+Recall: Formal Verification (FV)
+Equivalence 
+Checking Model 
+CheckingTheorem 
+Proving Formal Techniques
+FV mathematically analyze the space of possible behaviors, 
+rather than computing results for specific values. FV covers 
+the whole space, as opposed to simulation which only 
+targets specific values/scenarios.
+
+[B. Wile , J.C. Goss and W. Roesner, “Comprehensive Functional Verification  – The Complete Industry Cycle”, Morgan Kaufman, 200 5]In practice, completeness issues 
+and capacity limits restrict formal verification to  selected parts of 
+the design.Naïve interpretation of 
+exhaustive formal  
+verificationOnly selected parts of the design can be covered during 
+simulation .Simulation vs. Formal Verification
+
+Formal Verification (FV)
+Equivalence 
+Checking Model 
+CheckingTheorem 
+Proving Formal TechniquesFormal Tools
+•Jasper Gold (Cadence)
+•VC Formal (Synopsys)
+
+Formal Verification (FV)
+Equivalence 
+Checking Model 
+CheckingTheorem 
+Proving Formal Techniques
+Commonly used subset: 
+Formal Property 
+Verification (FPV)
+
+Assertions/Properties: Simulation vs. Formal
+•Assertions or properties are also used in formal verification
+•But the semantics are a bit different
+
+Statement Type Simulation FPV
+Assertion Report if any test vectors used 
+in current tests have violated the assertion Report if it is possible for any 
+set of test vectors to violate the assertion 
+Assumption Report if any test vectors used in current tests have violated the assumption Use the assumptions to limit the space of possible test vectors
+Cover Report how many test vectors used in current tests have exercised the cover propertyReport if it is possible for any set of test vectors to exercise the cover property Assertions/Properties: Simulation vs. Formal
+property valid_input_range ;
+  @(posedge clk) (input_signal  >= 0 && input_signal  <= 255);
+endproperty
+// Assume the property holds
+assume  property (valid_input_range );
+
+Area of difference Simulation FPV
+Type and Size of model Up to full chip, both synthesizable and 
+behavioralUnit or cluster, or full chip with lot of removed logic, & synthesizable code only
+How to reach targeted behaviors Describe the journey: generate i/p values Describe the destination: specify target 
+property or state, tool finds if it’s reachable
+What values are checked Specific values or set of constrained valuesAll possible: legal under defined 
+constraints
+How do we constrain the model Active constraints: restrict the stimulus Passive constraints: Use assumptions to 
+rule out illegal
+What do we use for debug Single Trace Example trace
+How long are the traces Thousands of cycles –  includes start up 
+& do random things to hit complex bugTens of cycles: FPV generates minimal path to targetAssertions/Properties: Simulation vs. Formal

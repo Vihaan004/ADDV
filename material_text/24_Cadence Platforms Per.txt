@@ -1,0 +1,174 @@
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 1Rich Content
+PortfolioSmart Coverage
+and Debug
+Fast Scalable
+Engines
+Heterogeneous
+ Compute
+Arm®/X86 CPU
+ Arm/X86 CPUFormal
+Jasper
+Simulation
+Xcelium
+Virtual Platform
+Helium
+FPGAPrototyping
+Protium
+Cadence SiliconEmulation
+Palladium®
+Arm/X86 CPU
+Cloud EnabledAI-Driven Verification Platform
+Verisium
+Cadence
+JedAI
+Platform*
+Verification IP – SystemVIP  - PerspecCadence Verification Platforms
+© Cadence Design Systems, Inc. All rights reserved. 1
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 2•Features
+oInfiniband  is a network interface for high -
+speed communication between the host 
+and the Palladium system. It is necessary 
+for IXCOM designs.
+oInfiniband  also improves the performance 
+of runtime commands in ICE designs.IXCOM Acceleration
+Testbench 
+Design
+PCI BFM
+AGP 
+BFM
+USB 
+BFM
+USB 
+BFMTransactions
+PCI PM
+AGP PM
+USB PM
+USB    
+PMSignals
+PM Proxy Model
+BFM  Bus Functional Model
+PalladiumInfiniBand (IB)
+© Cadence Design Systems, Inc. All rights reserved.2
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 3•Typical Use Cases
+oSystem -level debugging ‒ with embedded 
+software.
+oStress test of the final design with real -
+world targets. 
+oSoftware development and testing prior to 
+silicon tapeout.
+oProvides pre - (and post -) silicon debug 
+platforms.
+oCustomers can create c ustom boards to 
+interact with their design running on the 
+Palladium system. 
+oCadence also provides speed bridges that can 
+interface with Protium
+ /Palladium systems.Palladium Usage in ICE FLOW
+SV/Verilog/VHDL DesignPalladium runtime is 
+used to control the 
+design  
+Palladium 
+Compile
+Target
+Custom board/Cadence 
+speed bridges
+Palladium
+© Cadence Design Systems, Inc. All rights reserved.3
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 4Common IXCOM front -end (Parsing, Elaboration and Synthesis)
+ IXCOM + HDLICE + Xcelium
+Platform -specific software layer 
+ WXE XeCompile for Palladium Z2
+ PTM XeCompile for Protium X2
+        Xilinx pnr for Protium X2Palladium to Protium Transition
+WXEHDLICEIXCOM
+PTM
+ICE
+Use modeICE
+Use modeIXCOM
+mode4
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 5Comparison Among Simulation, Emulation and Prototyping
+Emulation (Processor)
+Palladium
+ ProtiumSimulation Emulation Prototyping
+Time to bring -up Days 1-2 weeks 1-2 weeks
+Design Style Support All DUT (synthesizable RTL) DUT (synthesizable RTL)
+Run time speed 1Hz -1KHz 0.5-2 MHz 2-10 MHz
+Visibility (for debug) All signals All signals All signals
+Real Targets No Yes Yes
+Linux Boot Time Not Feasible 1 Hour (reduced verbosity) 10 min (reduced verbosity)
+General Purpose Machine
+© Cadence Design Systems, Inc. All rights reserved. 5
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 6Comparing Design Run Speeds of Emulation and Prototyping
+0246810121416
+10 100 1000 10000FREQUENCY (MHZ)
+DESIGN SIZE (MILLION GATES)EMULATION PROTOTYPING
+© Cadence Design Systems, Inc. All rights reserved. 6
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 7Palladium Structure
+Processor
+(ASIC)Rack
+(3 Clusters)Cluster 
+(6 boards)Board 
+(8 processor)
+One rack can emulate 1 billion gates, and up to 8 racks of Palladium can be wired together. Palladium
+Emulator
+© Cadence Design Systems, Inc. All rights reserved. 7
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 8
+Z2 Hardware Architecture: 3 -cluster Rack
+Cooling DrawerSystem Optical DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerCluster PowerSystem Optical DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerCluster PowerSystem Optical DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerLogic DrawerCluster PowerSystem Mgmt  DrawerInfinibandEthernet
+28”42”84”
+Logic Drawer
+16GB DDR4 
+Data Capture Card 
+(DCC)
+16GB 
+DDR4
+(DCC/UMC)
+7GB 
+LPDDR4
+Component LogicUser Memory
+Dual DCC / Single DCCDebug Memory
+Dual DCC / Single DCC
+Domain 8MG 7GB  / 23GB 32GB / 16GB
+Board (8 -domains) 64MG 56GB / 184GB 256GB / 128GB 
+Cluster (6 -boards) 384MG 336GB / 1,104GB 1,536GB / 768GB
+Rack (2 -clusters) 768MG 672GB / 2,208GB 3,072GB / 1,536GB
+Rack (3 -clusters) 1,152MG 1,008GB / 3,312GB 4,608GB / 2,304GB
+8MGates
+96MB 
+embedded
+mem
+© Cadence Design Systems, Inc. All rights reserved. 8
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 9
+Protium Structure 
+FPGA Rack
+(5 Blades)Blade
+(2 Boards)Board
+(6 FPGAs)
+Protium X2
+1 rack of Protium X2 can emulate up to 1.2 billion gates, and 4 Protium X2 racks can be wired together. 
+© Cadence Design Systems, Inc. All rights reserved. 9
+
+© 2025 Cadence Design Systems, Inc. Cadence confidential. Internal use only. 10
+Comparing Palladium Z2 and Protium X2
+Property Emulation Using Palladium Z2 Prototyping Using Protium X2 
+Basic hardware Custom processor Xilinx Vu19P
+Available logic capacity (per rack) 1.154 billion gates per rack Up to 1.2 billion gates per rack 
+Max racks 8 4
+Time to Palladium database/bit stream* 
+(1 rack) 4-8 hours 8-24 hours 
+Typical run speed of billion gate design 1-2 MHz 2-6 MHz 
+* Time for RTL compilation up to the generation of Palladium 
+database/bitstream file for programming. Protium uses bitstream.© Cadence Design Systems, Inc. All rights reserved.10
+
+https://www.cadence.com/go/trademarks 
+© 2025 Cadence Design Systems, Inc. All rights reserved worldwide. Cadence, the Cadence logo, and the other Cadence marks fou nd at https:// www.cadence.com/go/trademarks  are trademarks or registered trademarks of 
+Cadence Design Systems, Inc. Accellera and SystemC are trademarks of Accellera Systems Initiative Inc. All Arm products are regi stered trademarks or trademarks of Arm Limited (or its subsidiaries) in the US and/or elsewhere. All 
+MIPI specifications are registered trademarks or service marks owned by MIPI Alliance. All PCI -SIG specifications are registered  trademarks or trademarks of PCI -SIG. All other trademarks are the property of their respective owners.

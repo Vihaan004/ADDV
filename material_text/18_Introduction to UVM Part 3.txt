@@ -1,0 +1,412 @@
+Introduction to UVM
+Part III
+Joel Feldman
+Design Verification Engineer, NVIDIA Corp
+
+Compliance & Permission
+UVM (Universal Verification Methodology) is open source and subject to the 
+following copyrights and usage license:
+Copyright 2010 AMD
+Copyright 2007 -2018 Cadence Design Systems, Inc.
+Copyright 2007 -2011 Mentor Graphics Corporation
+Copyright 2013 -2024 NVIDIA Corporation
+Copyright 2010 -2011 Synopsys, Inc.
+All Rights Reserved Worldwide
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
+this file except in compliance with the License.  You may obtain a copy of the 
+License at
+http://www.apache.org/licenses/LICENSE -2.0•Used with permission from Joel D Feldman exclusively for:
+• Arizona State University  CSE/CEN 598
+• Advanced Digital Design and Verification  -Dr. Aman Arora
+•Contents copyright © 2025 Joel D. Feldman extended for this academic 
+course work only , pursuant to this ASU course copyright policy and 
+Academic Affairs ACD 304 -06
+•All contents and implementations demonstrated in this presentation 
+reflect state of the art public domain industry knowledge and best 
+practices
+•UVM is available from the Accellera Systems Initiative UVM Working 
+Group
+• Download UVM (Universal Verification Methodology) -Accellera
+Systems Initiative
+•No corporate confidential information (IP or methodology) is contained 
+in this presentation
+•Specman is a registered trademark of Cadence Design Systems
+•VMM is a product of Synopsys, Inc
+•AVM is a product of Siemens EDA
+Copyright © 2025 Joel D Feldman
+
+Part II Recap
+•Signal Abstraction 
+•UVM Transaction ( sequence_item )
+•UVM Sequencer
+•UVM Driver
+•UVM Monitor
+•UVM Agent
+•UVM Environment
+•UVM Factory
+•Factory Component Override 
+Copyright © 2025 Joel D Feldman
+
+Making a Sequence Item Flexible
+•Declare input fields as 
+random
+•Add any constraints to 
+affect randomizationclass dut_ctrl  extends uvm_sequence_item ;
+rand bit reset;
+rand bit [7:0] address;
+rand bit [31:0] data_in;
+     bit [31:0] data_out ;
+constraint addr_vals {address[2:0] == 3’h0;}
+constraint deassert_rst {(reset == 0) -> (address > 0);
+solve address before reset;}  
+function new(string name=“ dut_ctrl ”);
+     super.new (name);
+  endfunction
+`uvm_object_utils_begin (dut_ctrl )
+   `uvm_field_int (reset, UVM_ALL_ON)
+   `uvm_field_int (address, UVM_ALL_ON)
+   `uvm_field_int (data_in, UVM_ALL_ON)
+   `uvm_field_int (data_out , UVM_ALL_ON)
+`uvm_object_utils_end
+endclass Copyright © 2025 Joel D Feldman
+
+Ready to Send Stimulus
+•Create a sequence for the 
+sequence_item  (transaction) 
+type:
+1.Declare class with 
+sequence_item  type 
+parameter
+2.Define the constructor
+3.Use UVM macros to register 
+& associate each sequence 
+with its sequencer typeclass my_seq extends uvm_sequence #(dut_ctrl);
+ function new(string name=“ my_seq”);
+     super.new (name);
+  endfunction
+  
+  task body();
+    `uvm_do(req)
+  endtask
+`uvm_object_utils (my_seq)
+`uvm_declare_p_sequencer (my_sequencer )
+endclass
+Copyright © 2025 Joel D Feldman
+
+`uvm_do  Sequence Macro
+•Under the hood calls:
+`uvm_create (req)
+ req.randomize ();
+`uvm_send (req)
+•Handles the request transaction ( req) creation, randomization of 
+fields, and TLM management through the sequencer
+•Only works within a sequence (derived from uvm_sequence )
+Copyright © 2025 Joel D Feldman
+
+`uvm_do_with  Sequence Macro
+•Optionally, can use 
+`uvm_do_with ()  macro
+•Calls req.randomize  with 
+{<inline constraints >}class my_seq2 extends uvm_sequence #(dut_ctrl);
+ function new(string name=“ my_seq2”);
+     super.new (name);
+  endfunction
+  
+  task body();
+    `uvm_do_with (req, {req.data_in  > 32’h0000_ffff ;})
+  endtask
+ 
+`uvm_object_utils (my_seq2)
+`uvm_declare_p_sequencer (my_sequencer )
+endclass
+Copyright © 2025 Joel D Feldman
+
+Hierarchical Sequence
+•Create  sequences within  a 
+sequence
+•`uvm_do * macros can run on 
+another embedded sequenceclass my_seq4 extends uvm_sequence #(dut_ctrl);
+  rand my_seq  subseqA;
+  rand my_seq3 subseqB;
+  rand my_seq3 subseqC;
+ function new(string name=“ my_seq4”);
+     super.new (name);
+  endfunction
+  
+  task body();
+    `uvm_do(subseqA)
+    `uvm_do_with (subseqB, {subseqA.addr  < 8’h80;})
+    `uvm_do_with (subseqC, {subseqB.addr  == 8’hFF;})
+  endtask
+  `uvm_object_utils (my_seq4)
+  `uvm_declare_p_sequencer (my_sequencer )
+endclassclass my_seq3 extends uvm_sequence #(dut_ctrl);
+rand bit [7:0] addr;
+function new(string  name=“ my_seq3”);
+     super.new (name);
+  endfunction
+  
+  task body();
+    `uvm_do_with (req, {req.address  == this.addr ;})
+  endtask
+  `uvm_object_utils (my_seq3)
+  `uvm_declare_p_sequencer (my_sequencer )
+endclass
+Copyright © 2025 Joel D Feldman
+
+Building the Test
+•uvm_sequences  are objects
+•uvm_test  is a component
+•All rules of a component apply
+•Each test class defines a new 
+simulation scenario:
+•Configuration of the environment
+•Selection of sequence(s) to run
+•Use build_phase  to:
+•construct the environment 
+•Use run_phase  to:
+•Select and start sequence(s) to execute
+•Use other phases as neededTest
+Environment
+Coverage
+CollectorAgent
+Monitor Sequencer DriverScoreboard
+Copyright © 2025 Joel D Feldman
+
+Defining a Test
+class my_test1 extends uvm_test ;
+`uvm_component_utils (my_test1)
+my_env  env;
+function new (string name=“my_test1”, 
+            uvm_component  parent = null);
+   super.new (name, parent);
+endfunction    
+ 
+ function void build_phase (uvm_phase  phase);
+   super.build_phase (phase);
+   env = my_env::type_id::create (“env”, this);
+endfunction
+ task run_phase (uvm_phase  phase);
+  my_seq4 seq_to_run ;
+   phase.raise_objection (this);
+    seq_to_run  = new("seq_to_run ");
+    seq_to_run .start(env.agt.seqr );     
+   phase.drop_objection (this);
+ endtask
+function void report_phase (uvm_phase  phase);
+`uvm_info (“my_test1”, “Test complete!”, UVM_MEDIUM)
+endfunction
+endclass
+Copyright © 2025 Joel D Feldman
+
+Assembling Your New UVM Code
+•Declare a Package
+•Recommended to define separate 
+packages for Testbench content & 
+Sequences/Tests
+•Import the uvm_pkg
+•`include each of your classespackage my_uvm_env_pkg ;
+  import uvm_pkg::*;
+  `include “ uvm_macros.svh ”
+  `include “dut_ctrl.sv”
+  `include “my_monitor.sv”
+  `include “my_driver.sv”
+  `include “my_sequencer.sv”
+  `include “my_agent.sv”
+  `include “my_scoreboard.sv”
+  `include “my_coverage.sv”
+  `include “my_env.sv”
+endpackagepackage my_uvm_test_pkg ;
+  import uvm_pkg::*;
+  `include “ uvm_macros.svh ”
+   import my_uvm_env_pkg ::*;
+   `include “my_seq1.sv”
+      …
+   `include “my_test1.sv”
+      …
+endpackage
+Copyright © 2025 Joel D Feldman
+
+Where Does the UVM Code Go?
+•The SVTB “Glue Logic” 
+•Referring back  to Part I…
+tb_top
+dutsignalA
+signalB
+signalCack
+doutmodule my_dut(
+      signalA, 
+      signalB,
+      signalC, 
+      ack, 
+      dout
+      );
+input        signalA;
+input [15:0] signalB;
+input [31:0] signalC;
+output ack;
+output [31:0] dout;
+ 
+endmodulemodel
+(executable)RTL
+Interfaces
+TB files
+uvm_pkg
+Testbench
+Packagessupport
+packages
+Copyright © 2025 Joel D Feldman
+
+Start By Assembling the Testbench
+Copyright © 2025 Joel D Feldmanmodule tb_top();
+  import uvm_pkg::*;
+ `include “ uvm_macros.svh ”
+   import my_uvm_env_pkg ::*;   
+    import my_uvm_test_pkg ::*;
+  my_dut  dut(  //Design Under Test
+          .signalA(sigA),
+          .signalB(sigB),
+          .signalC(sigC),
+          .ack(ack),
+         .dout(dout));  
+  dut_signals  dut_if();  //Interface
+   assign sigA = dut_if.signalA ;
+   assign sigB = dut_if.signalB  ;
+   assign sigC = dut_if.signalC ;
+   assign dut_if.ack  = ack;
+   assign dut_if.dout  = dout;initial begin
+    uvm_resource_db #(virtual dut_signals )::set(
+                  “*”,” dut_if_ptr ”, dut_if);
+      uvm_pkg::run_test ();
+  end
+endmodule
+
+
+Compile the Code (Elaborated Model)
+•%compile –sverilog  –timescale 1ns/1ns   $UVM_HOME/src/uvm_pkg.sv  
++incdir+$UVM_HOME/ src/includes \
+    my_dut.v   \
+    rtl_module1.v  rtl_module2.v … \
+    dut_signals.v  \
+    tb_top.sv \
+    my_uvm_env_pkg.sv   my_uvm_test_pkg.sv \
+    tb_test.sv
+    
+Copyright © 2025 Joel D Feldman
+
+Run Your First Test!
+•Runtime Environment
+•%sim_exec   +UVM_TESTNAME=“ my_test1 ”
+•construct selected 
+test class object  
+(UVM_TESTNAME)
+•Waits for simulation 
+control phases
+•Complete 
+simulation ($finish)run_test•Implements UVM 
+component standard 
+virtual methods 
+(tasks/functions)
+•UVM test controller 
+executes simulation 
+phases
+•Configures and 
+constructs the TB 
+environment
+•Launches stimulus 
+sequences (tasks)my_test1Implements UVM 
+component standard 
+virtual methods to 
+configure the 
+testbench 
+environmentmy_environment
+Environment
+Coverage
+CollectorAgent
+Monitor Sequencer DriverScoreboard
+Copyright © 2025 Joel D Feldman
+
+Adding More Control With Sub -Phases
+Start with a reset:
+1.Create a special reset 
+sequence
+2.Launch the reset sequence 
+from the test
+Copyright © 2025 Joel D Feldmanclass my_reset_seq  extends uvm_sequence #(dut_ctrl);
+function new(string  name=“ my_seq3”);
+     super.new (name);
+  endfunction
+  
+  task body();
+    `uvm_do_with (req, {req.reset  == 1;})
+  endtask
+  `uvm_object_utils (my_reset_seq )
+  `uvm_declare_p_sequencer (my_sequencer )
+endclassclass my_test2 extends my_test1 ;
+`uvm_component_utils (my_test2)
+ function new (string name=“my_test2”, 
+     uvm_component  parent = null);
+   super.new (name, parent);
+ endfunction    
+ 
+ task reset_phase (uvm_phase  phase);
+   my_reset_seq  reset_seq;
+   phase.raise_objection (this);
+   reset_seq  = new("reset_seq ");
+   reset_seq .start(env.agt.seqr );
+   phase.drop_objection (this);
+ endtask task main_phase (uvm_phase  phase);
+   my_seq seq_to_run ;
+   phase.raise_objection (this);
+   seq_to_run  = new("seq_to_run ");
+   seq_to_run .start(env.agt.seqr );
+   phase.drop_objection (this);
+ endtask
+function void report_phase (uvm_phase  
+                              phase);
+   super.report_phase (phase);
+ endfunction
+endclass
+
+Adding Debug Information
+•Driver could “print” the values of each request
+Copyright © 2025 Joel D Feldmanclass my_driver  extends uvm_driver #(dut_ctrl);
+  `uvm_component_utils (my_driver )
+   virtual dut_signals   dut_vif; 
+function new(string name=“ my_sequencer ”,
+          uvm_component    parent = null);
+     super.new (name, parent);
+  endfunction
+ function void connect_phase (uvm_phase  phase);
+   super.connect_phase (phase);
+   uvm_resource_db #(virtual dut_signals )::read_by_name (
+    get_full_name (),"dut_if_ ptr",dut_vif, this);
+endfunction
+   task run_phase (uvm_phase  phase);
+    super.run_phase (phase);
+    forever begin
+       seq_item_port.get_next_item (req);
+req.print ();
+       . . .
+        seq_item_port.item_done ;
+        phase.drop_objection (this);
+      end
+   endtask
+endclass-----------------------------------------------------------------------------------
+Name                           Type      Size  Value                               
+-----------------------------------------------------------------------------------
+req                            dut_ctrl   -     @627                                
+reset                        integral  1     'h0                                  
+address                      integral  8     'h58                                 
+data_in integral  32    'hfd8123e                            
+data_out integral  32    'hecbf21f4                           
+  begin_time                    time      64    1                                   
+  depth                        int       32    'd2                                 
+  parent sequence (name)       string    10    seq_to_run                           
+  parent sequence (full name)  string    36    uvm_test_top.env.agt.seqr.seq_to_run
+  sequencer                    string    25    uvm_test_top.env.agt.seqr            
+-----------------------------------------------------------------------------------
+
+Industry Best Practices & References
+•http://www.sunburst -design.com/papers/
+Copyright © 2025 Joel D Feldman

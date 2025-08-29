@@ -1,0 +1,435 @@
+Formal Verification Overview
+Amin Rezaei
+Guest Lecture -Advanced Digital Design and Verification -Arizona State University
+http://aminrezaei.com/
+© Amin Rezaei
+
+Formal Verification
+2Formal verification isthe act ofproving (ordisproving) the
+correctness ofasystem with respect toacertain formal
+specification orproperty .
+Ultimate Goal :Prove theabsence ofsoftware/hardware errors .
+Notaneasy goal!→Finite system often hasexponential setof
+behaviors withregard totheinput size.
+Prime Number
+Detectorn
+NumberYes or 
+Counter Example
+© Amin Rezaei
+
+Comparative Verification
+3Can wecompare withaverified system toprove correctness?
+Wecanusecomparing toprove incorrectness →Provide a
+failing test.
+However, toprove correctness, weneed tocheck allpossible
+input -output pairs .PNDn
+# Yes/CE PNDn
+# Yes/CE
+System Under Verification Oracle→Equivalence Checking
+≡?
+© Amin Rezaei
+
+Algorithmic Verification
+4Can wecome upwithacircuit/program toprove correctness?
+Halting problem :Theproblem ofdetermining, from adescription ofan
+arbitrary computer circuit/program and an input, whether the
+circuit/program willfinish running, orcontinue torunforever .
+In1936 ,Turing proved that ageneral algorithm tosolve thehalting
+problem cannot exist.PNDn
+# Yes/CEFalse/True
+Verification CircuitWe need to create a
+circuit/program thatinputs another
+circuit/program and after finite
+time, outputs false ifthere isabug
+forsome inputs, ortrueotherwise .→Model Checking
+© Amin Rezaei
+
+Deductive Verification
+5Can wehave amathematical system toprove correctness?
+In1931 ,Gödel proved thatnosuch logical system exists .→Automated Theorem Proving
+PNDn
+# Yes/CEProof
+Mathematical ProverCreate asystem oflogical
+axioms and rules, such that for
+anycircuit/program, wecanwrite
+afinite proof thatshows either :
+→Thecircuit/program haserrorforsomeinputs.
+→Thecircuit/program hasnoerrorforanyinput.
+© Amin Rezaei
+
+Holy Grail of Formal Verification
+6Welook foraverification method thatis:
+Sound :Iftheverification method returns yes, then indeed the
+circuit under verification hasnoerror.
+Complete :Iftheverification method returns no,then indeed the
+circuit under verification hasanerror.
+Terminating :Theverification method always terminates, returning
+yesorno.
+Unfortunately, wecanonly pick two.Averification method with all
+three characteristics istheoretically impossible .
+© Amin Rezaei
+
+False Positive vs. False Negative
+7FalsePositive :Amistakeinverification inwhichaverifier
+incorrectly indicatesthecircuitunderverification hasnoerror.
+FalseNegative :Amistakeinverification inwhichaverifier
+incorrectly indicatesthecircuitunderverification hasanerror.
+Terminating +Sound→Maycausefalsenegative
+Terminating +Complete →Maycausefalsepositive
+© Amin RezaeiWhat is True Positive? How about True Negative?
+
+Formal Verification vs. Functional Verification
+8Functional Verification :
+Properties are checked during
+simulations andemulations .
+Itchecks adesign property by
+probing thesearch space ata
+subset ofpoints .
+Itisadynamic property
+verification .
+Itisinput -driven .Formal Verification :
+Formal techniques are used
+toverify properties .
+Itproves that adesign
+property holds forallpoints of
+thesearch space .
+Itis astatic property
+verification .
+Itisoutput -driven .
+© Amin Rezaei
+
+Equivalence Checking
+© Amin Rezaei
+
+Boolean Satisfiability Problem -Definition
+10Alogic formula issatisfiable ifthere isatleast one
+assignment (i.e.,assigning zero/one values) tothevariables
+oftheformula such thattheformula evaluates to1.
+The problem ofBoolean satisfiability decides whether a
+Boolean formula canbeevaluated to1.
+The formula inBoolean satisfiability isinaConjunctive
+Normal Form (CNF) orwhat wecallProduct -Of-Sums (POS)
+inlogic design .Each sum iscalled aclause .
+© Amin Rezaei
+
+Boolean Satisfiability Problem -Complexity
+11Ifeachclausehasatmosttwovariables, thentheproblemof
+Booleansatisfiability iscalled2-SAT.Similarly,ifeachclausehas
+atmostthreevariables, itiscalled3-SAT.
+2-SATcanbesolvedinpolynomial time,whereas3-SATisNP-
+complete.
+Satisfiability ofanyBooleanformulacanbepolynomially reduced
+to3-SAT.So,wewillnotdistinguish 3-SATfromageneralSAT
+problem.WejustusethetermSAT.
+Pproblems are all decision problems that 
+can be solved inpolynomial time .NP-Complete problems are all decision problems 
+whose solutions can be verified inpolynomial time .
+© Amin Rezaei
+
+Satisfiability -Sample Question
+12Determine whetherthefollowingformulaissatisfiable :
+f(x1,x2,x3)=(x1+x2+x3).(x̅1+x2+x̅3).(x1+x̅2+x̅3).(x̅1+x̅2+x̅3).(x̅1+x̅2+x3)
+© Amin Rezaei
+
+Satisfiability -Sample Question -Solution
+13Determine whetherthefollowingformulaissatisfiable :
+f(x1,x2,x3)=(x1+x2+x3).(x̅1+x2+x̅3).(x1+x̅2+x̅3).(x̅1+x̅2+x̅3).(x̅1+x̅2+x3)
+x1x2x3f
+0 0 0 0
+0 0 1 1
+0 1 0 1
+0 1 1 0
+1 0 0 1
+1 0 1 0
+1 1 0 0
+1 1 1 0Itissatisfiable .Here arethevariable assignments thatsatisfy the
+above formula .
+X1X2X3=001,X1X2X3=010,X1X2X3=100
+Wecantryassignments one-by-onetofindoutasatisfiable one.
+Intheworst case, wemay have totryallassignments toreach the
+conclusion .
+© Amin RezaeiThere are many heuristics that try to reduce the average time complexity 
+of the SAT problem.
+
+Equivalence Checking
+14Equivalence checking iswidely used intheindustry .Itaims toprove if
+two implementations ondifferent orsimilar abstraction levels are
+functionally equivalent .
+Fortwocombinational circuits, weidentify pairs ofcorresponding outputs .
+Then these pairs areXORed, and theXOR gate outputs areORed to
+produce asingle output .Ifanypairoftheoutputs isnotequivalent, the
+XOR output ofthepairbecomes 1,thus producing a1attheoutput of
+theORgate.Ontheother hand, thetwocircuits areequivalent ifthefinal
+output isequal to0.
+This isaSAT problem :Iftheresult circuit issatisfied, thetwocircuits are
+notequivalent .Otherwise, they areequivalent .
+© Amin RezaeiHow about sequential circuits?
+
+SAT-based Equivalence Checking -Sample Question
+15Using Boolean satisfiability ,determine whether thefollowing
+circuits areequivalent .
+© Amin Rezaei
+
+SAT-based Equivalence Checking -Sample Question -Solution
+16Using Boolean satisfiability ,determine whether thefollowing
+circuits areequivalent .
+Out=[(A+B).(A.B)]⊕(A⊕B)
+Out=[(A+B).(A̅+B̅)]⊕[(A+B).(A̅+B̅)]
+Out=0 x ⊕x = 0
+Theformula isnotsatisfiable .→
+Thecircuits areequivalent .
+© Amin Rezaei
+
+Model Checking
+© Amin Rezaei
+
+Model Checking
+18Iftwo circuits aresequential and themapping between their
+states isnotavailable, equivalence checking fails.
+Model checking isrequired when verifying partial and abstract
+specifications .
+Model checking exhaustively searches theentire state space and
+determines theproperty's validity inthespace orreports a
+counter example .
+The basic components ofmodel checking arecircuit model,
+property specification, andproperty checking .
+© Amin Rezaei
+
+Property
+19Inmodel checking, thespecification ispartitioned into subsets
+andeach subset isverified individually .
+Aspecification orasubset ofitiscalled aproperty .
+Safety :This type ofproperty mandates that certain
+undesirable conditions should nothappen .
+Liveness :This type ofproperty ensures that some
+essential conditions must bereached .
+Fairness :This type ofproperty requires thatcertain
+states bereached orcertain conditions happen
+repeatedly .Safety: Nothing bad 
+happens ever.
+Liveness : Something 
+good happens 
+eventually.
+Fairness: All possible 
+actions chosen 
+infinitely often.
+© Amin Rezaei
+
+Property -Sample Question
+20Foreach ofthefollowing, state whether itisasafety, liveness, or
+fairness property .
+(a)What goes upmust come down .
+(b)Thecost ofliving never decreases .
+(c)Patrons areserved intheorder they arrive .
+(d)Sooner orlater, everyone willface death .
+© Amin Rezaei
+
+Circuit Model & Property Specification
+21Combinational Property :Itinvolves component values atthe
+current state andconsists ofBoolean operators andoperands .
+Sequential Property :Itinvolves component values spanning
+over aperiod oftime.Asequential property can bedescribed
+using Finite State Machine (FSM), which monitors thebehavior of
+thecircuit byreceiving theinputs andthestates ofthecircuit .
+© Amin Rezaei
+
+Property Specification -Sample Question
+22Suppose wewant toverify atwo-way traffic controller .
+Specify thefollowing twoproperties :
+a)Atanytime, thelight forsouth -bound ornorth -bound traffic
+cannot bethesame color asthewest-bound oreast-bound
+light.
+b)Light sequence must follow theorder Red, Green, Yellow,
+Red, Green, Yellow, andsoon.
+© Amin Rezaei
+
+Property Specification -Sample Question -Solution
+23a)Atanytime, thelight forsouth -bound ornorth -bound traffic
+cannot bethesame color asthewest-bound oreast-bound
+light.
+Itisasafety property .This property iscombinational because thevalues of
+light colors forboth directions areavailable atthecurrent state .
+Weassume thatthesouth -bound andnorth -bound lights arethesame all
+thetime.The assumption also applies towest-bound and east-bound
+lights .LetS2S1andW2W1bethebitsrepresenting thelight colors forthe
+south -bound traffic and thewest-bound traffic, respectively .Then, this
+property canbewritten asP=(S1⊕W1)+(S2⊕W2).Pis1iftheproperty
+succeeds andis0otherwise .
+© Amin Rezaei
+
+Property Specification -Sample Question -Solution
+24b)Light sequence must follow theorder Red, Green, Yellow,
+Red, Green, Yellow, andsoon.
+Itisboth aliveness &fairness property .This property issequential
+because past values areinvolved .
+Weneed toconstruct anFSM that takes intheoutput ofthetraffic light
+controller .This FSM monitors thenorth -south direction ;asimilar FSM can
+beconstructed forthewest-east direction .The FSM hasthree states SR,
+SG,andSYeach ofwhich represents thecurrent color ofthetraffic light.If
+thelight sequence deviates, theFSM moves toanerror state E,andstays
+there forever .The property isverified ifitcan beproved that theFSM
+never reaches state Eforalloperations ofthetraffic light controller .
+© Amin Rezaei
+
+Property Specification -Sample Question -Solution
+25b)Light sequence must follow theorder Red, Green, Yellow,
+Red, Green, Yellow, andsoon.
+© Amin Rezaei
+
+Property Checking
+26Tocheck aproperty istoverify that thedesign satisfies the
+property .
+1)Describe theproperty using anFSM .Assume thattheproperty
+issuch thatsome states represent success oftheproperty, and
+some represent failure ofit.
+2)Compose thedesign FSM withtheproperty FSM .
+3)Theproperty succeeds ifandonly ifnofailure composite state
+isreachable .
+How can we compose the two FSMs?
+© Amin Rezaei
+
+Property Checking -Sample Question
+27Inagame oftwoplayers, each player tosses adieandcompares
+thevalues .Ifplayer Ahas ahigher value, player A'sscore
+increases by1,unless itis2,inwhich case itbecomes 0.
+Furthermore, B'sscore isdecreased by1,unless itis0,inwhich
+case itremains thesame .Ontheother hand, ifplayer Bhasa
+higher value, these scoring rules apply except theroles ofAand
+Barereversed .Ifboth dice values areequal, their scores stay
+unchanged .Check thefollowing properties :
+a)Isitpossible forboth players totieatthescore of1?
+b)How about forboth totieatthescore of2?Are these 
+safety or 
+liveness
+properties?
+© Amin Rezaei
+
+Property Checking -Sample Question -Solution
+28First,weneedtoconstruct twoFSMdescribing thescoresof
+playersAandB.TheinputtotheFSMiseither0or1.Input0
+meansplayerAhaswonthetoss.Input1meansplayerBhas
+wonthetoss.Thestatesrepresent thescoreoftheplayer.
+0 1 21
+0 01
+01
+0 1 20
+1 10
+10
+Player A Player B
+© Amin Rezaei
+
+Property Checking -Sample Question -Solution
+29Next,weconstruct anFSMto
+describebothproperties .The
+FSMhasthreestates:StateP1
+isthatbothplayers'scoresare
+equalto1;stateP2,both
+players'scoresareequalto2;
+andstateC,allothercases.
+TheFSMtakesasitsinputthe
+playerFSM'spresentstates.P1C
+P211
+Properties 1&21111
+22
+2222Others OthersOthers
+© Amin Rezaei
+
+Property Checking -Sample Question -Solution
+30Now,weneedtocompose thethreeFSMsandcheck
+reachability .Astateinthecomposite FSMconsistsofthree
+components, onefromeachofthethreeFSM.PropertyPholdsif
+andonlyifthereisacomposite statethatcontainscomponent P.
+0,0,C 2,2,P20,2,C
+1,1,P1
+1,0,C 2,0,C2,1,C0,1,C
+1,2,C1 11
+0 0
+00 10
+11
+0
+P1is TrueP2is 
+False
+© Amin Rezaei
+
+State Explosion Problem
+31Example :Forn-bitcounter, thenumber ofstates ofthecounter is
+exponential inthenumber ofbits(i.e.,2n.)
+Werefer tothisproblem asstate explosion problem :Asthe
+number ofstate variables inthesystem increases, thesize ofthe
+system state space grows exponentially .
+Partial solution :Bounded model checking →Itreports counter
+examples ofbounded length .
+© Amin Rezaei
+
+Automated Theorem Proving
+© Amin Rezaei
+
+Theorem Proving
+33Theorem proving uses mathematical formulas thatcorrespond to
+thebehavior ofthesystem .
+Theverification process istheevaluation ofthese formulas .
+Complex systems canapply thismethod since itdoes notdeal
+withstates, butwithformulas .
+✓Itdemands high familiarity withthesystem under verification .
+✓Itisdifficult toautomate .
+© Amin Rezaei
+
+Automated Theorem Proving (ATP)
+34ATP istheprocess ofdetermining ifsome statement (i.e.,the
+theorem) isvalid using auxiliary tools .
+Formalism Automation Degree Expressiveness Validity
+Propositional Logic High Low Decidable
+Temporal Logic High Low Decidable
+First-order Logic Partial Medium Semidecidable
+Higher -order Logic Low High Noteven semidecidable
+Trade -off:The increase inexpressiveness has theinverse
+effect onautomation degree andvalidity .
+© Amin Rezaei
+
+ATP Model
+35ATP hastwosteps :
+(1)System &theorem descriptions →Adequate formalism
+(2)Proof construction →Prover with/without user guidance
+ATP EngineSystem
+TheoremsProof
+© Amin Rezaei
+
+ATP Applications
+36Software Creation :Itisaneconomically important real-
+world application ofATP.
+Software Verification :Itisanobvious and attractive goal,
+which isslowly being realized using ATP technology .
+Hardware Verification :Itisthelargest industrial application
+ofATP.
+© Amin Rezaei
+
+ATP Example: Prototype Verification System (PVS)
+37PVS isamechanized framework forspecification andverification .
+PVS includes aspecification language based onhigher -order
+logic and aninteractive proof language based onthesequent
+calculus .
+PVS attempts to tread the middle ground between
+expressiveness andautomation degree .
+Forfurther information onPVS, check itswebsite .
+Sequent calculus is a formal logic argumentation where every line of a proof is a conditional 
+tautology instead of an unconditional tautology. 
+© Amin Rezaei
+
+ATP Example: Rocq
+38Coq provides aformal language towrite theorems together with
+anenvironment forinteractive development ofmachine -checked
+proofs .
+Coq uses theCalculus ofInductive Constructions (CIC), that
+combines both ahigher -order logic andarichly -typed functional
+programming language .
+Forfurther information onRocq ,check itswebsite .
+© Amin Rezaei
+
+ATP Example: Isabelle
+39ThefamousinstanceofIsabelleisIsabelle/HOL, whichprovides
+ahigher-orderlogictheoremprovingenvironment thatisready
+touseforbigapplications .
+Proofsareconducted intheinteractive prooflanguage Isar,
+whichcangeneratehuman-readableoutput.
+Forfurtherinformation onIsabelle,checkitswebsite.
+© Amin Rezaei

@@ -1,0 +1,338 @@
+FIFO ARCHITECTURES FOR
+DIGITAL SYSTEMS
+Dr. Igor D S Miranda
+Federal University of
+Recôncavo da Bahia, Brazil
+
+
+PRESENTATION OUTLINE
+01 FIFO BASICS
+02 APPLICATIONS
+03 SYNCHRONOUS FIFO DESIGN
+04 ASYNCHRONOUS FIFO DESIGN
+
+FIFO BASICS
+
+WHAT IS A FIFO?
+A First-In, First-Out (FIFO) buffer that temporarily
+stores data in the order it was received.
+Warehouse Laptop Factory
+1800 laptops delivered
+once per semester10 laptops are
+ sold every day
+FIFO Producer Consumer
+
+WHAT IS A FIFO?
+A First-In, First-Out (FIFO) buffer that temporarily
+stores data in the order it was received.
+Warehouse
+FIFO
+. . .Laptop 1 Laptop 2 Laptop N
+
+FIFO
+wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_nFIFO MODULE OVERVIEW
+width
+depth
+
+FIFOwr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_nFIFO BASIC BEHAVIOR
+
+FIFO
+D0wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D0 X X XFIFO BASIC BEHAVIOR
+
+FIFO
+D0 D1wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D1 X X XFIFO BASIC BEHAVIOR
+
+FIFO
+D0 D1 D2wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D2 X X XFIFO BASIC BEHAVIOR
+
+FIFO
+D0 D1 D2 D3wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D3 X X XFIFO BASIC BEHAVIOR
+
+FIFO
+D1 D2 D3wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D0 X XFIFO BASIC BEHAVIOR
+
+FIFO
+D2 D3wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D1 D0 XFIFO BASIC BEHAVIOR
+
+FIFO
+D3wr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D2 D1 XFIFO BASIC BEHAVIOR
+
+FIFOwr_clk
+wr_ena
+full
+dinrd_clk
+rd_ena
+empty
+doutreset_n
+D3 D2 XFIFO BASIC BEHAVIOR
+
+FIFO APPLICATIONS
+
+USE CASE 1: TEMPORARY DATA
+STORAGE BETWEEN PRODUCER
+AND CONSUMER
+Buffers data between independent blocks, whether
+they operate at fixed or irregular rates.
+Example: A processor writes log messages to a FIFO
+at irregular intervals; a UART transmits them steadily.
+
+USE CASE 2: CLOCK DOMAIN
+CROSSING
+Enables safe communication across asynchronous
+clock domains.
+Example: An FPGA logic block at 100 MHz sends
+data to a peripheral running at 25 MHz.
+
+USE CASE 3: FRAMED PROCESSING
+Some systems consume or produce data frames, not
+individual elements.
+Example: A network processor reads entire Ethernet
+frames from a FIFO, waiting for End-of-Packet (EOP)
+marker before processing.
+
+SYNCHRONOUS
+AND
+ASYNCHRONOUS
+FIFO DESIGNS
+
+Feature Synchronous Asynchronous
+Clock
+DomainsSingle clock for
+both read and
+writeSeparate
+clocks for read
+and write
+ComplexityLower — simpler
+control logicHigher —
+needs careful
+metastability
+mitigation
+LatencyLower, due to
+synchronous
+timing Slightly higher
+due to
+synchronizer
+delays
+SYNCHRONOUS VS
+ASYNCHRONOUS
+FIFO DESIGNSSynchronous FIFO
+Asynchronous FIFO - Fast to Slow
+Asynchronous FIFO - Slow to Fast
+
+SYNCHRONOUS
+FIFO DESIGN
+*  Some images and source-codes in this section were adapted from Cadence training course
+
+00
+01
+10
+11full = 0SYNCHRONOUS FIFO DESIGN
+At its core, a FIFO uses a circular buffer with dual-port
+memory, write_ptr, and read_ptr.
+Content Addr
+write_ptr read_ptr
+000 000
+empty = 1
+
+SYNCHRONOUS FIFO DESIGN
+1st write
+empty flag goes low
+00 D0
+01
+10
+11full = 0Content Addr
+write_ptrread_ptr
+001000
+empty = 0
+
+SYNCHRONOUS FIFO DESIGN
+2nd  write
+00 D0
+01 D1
+10
+11full = 0Content Addr
+write_ptrread_ptr
+010000
+empty = 0
+
+SYNCHRONOUS FIFO DESIGN
+3rd  write
+00 D0
+01 D1
+10 D2
+11full = 0Content Addr
+write_ptrread_ptr
+011000
+empty = 0
+
+00 D0
+01 D1
+10 D2
+11 D3full = 1SYNCHRONOUS FIFO DESIGN
+4th  write
+full flag goes high
+Content Addr
+write_ptr read_ptr
+100 000
+empty = 0
+
+00 D0
+01 D1
+10 D2
+11 D3full = 0SYNCHRONOUS FIFO DESIGN
+1st read
+full flag goes low
+Content Addr
+write_ptr
+read_ptr100
+001
+empty = 0
+
+00 D0
+01 D1
+10 D2
+11 D3full = 0SYNCHRONOUS FIFO DESIGN
+2nd read
+Content Addr
+write_ptr
+read_ptr100
+010
+empty = 0
+
+00 D0
+01 D1
+10 D2
+11 D3full = 0SYNCHRONOUS FIFO DESIGN
+3rd read
+Content Addr
+write_ptr
+read_ptr100
+011empty = 0
+
+00 D0
+01 D1
+10 D2
+11 D3full = 0SYNCHRONOUS FIFO DESIGN
+4th read
+empty flag goes high
+Content Addr
+write_ptr read_ptr
+100 100
+empty = 1
+
+SYNCHRONOUS FIFO ARCHITECTURE
+
+SYNCHRONOUS FIFO
+IMPLEMENTATIONMemory module
+
+SYNCHRONOUS FIFO
+IMPLEMENTATION
+Read and write
+pointers logic
+
+SYNCHRONOUS FIFO
+IMPLEMENTATIONRead and write
+pointers logic
+
+SYNCHRONOUS FIFO
+IMPLEMENTATION
+Full flag logic
+
+SYNCHRONOUS FIFO
+IMPLEMENTATION
+Empty flag logic
+
+ASYNCHRONOUS
+FIFO DESIGN
+
+ASYNCHRONOUS FIFO ARCHITECTURE
+
+ASYNCHRONOUS FIFO CHALLENGES
+Clock domain crossing for pointers comparisons
+Glitches may occur due different skew 
+
+ASYNCHRONOUS FIFO
+Clock domain crossing
+(CDC) for pointer
+synchronization
+
+
+ASYNCHRONOUS FIFO
+Avoiding glitches in pointers CDC using gray code
+
+
+Binary
+to Gray
+converterASYNCHRONOUS FIFO
+Synchronization solution
+SynchronizerGray to binary
+converterFull flag
+generatorRead Pointer
+Write PointerFull flag Read clock domain  Write clock domain
+
+ASYNCHRONOUS FIFO: SYNC SOLUTION
+
+IGOR D S MIRANDA
+igordantas@ufrb.edu.br
+linkedin.com/in/igor-miranda-38117b13

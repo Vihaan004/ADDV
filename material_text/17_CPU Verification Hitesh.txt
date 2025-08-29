@@ -1,0 +1,830 @@
+1Demystifying CPU Verification
+Ensuring Correctness in Modern Processors
+25/06/2025Hitesh Mishra (Credits: Martin Dean, Scott Kennedy, Micah McDaniel)​
+
+2Agenda
+What is a CPU
+Why Verify a CPU
+What is verification
+Verification Challenges
+Verification Techniques
+Payloads and Platforms
+Wrap up
+
+3What is a CPU
+•Wikipedia says:
+Acentral processing unit (CPU), also called 
+acentral processor ,main processor , or 
+justprocessor , is the primary processor in a 
+given computer . Itselectronic 
+circuitry executes instructions of acomputer 
+program , such as arithmetic , logic, 
+controlling, and input/output (I/O) operations.
+
+
+4
+ARM Cortex -A15 MPCore Block Diagram
+Global Interrupt Control, Trace and 
+Debug handled across all cores
+1-4 Processors per cluster
+Each processor has full Out -of-
+Order (OoO) pipeline.
+Integrated Level 2 cache 
+
+5Why Verify CPUs
+•Modern CPU designs exceed billions of transistors today.
+•A single silicon re -spin can cost $1– 50M (based on the node) and 4– 6 months
+•Bugs in the field → security holes, system crashes, system hangs
+•Verification reduces risk, ensures “first -time right”
+
+6CPU Bugs
+•The font of all knowledge (Wikipedia... again) says:
+•A bug is:
+•An error, flaw, failure, or fault in a computer program or system that produces an incorrect or unexpected 
+result, or causes it to behave in unintended ways. Most bugs arise from mistakes and errors made by 
+people in either the source code or its design.
+•Verification engineers aim to find the bugs!
+
+7What is Verification?
+•The process of ensuring a Design meets the specified requirements
+•Wikipedia says:
+•“Functional verification , in electronic design automation, is the task of verifying that the logic design 
+conforms to specification. In everyday terms, functional verification attempts to answer the question "Does 
+this proposed design do what is intended?" This is a complex task, and takes the majority of time and effort 
+in most large electronic system design projects ”
+
+8What are the Verification Challenges?
+•Electronics is a (very) fast -paced business sector
+•Think back to the phone you had at the start of your University studies and compare to now
+•Constant innovation and improvement required to stay relevent
+•This ever -changing landscape results in:
+•Increased Complexity of our designs
+•Increased need to exhibit Value Add to the partners
+•Shortened Time to Market windows to remain competitive
+•Increased emphasis on Quality
+
+9Verification Challenges: Increased Complexity
+•As complexity increases, so does the verification challenge
+•The more there is to verify the harder verification becomes
+
+
+10•State space = number of unique states the logic can get into
+•Simplified view of an ARM Cortex- A L2 design: 
+•Reachable “state” space = 5x1030
+•Number of seconds since The Big Bang ~= 5x1017
+•Realistic reachable state space is actually much bigger
+•So, what do we do to ensure we get a Quality product in the 
+expected Time to Market?Example of a Current Challenge
+Simplified Coherency: By the numbers
+
+11How do we achieve this?
+Constrained
+Random
+StimulusMulti Unit Level Testbenches
+L1 = BIU, STB, TLB, DCUMP = L1 + SCUUnit Level Testbenches
+BIU, STB, TLB, 
+DCU, SCU
+Code
+Coverage
+Functional
+CoverageDirected
+TestsSystem Level
+Emulation
+System Level
+FPGAOS-boots:
+Linux
+WindowsArchitecture
+Compliance Tests
+RIS
+Formal
+Verification
+Soak TestingProtocol
+CheckingPeer ReviewThe following sessions will cover how we achieve our 
+quality in the correct timeframe using these techniques
+Silicon Test Chips
+
+12Verification Techniques
+
+13Verification Techniques Agenda
+•Bottom -Up Verification Unit and Multi -Unit Testing
+•What is a Testbench?
+•What is a Testplan?
+•Overview of industry -standard verification techniques
+•Stimulus
+•Coverage
+•Checking
+
+14Bottom -Up Verification Methodology
+In this case the Bus Interface Unit (BIU) is our Device Under Test (DUT)BIU STB DCU TLB
+L1 Memory System
+L2$ SCU
+MPPFU DPU ICUCPU0 CPU1
+Cache Coherent InterconnectGPUSystem
+In this case the L1 Memory System is our DUT
+In this case the Multi Processor Memory System is our DUT
+In this case the full system is the DUT
+In this case CPU0 is the DUT
+
+15Bottom -Up Verification Methodology
+• Exhaust finding bugs at the lowest level before moving up a level of abstraction
+• BIU tested in Unit Level TB, L1 Multi -Unit TB, MP Multi -Unit TB and Top level TB
+• Also tested as part of a wider System Level TB including other CPUs, GPUs, Memory Controllers and Coherent InterconnectsBIU STB DCU TLB
+L1 Memory System
+L2$ SCU
+MPPFU DPU ICUCPU0 CPU1
+Cache Coherent InterconnectGPUSystem
+
+16•Using the CPU’s Bus Interface Unit 
+(BIU) as an example, the following slides illustrate the levels of verification carried out
+•The BIU is tested in a standalone testbench with Bus Functional Models (BFMs) to mimic the interactions with the rest of the DUT
+•This provides the quickest path to initial 
+bring- up and basic operation bugs
+•Once this technique saturates, we 
+move to multi -unit testingUnit Level Verification
+Exhaust finding bugs at the lowest level before moving up a level of abstraction
+CPU
+TLB
+ DCU
+BIU
+ STB
+IFUDPU ETM
+
+
+17•Both our Unit and Multi -Unit testbenches use constrained random stimulus
+•Fine-grained control of stimulus at different levels of hierarchy
+•Improves coverage of low -level state -space
+•Improves coverage of unit interactions
+•In the CPU example there are two Multi -Unit testbenches as follows:
+•L1 Testbench
+•Tests single -core data side memory system in isolation
+•Includes checks from DCU, STB, TLB, BIU unit -level testbenches
+•Additional architectural checks
+•MP Testbench
+•Tests coherency between multiple data side memory systems
+•Includes checks from DCU, STB, TLB, BIU, SCU, L1 testbenches
+•Additional architectural checks
+•Wide range of configurations (multi -core, multi -cluster)
+MP1, no L2 cache (simplest configuration)
+MP4 + MP4 + CCI, with GIC and L2 caches (largest AMBA 4 ACE -based configuration)
+MP4 + MP4 + MP4 + MP4 + CCN, with GIC and L2 caches (Largest AMBA 5 CHI -based configuration)CPU Multi- Unit Testing
+Verification of the complex interactions within a coherent memory system
+
+18IFUCPU Multi- Unit Testing
+L2 and SCUDPU
+CPU0
+TLB
+ DCU
+BIU
+ STB
+Debug I/F
+CPU1
+TLB
+ DCU
+BIU
+ STB
+Debug I/F
+AMBA interfaceCPU MP2 Cluster
+ETM
+L1
+ACP 
+interface
+IFUDPU ETM
+
+
+19CPU Multi- Unit Testing Example
+L2 and SCUCPU0
+IFUTLB DCU
+BIU STBDebug I/F
+CPU1
+TLB DCU
+BIU STBDebug APB I/F
+AMBA I/FCPU-A MP2 Cluster
+MPIFUDPU ETM
+ DPU ETM
+ACP 
+interface
+
+
+20CPU Multi- Unit Testing Example
+L2 and SCUCPU0
+IFUTLB DCU
+BIU STBCPU1
+IFUTLB DCU
+BIU STBCPU MP2 Cluster
+L2 and SCUCPU0
+IFUTLB DCU
+BIU STBCPU1
+IFUTLB DCU
+BIU STBCPU MP2 Cluster
+CCI-400
+MPETM DPU DPU ETM DPU ETM DPU ETM
+
+21What is a Testplan?
+•The document outlining how the DUT will be checked for compliance to the specification
+•Typical Contents:
+•Overview of the testbench architecture
+•Specific tests required to exercise areas of the specification
+•Details of coverage to be collected to ensure specification is met
+•Sometimes split into two documents
+•Testbench Specification
+•Coverage Plan
+
+22What is a Testbench?
+•The collective name for the code written to ensure a DUT is compliant to the specification
+•Contains:
+•STIMULUS: Some way of driving values into the DUT
+•CHECKING: Some way of checking the DUT has behaved correctly
+•COVERAGE: To measure the success of the stimulus
+•We can think of this as the three sides of a triangle
+•We will now consider each of these in turn
+
+23Checking
+StimulusCover ageThe Key to Successful Verification
+
+24Our Design Under Test (DUT)
+Feature C
+Feature BFeature A
+
+25Stimulus: Directed Testing
+•A set of tests per feature
+•Disadvantage: If a test is not written to stimulate an area, bugs will remainFeature C
+Feature BFeature ATestbench
+Test A1
+Test A2
+Test B1
+Test B2
+
+26Stimulus: Random Testing
+•Random Stimulus
+•Disadvantage: No focus to the testing: again, many bugs go undetectedFeature C
+Feature BFeature ATestbench
+Random
+Generator
+
+27Stimulus: Constrained Random Testing
+•Random Stimulus with constraints to focus the testing into areas of interest
+•Disadvantage: We believe this should be better than directed only or random only but have 
+no way of knowingFeature C
+Feature BFeature ATestbench
+Random
+GeneratorConstraints
+
+28Stimulus: The Hybrid Approach:
+Coverage- Driven Constrained Random Testing + Directed Tests
+Feature C
+Feature BFeature ATestbench
+Random
+GeneratorConstraints
+CoverageCBADirected Test C1
+
+29Checking
+StimulusCover ageThe Key to Successful Verification
+
+30So, What is Coverage?
+•There are two main forms of Coverage. 
+•These are used to measure the success of our stimulus
+•Both are required to guarantee a high quality DUT
+•FUNCTIONAL COVERAGE
+•Automatically collected by simulator based on user 
+input
+•Collects information about the user -defined 
+scenarios or requirements
+•Shows success (or failure) of constrained random (or directed) stimulus
+•Allows linkage of requirements that span multiple featuresCODE COVERAGE
+Automatically collected by simulator for 
+“free”
+Collects information about the lines of verilog RTL
+Lines hit
+Branches hit
+Expressions hit
+Signal toggles hit
+No user control
+
+31Code Coverage: Clunky
+if (a | b) begin
+    d = 1’b1;
+    e = 1’b0;
+endelse if (c) begin    d = 1’b0;
+    e = 1’b1;
+endLine  covered, d Toggled  from 1’b0 > 1’b1
+Line  covered, d Toggled  from 1’b1 > 1’b0a==1, b==0
+a==0, b==1Expression  covered
+Condition  covered
+a==b==0, c==1
+Condition  covered
+Good initial metric of RTL code, but does not tell us about the interactions/ relationships between unrelated pieces of code.
+
+32always  @(posedge clock) begin
+  if (a==b) begin // Statement, Branch(if)
+    z = x + y;       // Statement
+  end
+  else if ((a > b) || (a > c)) begin // Statement, Branch, Expression
+    z = x - y;
+  end
+  else begin // Statement, Branch(else)
+    z = x;   // Statement
+  end
+endCode Coverage
+
+33Functional Coverage
+Stimulus:
+•ADD r0, r1, r2
+•SUB r4, r5, r0
+•MUL r7, r8, r9•Functional Coverage is a user -written encapsulation of a requirement of the DUT.
+•The amalgamation of all these requirements gives us our overall functional coverage score
+•The following example is a simple 6 instruction, 10 register CPU:
+Instruction Coverage = 50% hit
+ADD SUB MUL AND OR NOT
+Destination Coverage = 30% hit
+r0 r4 r7 r8 r9 r1 r2 r3 r5 r6
+
+34Functional Coverage
+•Our requirements can become complex and therefore tell us more interesting information
+•Cross coverage allows us to combine coverage to see more detail
+•Harder to hit as complexity increases
+•More constrained random simulation required to hit the holes:
+ADD
+SUB
+MUL
+AND
+OR
+NOTr0 r4 r7 r8 r9 r1 r2 r3 r5 r6
+Instruction x Destination = 5% hit11.6% hit21.1% hit98.3% hitSteer constraints 
+or directed test
+100% hit
+
+35Coverage: Are we done?
+“Once we get to 100% Code Coverage and 100% Functional Coverage are we done?”
+•No! Functional Coverage is only as good as the coverage points you define. There may be bugs 
+in scenarios or relationships between features that have not been thought of and have not yet 
+been stimulated by the constrained random stimulus.
+“How do we solve this?”
+•We can never be fully done… BUT… we aim to be. 
+•To achieve this we run extended soak testing and overlapping verification techniques... 
+Essentially lots more cycles to ensure that no new bugs pop out in unexpected areas.
+“And if we get new bugs?”
+•Augment the functional coverage such that we know these scenarios are hit in future runs.
+
+36Checking
+StimulusCover ageThe Key to Successful Verification
+
+37Checking: Test -based checking vs. monitoring
+Feature C
+Feature BFeature ATestbench
+Random
+GeneratorConstraints
+Directed Test C1(Stimulus & Self Checking)Monitor: Checking in TB
+Directed Test C1(Stimulus only) CoverageCBA
+
+38Checking: Black Box & Scoreboarding
+•Black Box checking relies only on the input and outputs
+•In this example, the checker can do a simple check: Data Out = reformatted(Data In)
+•No knowledge of internal state is required
+•No modelling of internal state is required
+•Such a data consistency point to point mapping checker is commonly referred to as a scoreboardAXI Bridge DUT 64 bits 32 bitsScoreboard &
+CheckerProbe the inputs and outputs and send the results to the monitor
+
+39Checking: Grey Box & Result Modelling
+•Recalling part of our earlier stimulus: ADD r0, r1, r2
+•Simple Data Out = Data In scoreboarding not possible here as there is no output port
+•What we actually want to check is the result of the ADD , which is held in General Purpose Register  
+r0Instructions
+General Purpose 
+Register BankDecoder
+ALU
+WritebackProcessor Data Pipeline DUT
+
+40Checking: Grey Box & Result Modelling
+•The Grey arrow indicates “grey box” 
+checking, whereby some internal state 
+needs to be probed to perform the check
+•Result Modelling: In this case, we grab 
+the inputs and need to perform some 
+transformation/ algorithm to obtain the 
+value to check against the grey values
+•Accurate modelling is required to compute the result & check DUT is 
+correctInstructions
+General Purpose 
+Register BankDecoder
+ALU
+WritebackPipeline Model & Checker
+
+41Complete Testbench
+Testbench
+Random
+GeneratorConstraints
+Monitor: Checking in TB
+CoverageCBADirected TestsDirected TestsDirected TestsDirected Tests
+CheckingStimulus
+Coverage
+
+42Static vs Dynamic Verification
+•Dynamic - Simulation based testing: will never (usually) give a conclusive answer about whether a 
+design is correct
+•Can demonstrate a high level of confidence
+•Static - Any property of a design which is proven by a formal tool is conclusively true in all possible 
+cases
+•Strong statement to be able to make...
+•...but can be (very) difficult to achieve
+•Both approaches have advantages and disadvantages, and can be used in a complementary way
+
+43Formal Verification
+
+44What is “Formal”?
+•Mathematically has roots dating back to 17th century
+•1990s – Model Checking was invented
+• Its application was driven by CPU vendors (FDIV bug 1995)
+•The underlying theory underpinning formal is essentially “mathematical logic” – 
+•Specifications have clear semantics
+•Implementation has a mathematical representation (FSM)
+•The checker 
+• algorithmic (model checking) - automatic
+• deductive  relying on “rules of inference” in a logic (theorem proving) – semi -automatic at best
+•The checker’s outcome is an existence of a rigorous (exhaustive) proof in a given logic
+
+45Checking: Assertions & Formal Verification
+•Assertions are statements written in the design or testbench to express a rule the design must adhere 
+to
+•Can be utilised in dynamic simulation as an extra set of checks
+•Can also be used for design bring- up, bug hunting and bug absence using Formal Verification...
+•Formal Verification will be discussed later
+
+46Formal Verification: What is it?
+•Industry in general, including ARM, use various methods of Formal Verification. The main being Model Checking, which is well 
+supported by the EDA community.
+•Wikipedia defines Model Checking as such:
+•“Given a model of a system, exhaustively and automatically check whether this model meets a given specification”
+•Essentially a mathematical model or algorithm is run on a set of rules (our assertions) specifying the behaviour of the DUT.
+Assertions
+Pass
+Counter 
+ExampleWaveformsModel Checking ToolRTL Assertions Model of a System Specification
+Model meets 
+SpecificationModel does not meet specificationYes No
+
+47Summary
+•Unit level testing uses powerful techniques such as:
+•Coverage-Driven Constrained Random Testing 
+•Stimulus and Coverage
+•Models to ensure that different stages or features of the DUT are checked appropriately
+•Checking
+•All three sides of the triangle are required to ensure we have tested our design as planned:
+•If the stimulus is insufficient, then bugs will remain. Coverage will alert us to this.
+•If coverage is not present, then we know that we have exercised the design to some extent, but we do not 
+know how thoroughly
+•If checks are missing, then we may have stimulated and covered a feature, but the design may be behaving incorrectly
+
+48Instruction Fetch Unit (IFU) Example
+BIU
+Pre-
+Decoder
+LFBDCU DPU
+Arbitration Lookup /
+write
+AGU
+uTLBL1-Instruction cache
+BTICFetch 
+QueueDecode 0
+Decode 1
+Branch 
+Decode
+BHT BHR
+BTACpd0 pd1 / if0 if1 if2 if3
+TLBCache Hit /Miss
+TLB Hit /
+Miss
+IFetchCP15
+MBIST
+LFB ctl
+LFB Hit
+Address 
+calculation
+PDCPDC
+LFB dataReturn 
+packet
+
+49Instruction Fetch Unit (IFU) Example
+•Idealised Example:
+•Data Processing Unit (DPU) sends an address to the IFU
+•The IFU must then check whether the instruction at the requested address is in the Instruction 
+Cache or requires to be fetched from main memory
+•If the instruction is fetched from main memory, it is then placed in the instruction cache for future use
+•A full cache line of instructions (512/32 = 16 instructions are fetched at a time)
+•When the instruction is obtained externally or from the cache it must then be partially decoded to check if it is a branch
+•If so, branch prediction is performed and the output instruction to the DPU is modified with the result of the 
+prediction
+•Instructions are then placed in fetch queue, to be processed by the IFU for delivery to the DPU 
+whenever the DPU makes a request for instructions
+
+50IFU Example
+•To verify this IFU we must:
+•Stimulate the DUT with instructions
+•Stimulate the DUT with requests and addresses from the DPU
+•Model the Instruction Cache
+•Model the Branch Prediction algorithm
+•Check the instructions are fetched from the correct location
+•Check that the instruction on the output to the DPU matches the expected instruction
+•Check that the output instruction has been modified by branch prediction as expected
+•Measure that all instructions have been applied
+•Measure that all instructions have been observed
+•Measure that all possible instruction transformations have occurredSTIMULUS: 
+Need stimulus generator and BFMs
+CHECKING
+Need to model the Instruction Cache
+Need to model the branch predictor
+Need to monitor and the interfaces
+Need to add checks against expected behaviour
+COVERAGE
+Need to define the interesting scenariosNeed to probe at appropriate points of interest to get context of what has happened
+
+51IFU Example: 
+instruction in cache
+tb_svlib
+monitor/checker
+Coverage
+collector
+DUT
+I$ RAM I$ RAM modelInstruction
+Generator
+dpu_bfm biu_bfm
+Step 1: DPU BFM sends 
+address to DUTDPU BFM generates a constrained random address & drives the input signals to the DUT
+DUT accepts addressMonitor accepts addressDUT fetches instruction across interface from Instruction CacheMonitor fetches instruction from Instruction Cache modelCheck: Fetched instructions matchCoverage collector updated with instruction fetched
+Step 2: DUT fetches 
+instruction from I$ RAM 
+
+52IFU Example: 
+instruction in cache
+tb_svlib
+monitor/checker
+Coverage
+collector
+DUT
+I$ RAM I$ RAM modelInstruction
+Generator
+dpu_bfm biu_bfm
+Step 4: DUT outputs 
+instruction to DPU DUT outputs instruction to DPU and Monitor
+Check: instructions matchCheck: branch prediction info as expectedCover: output instruction and it’s associated branch info
+Step 3: DUT decodes and 
+carries out branch prediction internallyDUT decodes and predicts branch status on instruction fetched from Instruction Cache
+Monitor decodes and predicts branch status on instruction fetched from 
+Instruction Cache model
+Check: Grey box check that branch prediction is correct
+
+53IFU Example: 
+instruction in main memory
+tb_svlib
+monitor/checker
+Coverage
+collector
+DUT
+I$ RAM I$ RAM modelInstruction
+Generator
+dpu_bfm biu_bfm
+Step 1: DPU BFM sends 
+address to DUTDPU BFM generates a constrained random address based on the constraints coded in the BFM
+DUT accepts addressMonitor accepts address
+Step 2: DUT sends 
+address to BIU BFM
+BIU BFM sends cache 
+line backDUT sends address to BIU BFM
+BIU_BFM requests a cache line from Instruction GeneratorInstruction generator generates 8 instructions based on constraints 
+and concatenates into a cache line
+BIU_BFM stimulates DUT with the cache line generated
+Coverage collector updated with instruction fetched
+
+54IFU Example: 
+instruction in main memory
+tb_svlib
+monitor/checker
+Coverage
+collector
+DUT
+I$ RAM I$ RAM modelInstruction
+Generator
+dpu_bfm biu_bfm
+Step 4: DUT outputs 
+instruction to DPU DUT outputs instruction to DPU and Monitor
+Check: instructions matchCheck: branch prediction info as expectedCover: output instruction and it’s associated branch info
+Step 3: DUT decodes and 
+carries out branch prediction internally.
+DUT sends line to 
+Instruction CacheDUT decodes and predicts branch status on instruction fetched from Instruction Cache
+DUT sends line to Instruction CacheMonitor decodes and predicts branch status on instruction fetched from 
+Instruction Cache model
+Monitor sends line to Instruction Cache ModelCheck: Line sent to cache model matches line sent across RAM interfaceCheck: Grey box check that branch prediction is correct
+
+55IFU Example
+•Stimulus all generated in constrained random testbench
+•Checking coming from both the testbench itself and from embedded assertions within the DUT
+•Coverage collected by Coverage Collector for analysis offline in coverage tool
+•Through random regression over a large number of seeds we will (hopefully) cover what we expect 
+and...
+•Uncover what we didn’t expect!
+
+56Payloads and Platforms
+
+57Payloads
+
+58Multi- Layered Verification Strategy
+•Mult i -unit level testbenches for major subsystems
+•Unit level testbenches 
+•F ormal proof sSilicon V er ification
+S ystem testing
+To p-level testing
+Mult i -unit
+Unit
+Sub-unit•Sub-unit testbenches
+•F ormal proof s•Basic Directed testing
+•Random compute and graphics tests
+•Content fr ame simulation•API Compliance Testing
+•Graphics DemosGPU
+•Interoper ability
+•S ystem Coherency testing
+•API Content &  Compliance T esting
+•Architectur al Suits
+•Directed T ests
+•Ra n d o m  Te s t s•Extended OS CPU
+•Interoper ability
+•Baremetal  stress testing
+•OS boot + application stress
+•Realistic payloads
+•Benchmarking
+•Extended super -unit soak testing•At-speed testing of external interfaces (DM C 
+PH Ys e t c)CoreL ink
+•Interoper ability
+•Real payloads
+
+59CPU Top Level Testbench
+64/128- bit ACEQuad Cortex -A15 MPCore
+A15
+Processor Coherency (SCU)
+Up to 4MB L2 cacheA15 A15 A1564/128- bit ACP
+AXI4 
+DecoderACE Snoop
+GeneratorAXI3 
+BFMAXI3 
+Xactor
+Memory
+ModelTrickboxClocks, Resets,
+Power, Interrupts, ECCISS 
+(Arch 
+Model)Config
+TestProgramsDirected
+•AVS, DVS
+Random (RIS)
+•ISA, MP
+“Chicken” bitsPage
+Maker
+
+60CPU Top Level: Architectural Suits
+Suite of architectural tests that every CPU core must run and pass.
+Definition:  “A set of examples of the invariant behaviours that are provided by the ARM ARM , so that 
+implementers can verify if these behaviours have been interpreted correctly.”
+Uses a CPU Top -Level Testbench
+Simple memory,  Ref model integration
+Tests are binary executable programs
+
+61CPU Top Level: Directed Tests
+•CPU project teams will create Directed Verification Suite tests to target particular areas of 
+interest 
+•Unlike Architectural suits, these will target microarchitectural features – in particular those 
+crossing unit boundaries (which therefore can’t be tested well at unit level)
+•As a result, they will be specific to the processor they are written for
+•These are usually hand- written assembler tests; they may be self -checking or rely on an 
+external checking mechanism
+
+62CPU Top Level: Random Tests
+•‘Random Instruction Sequence’ tests
+•Self-contained assembler tests (usually)
+•The tests may be self -checking or rely on an external checking mechanism
+
+63System -Level ‘DUT’ Topology
+•A system that is representative of a real SoC from a smartphone
+•Allows to run realistic payloads and check compatibility of IPs
+•Encompasses processors, graphics, system IP
+
+64
+System Validation Platform Example
+Coherency
+Virtualization
+External Memory Subsystem
+Rest of SoC Interconnect
+CCI-400
+Full cache coherency
+I/O coherency
+Prioritization and utilization
+MMU -400
+OS level virtualization
+GIC-400
+Virtual interrupts
+Multicore  support
+DMC-400
+DDR utilization
+PHY integration
+NIC-400
+Routing efficiency
+
+65System Level: Operating Systems
+•Aim: Run OS images and stress tests before release
+•… in short, make sure it all Just Works when a customer gets silicon and the current OS release
+•Why?
+•to find bugs as early as possible – pain increases the later they’re found
+•Sales sell the dream; implementation team provide the reality; we try to prevent it turning into a 
+nightmare…
+•it gives early warning of updates needed in the ‘big 3’ OSes, either for bugs or new feature use
+•… and so lets us have patches ready along with the CPU release
+•it’s what customers will do with real silicon, and it exposes problems not caught by other methods
+•… and makes sure features are actually usable in SW
+•What:
+•Standard OS: Linux, Windows?
+•Graphics: driver stack, plus game traces/benchmarks/conformance suites
+•(plus some non-OS bare-metal memory and MP stress tests)
+
+66Silicon Level
+•We also utilise test chips and development platforms from our lead partners in order to 
+•Create visually engaging demo’s of applications of our  technology 
+•Optimise our SW
+•Run some API conformance suites that take 20+ days to run in silicon so have excessive run times in FPGA 
+•Get the satisfaction of playing with something you helped to create!
+
+
+67Platforms
+
+68Performance Visibility Relationship
+FPGA
+TestChipsEmulatorSimulatorVisibility Debug
+Performance (Cycles/sec)x106 x107 x109 x105 x103 x108 x104 x102All Signals Limited Signals No Signals
+
+
+69Matching Platforms with Payloads
+•Simulation
+•Small test run length
+•Deep debug
+•Bare metal
+•Unit level testsFPGA
+Long test run length
+Simple debug
+OS bring up
+OS level stress tests/apps
+Emulation
+Medium test run length
+Deep debug (with restrictions)
+Benchmarking (configurable)
+OS level bootsTestChips
+Very Long test run length
+Basic debug
+Benchmarking (fixed)
+OS bring up
+OS level tests
+
+70Execution Platforms –  Rapid Prototyping
+•Emulators are used to give
+•Full vision debug capability
+•Fast compile and turnaround
+•All major EDA companies offer hardware 
+emulation solutions.
+FPGA Farm
+Compromise debug capability for speed and cost
+Capacity : Could be limited
+
+71Wrap -up
+
+72Wrap -up: Importance Of  Verification
+•Successful verification of our IP is vital to ARM
+•Key part of the value to partners, with high visibility
+•This requires close collaboration between designers and verification engineers
+•Verification engineers will be involved from the early stages of a project 
+•We are continually looking to improve the way we do verification
+•This is underpinned by the IPVS, which sets out established best practices and 
+defines reviews to check these are followed
+•Use of ML techniques to improve the verification quality and efficiency.
+
+73Wrap -up: Verification Toolkit
+•Dynamic simulation is a key part of our verification strategy
+•However, it can’t find all the problems in a design
+•Static (formal) verification is also used
+•Hardware platforms give us a way of running larger quantities of cycles than we can 
+feasibly run in simulation
+•This brings challenges around checking, coverage and debugging
+•We use real payloads like operating systems to show that our IP, collectively, will perform correctly under the workloads our partners will run
+•Any tool which can help us to find bugs effectively is a good tool
+
+74Wrap -up: Verification Techniques
+•The verification process has three key elements
+•Stimulus, checking, coverage
+•All of these are required for any verification environment to be effective
+•There are many ways to implement each element
+•We use a bottom -up approach 
+•The design is broken up into units, which are verified individually in a simulation-based test 
+environment before being brought together
+•The most prevalent language used to develop testbenches for this first step is SystemVerilog
+•The various EDA vendors offer competing products to help us with the verification challenge
+
+Thank You
+
+The Arm trademarks featured in this presentation are 
+registered trademarks or trademarks of Arm Limited (or its subsidiaries) in the US and/or elsewhere. All rights reserved. All other marks featured may be trademarks of 
+their respective owners.
+www.arm.com /company/policies/trademarks

@@ -1,0 +1,394 @@
+SoC Interconnect Design
+ERIC TAYLOR –MTS @ ENFABRICA
+
+Outline
+Background Concepts
+◦History
+◦NoC Examples
+◦Topology
+◦Routing
+◦Packets 
+◦Switching
+◦Arbitration
+◦Flow Control 
+◦QoS
+NoC Design Example
+Router Design Example
+
+What is an Interconnect/NoC?
+
+
+On-Chip Communication Trends
+More Wires are Used Cost of Distance Changes Over Time
+
+Interconnect Trends
+
+
+Point -to-Point (“Custom”)
+ Xbox 360 SoC Made 5 Years Later (hc22)
+
+Bus (1998)
+
+
+Bus
+
+
+Cradle Corporation hc17Shared Bus
+
+Toshiba Corporation hc20Multiple Shared Bus
+
+Network On Chip
+
+
+
+Copyright 2008,  Cradle Corporation hc17
+
+
+What goes into designing a NoC?
+
+
+Topology Concepts
+Bus
+Crossbar
+RingMesh
+Custom
+
+Bus Topology
+Could be a combined Initiator/Target.
+
+Crossbar Topology
+Could be a combined Initiator/Target.
+
+Ring Topology
+Could be a 
+combined Initiator/Target.
+
+Mesh/Torus Topology
+
+
+Irregular Topologies
+
+
+Performance Cost Tradeoff
+Bus Ring Double Ring Mesh ( NxN) Crossbar
+Performance
+(Bisection BW)(WC Latency)112N4N/2sqrt(N)2*(sqrt(N)- 1)N*N1
+Cost(Ports/Switch)(Total Links)1 Overall13N52*N5*2*sqrt(N)*(sqrt(N)- 1)NN*N
+
+Routing Concepts
+Choices
+◦Source vs. Destination Routing
+◦Static vs. Dynamic Routing
+◦Minimal vs. Non -Minimal Routing
+Example
+◦XY RoutingConsiderations
+◦Deadlocks
+◦Livelocks
+◦Fairness
+
+Routing Concepts
+Source vs. Destination Routing
+◦In source routing the full route to the 
+destination is known ahead of time (or 
+additional alternative routes [expensive])
+◦In destination routing each switch understands where in needs to make 
+progress so the packet itself doesn’t need 
+to know the route. (through an address or a 
+target id)
+
+
+Routing Concepts
+Static vs. Dynamic Routing
+◦Static (or deterministic) routing will move 
+packets through the network on a set path 
+and will not deviate. 
+◦There is also oblivious routing which can randomly or cyclically rotate through 
+static routes
+◦Dynamic (or adaptive) routing allows a 
+packet to follow many routes responding to 
+the current state of the network.
+
+
+Routing Concepts
+Minimal vs. Non -Minimal
+◦Minimal Routing means the packet will traverse along the shortest path.
+◦Non -minimal the packet will not traverse the shortest path. 
+◦Many times, this is combined with adaptive routing to use a non -minimal path when minimal path 
+is busy, or in fault tolerant schemes with a down link (in SoCs however this means the chip is most 
+likely dead)
+◦In more complex networks which routing is done more algorithmically many times proofs are done to 
+show that some routing selection is “minimal”.
+
+Routing Concepts
+- Incorrect routing schemes can cause deadlock.
+
+Routing Concepts
+XY- Routing
+◦Move first in the X direction to target node and then move in the Y direction. 
+
+
+Routing Concepts – Deadlock Free Rings
+
+
+Packetization Concepts
+Packets
+Packetization
+
+Packets/Packetization Concepts
+Define granularity of data transfer and 
+applied switching technique 
+◦Phit(physical control digit) is a unit of data 
+that is transferred on a link in a single cycle
+◦Flit (flow control digit) is unit of switching
+◦Typically, phitsize  = flit size
+https://users.ece.utexas.edu/~gerstl/ece382m_ f23/
+
+Packets/Packetization Concepts
+Packed into one message. 
+
+Switching Concepts
+Circuit Switching 
+◦Bus-Like Design
+Packet -switched
+◦Store -and- Forward
+◦Virtual Cut -Through
+◦Wormhole
+
+Switching Concepts
+Circuit Switching 
+◦The owner effectively reserves the physical 
+resources (over multiple links) for transmission prior to sending the data. 
+◦Has very low latency transfers however does not scale wall.
+Virtual Circuit Switching 
+◦Multiple circuits to reserve per link.
+◦Either time share a single buffer per link (lower bandwidth)
+◦or have multiple buffers per link (more area) 
+
+
+Switching Concepts
+Store -and- Forward
+• Packet is sent from one router to the next 
+only if the receiving router has buffer 
+space for entire packet 
+• Buffer size in the router is at least equal 
+to the size of a packet 
+• Disadvantage: excessive buffer 
+requirements
+Exploration of Manycore Systems based on Silicon 
+Integrated Communication Networks
+https://users.ece.utexas.edu/~gerstl/ece382m_ f23/
+
+Switching Concepts
+Virtual Cut Through
+◦Reduces router latency over SAF switching by 
+forwarding first flit of a packet as soon as 
+space for the entire packet is available in the 
+next router 
+◦If no space is available in receiving buffer, no flits are sent, and the entire packet is buffered 
+◦Same buffering requirements as SAF switching
+Exploration of Manycore Systems based on Silicon 
+Integrated Communication Networks
+ https://users.ece.utexas.edu/~gerstl/ece382m_ f23/
+
+
+Switching Concepts
+Wormhole
+◦Flit from a packet is forwarded to receiving 
+router if space exists for that flit 
+◦Parts of the packet can be distributed among two or more routers 
+◦Buffer requirements are reduced to one flit, instead of an entire packet 
+◦More susceptible to deadlocks due to usage dependencies between links
+https://users.ece.utexas.edu/~gerstl/ece382m_ f23/
+
+
+Arbitration Concepts
+Random
+Static priorityRound Robin (RR)
+TDMA
+DynamicProgrammable
+
+Arbitration Concepts
+Random/Statistical
+◦Randomly select among the available flows. 
+This randomness could be pure random or 
+some statistical distribution. 
+Static priority
+◦At any time only select the highest priority 
+flow available. A disadvantage is that it can 
+be prone to deadlocks. 
+◦Can be preemptive or non preemptive. 
+
+
+Arbitration Concepts
+Round Robin (RR)
+◦Flows are selected in a rotating fashion.
+◦Guarantees access to every flow.
+◦However, may be difficult if different flows have different 
+requirements. Can be high latency. 
+◦Work Conserving vs. Non -Work Conserving
+TDMA (Single and Two Level)
+◦Each flow has a time window in which traffic can be sent.
+◦Slots can be sized to bandwidth requirements.
+◦With two level there can be multiple flows to choose per window allowing for higher utilization. 
+
+
+Arbitration Concepts
+Dynamic
+◦Adapts to the traffic being sent.
+◦For example, credit -based shaping of streaming traffic.
+◦Need to keep track of some statistics or state to 
+determine the balance of each flow. 
+Programmable
+◦Allows some outside statistical counter, or smarts to adjust priorities. 
+◦Can select schemes based on phases of traffic. 
+Microchip: TSN Application Note
+
+Flow Control
+Valid Only
+Valid/Ready Credit Based (Flit and Transaction Level)
+
+Flow Control
+Valid Only / No Backpressure
+◦Downstream flows are designed to handle all transfers that can be sent any cycle.
+◦For example, register accesses, any given register can be read or written in a single cycle. 
+◦There does need to be an indication that what on the line is valid. 
+◦Fairly rare outside some internal logic. 
+
+
+Flow Control
+Valid/Ready
+◦Downstream will indicate any given cycle 
+that it can accept a flit.
+◦If ready is low a Valid/Ready interface can 
+be retained or not retained.
+◦Retained interfaces cannot change the transaction once valid is presented.
+◦Non -Retained can change the transaction 
+even after valid is presented (for example 
+if a higher priority request comes in)
+
+
+Flow Control
+Credit Based
+◦Credits are units of transmission that an initiator can send 
+knowing downstream can handle.
+◦Could be in terms of flits, requests, types of requests, bytes of data. 
+◦Loaded / Propagated Credits
+◦Credits can be loaded after reset so each initiator understands how much 
+it can send imminently.
+◦Credits can also be back propagated through a credit interface.
+◦Static vs Dynamic Credits
+◦Static credits means resources are partitioned at reset and wont change. Not very scalable. 
+◦Dynamic/Programmable credits mean that resources can be reallocated after reset. More scalable however protocol to change credits needs to 
+be well defined or can deadlock. 
+
+
+Flow Control – Transaction Level
+
+
+QoS Concepts
+Traffic Classes
+Traffic Class RequirementsStarvation
+
+QoS Concepts -  Example Schema
+
+
+QoS Concepts
+Starvation
+◦Any time QoS is used you need to have starvation mechanisms to detect and mitigate livelock  
+scenarios. 
+◦Could either have arbitration force the lower traffic classes to have reserved BW (will take resources 
+from higher BW classes)
+◦Detect and mitigate where if transactions are stuck, stop accepting and then only allow progress on the starved transactions.
+◦Don’t need to allocate resources for lower classes, however, can cause irregular behavior 
+
+Design Example
+
+
+14 Nodes – 16 Byte Wires – 1GB/s (128 GB/s) 
+Flow Class Requirement
+1a High Bandwidth 128 GB/s
+1b Low Latency 8 Cycles
+2 Low Latency 16 Cycles
+3 High Bandwidth 256 GB/s
+4 Low Latency 8 Cycles
+5 Low Latency 16 Cycles
+6 High Bandwidth 256 GB/s 
+7 Low Latency 8 Cycles
+8 Low Latency 16 Cycles
+9 Best Effort None
+10 Low Latency 8 Cycles
+
+Design Example
+Bus Ring Double Ring Mesh ( NxN) Crossbar
+Performance
+(Bisection BW)(WC Latency)(Avg?)11214
+747461961
+Cost(Ports/Switch)(Total Links)1 Overall13145285*2414196
+
+AC0d Mem2 CPU Mem3 AC1b
+AC0a Mem0 IOMem1
+AC1aAC0c
+AC0bAC1c
+AC1dFlow Class Requirement
+1a High Bandwidth 128 GB/s
+1b Low Latency 8 Cycles
+2 Low Latency 16 Cycles
+3 High Bandwidth 256 GB/s
+4 Low Latency 8 Cycles
+5 Low Latency 16 Cycles
+6 High Bandwidth 256 GB/s 
+7 Low Latency 8 Cycles
+8 Low Latency 16 Cycles
+9 Best Effort None
+10 Low Latency 8 Cycles
+
+AC1b Mem2 Mem1 AC0c AC0d
+AC0a Mem0 IO CPU Mem3AC1a
+AC0bAC1c
+AC1dFlow Class Requirement
+1a High Bandwidth 128 GB/s
+1b Low Latency 8 Cycles
+2 Low Latency 16 Cycles
+3 High Bandwidth 256 GB/s
+4 Low Latency 8 Cycles
+5 Low Latency 16 Cycles
+6 High Bandwidth 256 GB/s 
+7 Low Latency 8 Cycles
+8 Low Latency 16 Cycles
+9 Best Effort None
+10 Low Latency 8 Cycles
+
+Switch/Router RTL Example
+
+
+Switch/Router RTL Example
+
+
+
+
+Backup (If Time)
+- Initiator / Target Logic
+- Multicast / Unicast
+- Fault Tolerant NoCs
+- Verification of Interconnects
+
+Design Example ( BACKUP )
+Bus Ring Double Ring Mesh ( NxN) Crossbar
+Performance
+(Bisection BW)(WC Latency)(Avg?)11214
+747461961
+Cost(Ports/Switch)(Total Links)1 Overall13145285*2414196
+
+Design Example ( BACKUP )
+AC0a IO CPU
+AC0d AC1a AC1b AC1dAC0b
+AC0cMem0
+Mem1Mem2
+Mem3 AC1c
+
+Design Example ( BACKUP )
+Bus Ring Double Ring Mesh ( NxN) Crossbar
+Performance
+(Bisection BW)(WC Latency)(Avg?)11214
+747461961
+Cost(Ports/Switch)(Total Links)1 Overall13145285*2414196

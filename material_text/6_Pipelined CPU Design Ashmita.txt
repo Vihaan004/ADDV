@@ -1,0 +1,506 @@
+Pipelined CPU Design
+ASHMITA SINHA
+CPU ARCHITECT
+INTEL CORPORATION
+
+References/Credits
+Books references:
+H&P
+H&H, Digital Design & Computer Architecture, Chapter 7
+Prof Onur Mutlu’s lecture on Pipelined CPUs, ETH Zurich, Spring’25
+Modern day CPUs uarch example
+https://chipsandcheese.com/p/skylake -intels -longest -serving -architecture?utm_source=publication- search
+
+WB MEM EX ID/RF IF MIPS Single Cycle : Recall
+WHAT DOES INSTRUCTION PROCESSING COMPRISE OF?
+IF : Instruction Fetch (instruction pointed by PC)
+ID/RF : Instruction Decode (ID) and fetching operands from register file (RF)
+EX : Execute instruction (compute bound) or evaluate effective memory address (memory bound)
+MEM : Memory Fetch
+WB : Write Back/update register file
+Registers
+Register #Data
+Register #
+Data
+memoryAddress
+DataRegister #PC Instruction ALU
+Instruction
+memoryAddress
+
+MIPS Single Cycle : Recall
+Chapeter  7.11 complete H & H [PC] : lw   $s3, 8($s0)
+Fetch: 
+ Instr  <- INST_MEM[PC]
+ PC  < - PC + 4
+Decode:  Generate Control Signals ( Instr )
+ RF : Read $s0
+ Sign extend offset (8)
+Execute: Compute effective address
+              Addr < - sign_ext(8) + base ($s0)
+Data Memory: ReadData <- DATA_MEM[ addr ]
+Write Back:
+ Dest ($s3) < - ReadData 
+Control Path/Signals
+Data Elements/Signals/Paths
+
+Single Cycle uarch : What are the issues?
+Important CPU metrics:
+Performance
+Power 
+Area 
+Memory Bandwidth
+Performance : Time Period (hence Clk freq) limited by slowest ISA instructionPower : Each data path element is always active  (no 
+clk gating possible)
+Area : Hardware utilization is not optimal
+Mem BW : Measured in bytes per second, impacted 
+by limited clock frequency, and inefficient hardware utilization
+
+Pipelining : What is needed?
+Arch 
+Staten+1Arch 
+StatenInstruction execution 
+IF + ID + EX + MEM + WB
+T Divide  into stages   -  Exploit  parallelism  
+amongst  the instructions
+Add pipeline  registers  to carry  information  
+along  with  each instruction
+Propagate  data  signals  across  stages,  
+wherever  required  Pipelining Data Path Pipelining Control Path
+Arch 
+Staten+1Arch 
+StatenIF EX ID MEMWBT’=T/5 
+Pipestage  RegistersPropagate  control  signals  to the right  
+stages
+Decode  once,  and propagate  them  to right  
+stages
+Carry  instruction word  in each  stage,  and 
+generate  control  signals  needed  for each  
+stage
+Control
+EXMWB
+MWB
+WB
+IF/ID ID/EX EX/MEM MEM/WBInstructionPipelining is fundamentally exploiting parallelism amongst the instructions in a sequential stream
+Control Signal Pipelining figure from Chapeter  7.11 complete H & H 
+
+Pipelining : Let’s revisit CPU metrics 
+Performance: 
+◦We are able to reduce clock time period, and hence frequency
+◦Cycle time is determined by slowest pipe stage
+◦Our throughput has increased – instructions executed in a cycle
+◦𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆𝑆 =𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴  𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝐴𝐴𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖  𝑖𝑖𝑖𝑖𝑡𝑡𝐴𝐴 𝑤𝑤𝑖𝑖𝑖𝑖𝑤𝑖𝑖𝑖𝑖𝑖𝑖  𝑝𝑝𝑖𝑖𝑝𝑝𝐴𝐴𝑝𝑝𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝐴𝐴
+𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴𝐴  𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝐴𝐴𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖  𝑖𝑖𝑖𝑖𝑡𝑡𝐴𝐴 𝑤𝑤𝑖𝑖𝑖𝑖𝑤 𝑝𝑝𝑖𝑖𝑝𝑝𝐴𝐴𝑝𝑝𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝑖𝐴𝐴
+◦                  =(100+50+100+100+50 𝑖𝑖𝑖𝑖)
+100  𝑖𝑖𝑖𝑖 = 4 times
+◦Did we take a hit on instruction latency?
+Power:
+◦We can gate using control signals if a given stage is not used 
+(for instance MEM stage for compute bound instruction)
+Area: 
+◦Much better hardware utilization
+Mem BW:
+◦Clock freq increased, hardware better utilized, so consumed 
+bytes per sec increasescycle n cycle n+1 cycle n+2 cycle n+3 cycle n+4 cycle n+5 cycle n+6 cycle n+7 cycle n+8 cycle n+9
+Instr0 IF ID EX MEM WB
+Instr1 IF ID EX MEM WB
+Instr2 IF ID EX MEM WB
+Instr3 IF ID EX MEM WB
+Instr4 IF ID EX MEM WB
+Instr5 IF ID EX MEM WB
+100ns 50ns 100ns 100ns 50ns
+IF ID EX MEM WBSlowest pipe stage takes 100ns  cycle 
+time
+
+Pipelining : Cost that we pay?
+Can we keep on increasing pipe stages to achieve higher clock frequencies?
+Instruction  latency  penalty
+If stages  are not perfectly  balanced
+Misprediction  penalty  
+Flushing  of pipeline,  deeper  the pipeline,  higher  is 
+the penalty
+Pipe  stage  registers’  hardware  cost
+Throughput  increase  limited
+Hardware  complexity  – to resolve  pipelining  
+dependencies  (hazards)
+Cost              = (𝐺𝐺
+𝑘𝑘 + R) * k = G + R*k
+Throughput =1
+(𝑇𝑇
+𝑘𝑘)+𝑆𝑆 
+Max is still cap -ed at 1
+1 𝐺𝐺𝐴𝐴𝑖𝑖𝐴𝐴 𝐷𝐷𝐴𝐴𝑝𝑝𝐴𝐴𝐷𝐷 +𝑆𝑆 k-stage pipelinedCost              = G + R
+Throughput =1
+𝑇𝑇+𝑆𝑆
+Combo:
+G gatesT->combo delay
+Sequential:R -> register cost
+S->register delay unpipelined
+Figure credit to Prof Onur Mutlu’s foilset  on Pipelined CPU Design, ETH Zurich, Sprin’25
+
+Pipelining: Verilog Code 
+…..
+CLK100H 101H 102H
+OutputFinalM110HCombInM100H
+CombOutM100H110H
+
+MIPS : Let’s start pipelining – Data path
+TInstruction
+memoryAddress4
+320AddAdd
+result
+Shift
+left 2
+InstructionM
+u
+x0
+1
+Add
+PC
+0Write
+dataM
+u
+x1RegistersRead
+data 1
+Read
+data 2Read
+register 1
+Read
+register 2
+16Sign
+extendWrite
+register
+Write
+dataRead
+dataAddress
+Data
+memory
+1ALU
+resultM
+u
+xALUZeroIF: Instruction fetch ID: Instruction decode/
+register file readEX: Execute/
+address calculationMEM: Memory accessWB: Write back
+RF
+write
+T/k ps T/k psInstruction
+memoryAddress4
+320AddAdd
+result
+Shift
+left2InstructionIF/ID EX/MEM MEM/WBM
+u
+x0
+1
+Add
+PC
+0Write
+dataM
+u
+x1RegistersRead
+data1
+Read
+data2Read
+register1
+Read
+register2
+16
+Sign
+extendWrite
+register
+Write
+dataRead
+data
+1ALU
+resultM
+u
+xALUZeroID/EX
+Data
+memoryAddressInstruction
+memoryAddress4
+320AddAdd
+result
+Shift
+left 2InstructionIF/ID EX/MEM MEM/WBM
+u
+x0
+1
+Add
+PC
+0Write
+dataM
+u
+x1RegistersRead
+data 1
+Read
+data 2Read
+register 1
+Read
+register 2
+16Sign
+extendWrite
+register
+Write
+dataRead
+data
+1ALU
+resultM
+u
+xALUZeroID/EX
+Data
+memoryAddressIRDPCF
+PCD+4
+PCE+4
+nPCMAE BE ImmE
+AoutM BM
+MDRW AoutW
+Figure credit to Prof Onur Mutlu’s foilset  on Pipelined CPU Design, ETH Zurich, Sprin’25
+
+MIPS : Let’s start pipelining – Control path
+PC
+Instruction
+memory
+InstructionAdd
+Instruction
+[20–16]
+MemtoReg
+ALUOpBranch
+RegDstALUSrc4
+16 32Instruction
+[15–0]00
+M
+u
+x0
+1AddAdd
+result
+Registers
+Write
+register
+Write
+dataRead
+data 1
+Read
+data 2Read
+register 1
+Read
+register 2
+Sign
+extendM
+u
+x
+1ALU
+resultZero
+Write
+dataRead
+dataM
+u
+x1
+ALU
+controlShift
+left 2RegWrite
+MemReadControl
+ALU
+Instruction
+[15–11]6EXMWB
+MWB
+WBIF/IDPCSrc
+ID/EX
+EX/MEM
+MEM/WBM
+u
+x0
+1
+MemWrite
+Address
+Data
+memoryAddress
+Figure credit to Prof Onur Mutlu’s foilset  on Pipelined CPU Design, ETH Zurich, Sprin’25
+
+PC
+Instruction
+memory
+InstructionAdd
+Instruction
+[20–16]
+MemtoReg
+ALUOpBranch
+RegDstALUSrc4
+16 32Instruction
+[15–0]00
+M
+u
+x0
+1AddAdd
+result
+Registers
+Write
+register
+Write
+dataRead
+data 1
+Read
+data 2Read
+register 1
+Read
+register 2
+Sign
+extendM
+u
+x
+1ALU
+resultZero
+Write
+dataRead
+dataM
+u
+x1
+ALU
+controlShift
+left 2RegWrite
+MemReadControl
+ALU
+Instruction
+[15–11]6EXMWB
+MWB
+WBIF/IDPCSrc
+ID/EX
+EX/MEM
+MEM/WBM
+u
+x0
+1
+MemWrite
+Address
+Data
+memoryAddress
+IF ID/RF EX MEM WBMIPS Pipelined uarch  : lw example
+
+Pipeline Hazards/Dependencies 
+When an instruction’s execution cannot make progress due to a dependence on earlier instruction’s execution 
+There is always a work -around but it always has a trade -off that you need to assess!!Structural Hazard Data Hazard Control Hazard
+When does  it happen?  
+Resource  conflict  (resource  not fully  pipelined,  limited  ports  to 
+mem structures,  etc)
+Example  : Let’s  say RF has a single  port  to read  or write . Decode  
+vs WB stage
+How  do you resolve  it?
+Deal  with  trade -offs
+Duplicate  hardware,  increase  the number  of ports  
+accessing  mem structures
+Stall  the conflicting  instruction till resource  is available  – be 
+careful  in selecting  which instruction to stall
+
+Pipeline Hazards/Dependencies 
+When an instruction’s execution cannot make progress due to a dependence on earlier instruction’s execution 
+There is always a work -around but it always has a trade -off that you need to assess!!Structural Hazard Data Hazard Control Hazard
+True/Flow dependence
+RAWOutput dependence
+WAWAnti dependence
+WAR
+Not enough arch 
+registers availableInstr’s exec is 
+dependent on earlier instr’s result
+
+Pipeline Hazards : Data dependence
+Detection  of data  hazards  
+At h/w or compiler
+Handling  data  hazards  (to name a few..)
+Compiler  solutions
+Insert  nops
+Re-arrange  code  / Delayed  loads
+Hardware  solutions
+Data forwarding  to required  stage  (uarch  timing  path)
+Insertion  of stalls  or bubbles
+Supporting  in-order  fetch  and retirement  (maintaining  
+program  order)  while  supporting out of order  execution .
+There is always a work -around but it always has a trade -off that you need to assess!!
+H& H: DDCA_Chapter  7
+
+Pipeline Hazards/Dependencies 
+When an instruction’s execution cannot make progress due to a dependence on earlier instruction’s execution 
+There is always a work -around but it always has a trade -off that you need to assess!!Structural Hazard Data Hazard Control Hazard
+When does it happen?
+Branches, interrupts, exceptions – anything that changes PC
+How do you resolve it?
+Minimize penalty! 
+Resolve branch target address earlier by adding additional 
+hardware
+Compiler : branch delay slot
+Branch prediction heuristics
+BPU one of the very important component in 
+today’s CPU design
+
+Pipeline Hazards: Control Dependence
+H& H: DDCA_Chapter  7
+
+Modern day CPUs : Complexities in uarch
+Deeply pipelined stages 
+Complex Instructions 
+Vector instructions (SIMD)
+AMX instructions to support AI applications 
+Length decoding, instr to uop mapping
+Address space : VA vs PA 
+On-chip vs off -chip memory
+Importance of mem hierarchy
+Caches, Prefetchers 
+Branch Prediction 
+Out of order execution (EX/ID/Retirement)
+Multi cycle execution –  FMAs, ALUs, Integer/Floating Point
+Importance of queues to cover latencies (next level cache/mem)
+Multi processors
+Multi threading
+
+Memory Hierarchy : 
+Latency, Area (increasing order)
+.
+.
+Main Memory
+…
+..
+How can we hide some of this latency? 
+Graph Credit : https://jsmemtest.chipsandcheese.com/latencydata 
+
+Modern Day CPU uarch
+IF
+•Branch Predictor
+•VA -> PA translator
+•Access to L0$, if Miss L2$
+•Buffers to queue up instructionsID/RF
+•Instruction dispatches from IQ
+•Multiple decoders
+•Ucode  instr  -> uops
+•Resource allocation (Register 
+renaming/ scoreboarding  for out 
+of order execution)
+Out of Order Execution
+•Reorder buffer
+•RFs
+•Scheduler – makes sure all source 
+operands are available before dispatching uop for execution
+•Multicycle execution unitsMEM + Mid level $•Loads/Stores handling
+•Data TLB
+•L1$  L2$ 
+•Prefetchers!!
+•Sends requests (that miss all internal caches) to uncore, and tracks life of such requests
+Graph Credit : https://jsmemtest.chipsandcheese.com/latencydata 
+
+BACKUP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MIPS : Pipelined uarchPCD+4
+IRDPCF
+PCE+4 R1E R2EImmEEXEEMEMEWBE
+PCM ALUM R2MMEME WBE
+WBWB ALUWB MDRWB

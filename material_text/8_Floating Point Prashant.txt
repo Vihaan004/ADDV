@@ -1,0 +1,491 @@
+PRASHANT D. JOSHI
+UT Computer Science, The University of Texas at AustinFLOATING POINT FORMATS AND 
+DESIGN OF ADDERS AND 
+MULTIPLIERS
+June 5th, 2025
+
+
+Today’s Agenda
+1. Need for non -integral value representations
+2. Representing fractions: Fixed point vs Floating point
+3. FP Addition
+4. FP Multiplication
+5. Faster algorithms
+6. Summary
+
+
+Why Floating Point?
+•Recent high -performance microprocessors are all 64 -bit machines.
+–18,446,744, 073,709,600,000 distinct values. (Approx 18*1018)
+–Split these distinct values to represent integers only? Fractions also?
+•Physics and mathematics regularly deal with numbers beyond these ranges. 
+–Planck’s constant is 6.626, 070, 15 ×10−34 J.s.
+–Avogadro’s number is 6.022, 140, 76 × 1023 mol-1.
+–Electron mass: 9.109 x 10-31 kg
+–Neutrino mass upper bound: 10-37 kg
+–Yearly internet data traffic: > 1021 bytes
+•We need representations for such quantities that are efficient in storage space, 
+computation time, precision, and easy to design in hardware
+
+Non- integral representations
+•Decimal representation: dn-1 dn-2 … d1 d0. d-1 d-2 … d-m
+ results in a value: ∑𝑖𝑖=−𝑚𝑚𝑖𝑖=𝑛𝑛−1𝑑𝑑𝑖𝑖∗10𝑖𝑖
+•Binary representation : bn-1 bn-2 … b1 b0. b-1 b-2 … b-m
+       (binary or radix point) results in a value: ∑𝑖𝑖=−𝑚𝑚𝑖𝑖=𝑛𝑛−1𝑏𝑏𝑖𝑖∗2𝑖𝑖
+•Both representations have n  digits of integer 
+value and m digits for the fractional value
+
+Examples of Non-Integral Values
+•11
+2=5.510=101. 12
+•1
+10=0.110=0.000112
+•1
+3=0.310=0.012
+• Constraint : We can have only a fixed number of digits.
+• Implication : We can’t represent all numbers exactly.
+That’s obvious for 
+irrationals, but notice it 
+is true for rationals  also
+for example : 0.00011   0.00011001100110011…
+Where do we stop? Limited digits… resolution
+
+
+Scientific Floating Point representation
+•Scientific notation (also called exponential or standard form representation)
+•Extend the “ normalized ” (base -10) scientific notation:
+–Represent 𝑥𝑥 as±𝑆𝑆 × 10𝐸𝐸, with 
+𝑆𝑆=(𝑑𝑑0⋅𝑑𝑑1⋯)10 where 1≤𝑑𝑑0<10.
+–𝑆𝑆: significand/mantissa;  𝐸𝐸: exponent.
+–The representation of the value 11
+2 is uniquely  +5.5 × 100
+• not+55.0 × 10−1, or +0.55 × 101, or any other possibility.
+–Why?
+
+
+From Base- 10 to Base- 2
+•Represent 𝑥𝑥 as±𝑆𝑆 × 2𝐸𝐸, with 
+𝑆𝑆=(𝑏𝑏0⋅𝑏𝑏1⋯)2where  𝒃𝒃𝟎𝟎=𝟏𝟏. (since it must be 1 ≤ 𝑏𝑏0<2, per previous slide)
+–𝑆𝑆 =(1⋅𝑏𝑏1 𝑏𝑏2⋯ 𝑏𝑏𝑝𝑝−1)2 (having 𝑝𝑝 bits in all, of which 𝑏𝑏0=1).
+–Likewise, 𝐸𝐸 will be represented in 𝑞𝑞  bits; encoding format described 
+shortly.
+•Call the set of representable numbers 𝔽𝔽𝔽(𝑝𝑝,𝑞𝑞;2).
+•Note : We can’t represent zero as a normalized FP number. 
+Why?
+
+
+Value of represented points
+•Between two consecutive exponent values, what is the number of 
+mantissa representations?
+–The same?
+•What is the ‘value’ between two consecutive represented points (between the same exponents and across different exponents)?
+1      2     4       8                                     256 0.125  0.25      0.5 
+Finer resolution Coarser resolution
+Where is zero?
+How to 
+represent it?
+
+Now on to the Exponent
+•We represent 𝐸𝐸 using 𝑞𝑞 bits.
+–Need positive and negative values of 𝐸𝐸. Why?
+–Use ‘biased’ or ‘excess’ representation
+•Ease of manipulation
+–bias =2𝑞𝑞−1−1
+•If the binary pattern of the q binary bits reads X, the value* 
+in the biased notation is X - bias
+*: Distinction between representation and value
+
+Normalized FP numbers
+bias =2𝑞𝑞−1−1.
+• The minimum representable exponent:  
+𝐸𝐸min =0𝑞𝑞−11=1−bias =−(bias−1).
+• The minimum normalized positive FP number:
+𝑁𝑁min =1.0𝑝𝑝−12×2𝐸𝐸min.
+• The maximum representable exponent:  
+𝐸𝐸max= 1𝑞𝑞−10=bias .
+• The maximum normalized positive FP number:  
+𝑁𝑁max =(1.1𝑝𝑝−1)2×2𝐸𝐸max =(2−2−(𝑝𝑝−1))×2𝐸𝐸max≈2(𝐸𝐸max+1).
+• We will not use the two patterns 0𝑞𝑞 and 1𝑞𝑞 for normalized FP numbers, reserving 
+them for special use .
+
+
+The Complete Representation
+•Sign bit: 0  for positive, 1 for negative.
+•We use ( 1+𝑞𝑞+(𝑝𝑝−1))=𝑝𝑝+𝑞𝑞 bits, arranged as 
+above.
+–Although the significand has 𝑝𝑝  bits, we know that 𝑏𝑏0=1. 
+So, we don’t store it explicitly. This trick to save storage is 
+called the “ hidden bit ”. (Also called the ‘implied’ bit)
+If my precision is of p bits, why do I have 
+only ( p-1) bits in the Significand?
+
+
+IEEE 754 Formats
+Format Name Single -Precision Double -Precision
+Precision, p (bits) 24 53
+Exponent width, 𝑞𝑞 (bits) 8 11
+Total size, 𝑝𝑝+𝑞𝑞 (bits) 32 64
+Associated C data type float double
+Exponent bias value 28−1−1=127 211−1−1=1023
+𝐸𝐸min, 𝐸𝐸max −126 ,127 −1022 ,1023
+𝑁𝑁min, 𝑁𝑁max (binary)1×2−126,(2−2−23)×
+ 2127 1×2−1022,(2−2−52)×
+ 21023 
+𝑁𝑁  𝑁𝑁   ≈1.2×10−38, ≈2.2×10−308,
+(1, 8, 23) (1, 11, 52)
+
+
+How To Represent Zero
+•Since zero is unique, we deal with it as a special case.
+•Hey, the value 0  will end up with two distinct FP 
+representations: −0=1𝟎𝟎𝒒𝒒0𝑝𝑝−1, and +0=0𝟎𝟎𝒒𝒒0𝑝𝑝−1 !
+•Note that this uses up one of the two patterns that we 
+disallowed for normalized FP numbers (0𝑝𝑝−1) .
+•All 0s in the exponent will be used for special number representations, zero being one of them
+Are we not wasting a representation for +0 and -0?
+It is on purpose!!! Sometimes in mathematics it is important to know if we are approaching 
+0 from the positive or negative side and this is a big help!
+
+Subnormal Numbers
+•Extend the definition
+0𝑞𝑞=𝐸𝐸min. Note, not 𝐸𝐸min−1.
+•Now, if𝐸𝐸=0𝑞𝑞, then treat the hidden bit 𝑏𝑏0as 0 rather 
+than 1in calculating the value.
+𝑠𝑠𝟎𝟎𝒒𝒒𝑏𝑏1⋯𝑏𝑏𝑝𝑝−1=±(𝟎𝟎.𝑏𝑏1⋯𝑏𝑏𝑝𝑝−1)2×2𝑬𝑬𝐦𝐦𝐦𝐦𝐦𝐦
+•Note that the earlier rule for zero is a special case of 
+this more general rule.Unsigned Repr Biased
+0 0000 -6
+1 0001 -6
+2 0010 -5
+3 0011 -4
+4 0100 -3
+5 0101 -2
+6 0110 -1
+7 0111 0
+8 1000 1
+9 1001 2
+10 1010 3
+11 1011 4
+12 1100 5
+13 1101 6
+14 1110 7
+15 1111 8
+(from before)
+What is the gap length between the consecutive values between 0 and 1 considering both the subnormal and normal numbers?
+
+
+Subnormals  in IEEE 754
+Format Name Single- Precision Double -Precision
+Precision, p (bits) 24 53
+Exponent width, 𝑞𝑞 (bits) 8 11
+𝐸𝐸min −126 −1022
+𝑁𝑁min (binary) 1×2−1261×2−1022
+Largest + ve subnormal (0.123)2×2−126=2−126−2−149 (0.152)2×2−1022
+=2−1022−2−1074
+Smallest + ve subnormal (0.0221)2×2−126=2−149(0.0511)2×2−1022=2−1074
+# of +ve  subnormals 223252
+Subnormal spacing 2−1492−1074
+
+
+Infinities
+•We still have some bit patterns left over!! (all 1s in E)
+•Just as we used a special representation for zero, 
+we are going to use special representations for±∞.
+–The pattern 0 𝟏𝟏𝒒𝒒0𝑝𝑝−1will represent the value +∞.
+–The pattern 1 𝟏𝟏𝒒𝒒0𝑝𝑝−1 will represent the value −∞.
+•We still have some bit patterns left over. 
+Unsigned Repr Biased
+0 0000 Sub. ( -6)
+1 0001 -6
+2 0010 -5
+3 0011 -4
+4 0100 -3
+5 0101 -2
+6 0110 -1
+7 0111 0
+8 1000 1
+9 1001 2
+10 1010 3
+11 1011 4
+12 1100 5
+13 1101 6
+14 1110 7
+15 1111 ±∞
+
+Not a Number ( NaN)
+•What are the results of ⁄10, ⁄1∞, ∞+∞?
+–These situations are well -defined (in terms of limits):  ∞, 0, ∞.
+•How about  0×∞, ⁄00, ∞−∞? How about taking the square root of a 
+negative number?
+–These situations are either ill -defined (think in terms of sequences and their 
+convergence/divergence in the limit) or undefined (for square root).
+•IEEE 754’s response is that these operations should yield “Not a Number” 
+(NaN ), and that NaNs  must propagate through future operations .
+–Any representation with E =1𝑞𝑞 but significand ≠ 0𝑝𝑝−1 is a NaN.
+–These multiple NaNs  are unordered .
+How many possible 
+representations will evaluate 
+to a NaN ?
+
+
+What question may I answer before 
+we continue?
+Remember, all questions are good questions!
+
+Correctly Rounded Value (IEEE 754)
+•For 𝑥𝑥∈ℝ+ : 
+If 𝑥𝑥∈𝔽𝔽𝔽𝑝𝑝,𝑞𝑞, ROUND (𝑥𝑥)=𝑥𝑥. 
+Otherwise, ROUND (𝑥𝑥) depends on the prevailing rounding mode .
+– Round down (RD): ROUND (𝑥𝑥)=𝑥𝑥−.
+– Round up (RU) :ROUND (𝑥𝑥)=𝑥𝑥+.
+– Round- to-zero (RTZ): ROUND (𝑥𝑥)=if 𝑥𝑥>0 then  𝑥𝑥− else  𝑥𝑥+.
+– Round- to-nearest, with tiebreak to even (RTE): ROUND (𝑥𝑥)= whichever of 𝑥𝑥− or 𝑥𝑥+ is closer 
+to 𝑥𝑥 (sometimes written ⌊𝑥𝑥⌉). 
+In case of a tie, choose the one whose significand has lsb0. [Default]
+•Useful in numerical analysis
+• Additional bits
+– Round, Guard, Sticky bits
+– Used to reduce errors due to approximations
+
+Guard, Round, Sticky
+•IEEE 754 rules require rounding to 
+nearest representable value with ties broken per settings
+•FP intermediate values are almost always exceeding the precision formats (>24 bits single precision, >53 double)
+•GRS help with tracking lost precision beyond the mantissa field
+–Maintain a few more bits in the design though end representation will be per IEEE 754 rulesGuard: Immediate bit(s) beyond 
+mantissa LSBRound: The bit after Guard bit(s)Sticky: OR of all remaining lower order bits
+What’s the benefit 
+of more than 3 
+GRS bits?
+Possible rule:
+<mantissa>GRS<mantissa>1x1  Round up
+<mantissa>0xx  Truncate
+<mantissa 1>100   round to even Mantissa GRS
+Mantissa GGGRS
+
+Floating Point Addition
+•Need to make exponents equal to add
+–3.141 * 100 + 9.718 * 101
+•Right shift fraction part of smaller exponent until equal 
+to larger
+–0.314 * 101 + 9.718 * 101
+•Add the mantissas
+–10.032 * 101
+•Renormalize if necessary
+–1.003 * 102Still normalized?4. Round the significand to the appropriate
+number of bitsYes Overflow or
+underflow?Start
+No
+Yes
+Done1.  Compare the exponents of the two numbers.
+Shift the smaller number to the right until its
+exponent would match the larger exponent
+2. Add the significands
+3. Normalize the sum, either shifting right and
+incrementing the exponent or shifting left
+and decrementing the exponent
+No Exception
+
+FP Addition Block 
+Diagram
+
+
+Flowchart for 
+FP Adder
+Courtesy: Dr. Lizy John, UT Austin?  
+
+FP Adder sub- blocks
+•Comparator
+•Shift register for shifting smaller number to right
+•Integer adder, possibly 2s complement (after converting of 
+course!)
+•Bidirectional shifter to increment/decrement result
+•Additional hardware for overflow, underflow, rounding detection
+•Control sub -block to enable above steps
+
+Implementable pseudocode FADD
+Input: Floating point numbers A and B, each in (sign, exponent, mantissa) 
+format
+Output: Floating point number S = A + B in (sign, exponent, mantissa) 
+format
+1. Unpack A and B:
+   (sign_A, exp_A , mant_A ) = unpack(A)
+   (sign_B , exp_B , mant_B ) = unpack(B)
+   // Add implicit 1 to mantissas (normalized numbers)
+   mant_A  = 1.mant_A
+   mant_B  = 1.mant_B
+2. Align exponents:
+   If exp_A  > exp_B :
+       shift = exp_A  - exp_B
+       mant_B  = mant_B  >> shift
+       exp_result  = exp_A
+   Else:
+       shift = exp_B  - exp_A
+       mant_A  = mant_A  >> shift
+       exp_result  = exp_B3. Add/Subtract mantissas:
+   If sign_A  == sign_B :
+       mant_result  = mant_A  + mant_B
+       sign_result  = sign_A
+   Else:
+       If mant_A  > mant_B :
+           mant_result  = mant_A  - mant_B
+           sign_result  = sign_A
+       Else:           mant_result  = mant_B  - mant_A
+           sign_result  = sign_B
+4. Normalize the result:   If mant_result  has carry -out (i.e., MSB is 2 bits wide):
+       mant_result  = mant_result  >> 1
+       exp_result  = exp_result  + 1
+   Else:
+       While mant_result  < 1.0 and exp_result  > 0:
+           mant_result  = mant_result  << 1
+           exp_result  = exp_result  - 1
+5. Round the result (optional; implement rounding to nearest even)   Apply rounding on mant_result  if using guard, round, sticky bits
+6. Pack result:   Remove implicit leading 1 from mantissa
+   Return floating_point (sign_result , exp_result , mant_result [lower 23 bits])
+
+FP Adder
+•Much more complex than Integer Add
+•Takes more time as well
+•Can we “pipeline” this? 
+–Potentially break up the tasks into stages and pipeline them
+–Compare Exponents
+–Shift
+–Mantissa addition
+–Normalization and Rounding
+•Useful when multiple back-to -back additions are often done
+How could this 
+impact a single 
+add, not multiple 
+back -to-back 
+adds?
+
+Floating Point Multiplication
+•Consider and example: 1.110 * 1010 X 9.200 * 10-5
+–Add exponents (for biased exponents, subtract bias 
+from sum as it is double counted)
+•New Exponent = 10 - 5 = 5
+–Multiply Significands
+•1.110 X 9.200 = 10.212 10.212 * 105
+–Normalize, Round result
+•1.021 * 106
+–Determine sign of result from operands
+•+1.021 * 106
+
+
+Multiplication
+•Long hand multiplication
+–Note the Multiplier shifts right, while the multiplicand 
+shifts left
+
+
+Implementable pseudocode FMUL
+Classic Long Hand method
+Input: Floating point numbers A and B, each in (sign, exponent, mantissa) 
+format
+Output: Floating point number P = A ×  B in (sign, exponent, mantissa) 
+format
+1. Unpack A and B: Extract sign, exp, mantissa
+   (sign_A, exp_A , mant_A ) = unpack(A)
+   (sign_B , exp_B , mant_B ) = unpack(B)
+   // Add implicit leading 1 to both mantissas
+   mant_A  = 1.mant_A   // 24 bits
+   mant_B  = 1.mant_B   // 24 bits
+2. Compute result sign: If both signs are equal result will be positive
+   sign_P  = sign_A XOR sign_B
+3. Compute raw exponent: Remember if you are doing this without 
+conversion to 2’s complement, then you are double counting the bias, 
+hence subtract it once
+   exp_P  = exp_A  + exp_B  - Bias   // Bias = 127 for IEEE 754 single precision4. Multiply mantissas: this requires implementing the previous slide’s logic
+   mant_P  = mant_A  × mant_B        // 24 × 24 = 48 bits
+5. Normalize mantissa: Adjust result to be of the form 1.xxxx…x
+   If mant_P [47] == 1:
+       // Already normalized (leading bit in position 47)
+       mant_P  = mant_P  >> 24      // Take top 24 bits (1.xxx...)
+       exp_P  = exp_P  + 1
+   Else:
+       mant_P  = mant_P  >> 23      // Align to 1.xxx... if MSB is at position 46
+6. Round mantissa (optional): If you are using GRS bits then round 
+appropriately
+   Apply rounding if needed using guard/round/sticky bits
+7. Pack result: Reassemble the sign, exp, mantissa into final resut
+   Store sign_P  as sign bit
+   Store exp_P  as 8-bit exponent
+   Store lower 23 bits of mant_P  as mantissa (remove implicit 1)
+   8. Return floating_point (sign_P , exp_P , mant_P [22:0])
+What can be the max value after step 4?
+
+Mantissa Multiplication pseudocode
+Step 4 from previous slide
+•The multiplier  is processed bit by 
+bit from LSB to MSB .
+•The multiplicand  is left -shifted 
+each cycle.
+•If the current LSB of multiplier  is 
+1, the multiplicand is added to 
+the partial product .
+•After each step, the multiplier is right -shifted to examine the next 
+bit.Input: 
+  multiplicand : 32-bit unsigned integer
+  multiplier   : 32-bit unsigned integer
+Output:
+  partial_prod  : 64-bit unsigned integer
+1. Initialize:   partial_prod  = 0
+multiplicand_64 = zero -extend multiplicand to 64 bits
+2. For i  = 0 to 31:
+     If (multiplier AND 1) == 1:         partial_prod  = partial_prod  + multiplicand_64
+     EndIf
+     multiplicand_64 = multiplicand_64 << 1
+     multiplier = multiplier >> 1   // logical shift rightEndFor
+
+
+Optimized multiplication
+•Perform steps of add/shift in parallel
+•If we are doing a 4 bit X 4 bit multiplier, do we need an 8 bit adder?
+–No
+–Instead shift the partial product to the right each time
+–Also are we using the full 8 bit result in the first step? No!
+•Use the final result’s register to keep the partial product AND the multiplier! One gets shifter 
+out, one gets shifted in so the length suffices! Saves some hardware!
+00001001
+0100010001000100 00100010 0010001 0
+ 0001000100010001 01001000
+
+Faster Multipliers
+•Use multiple adders
+–Cost/Performance tradeoff
+•Can be pipelined, with several multiplications in parallel
+
+
+What question may I answer before 
+we end …?
+Remember, all questions are good questions!
+
+Backup slides
+
+1/10th in binary
+Decimal to Binary Conversion
+1. Start with the decimal fraction 1/10=0.1
+2. Multiply 0.10 by 2: 0.1× 2=0.20
+3. The integer part is 0 . Write down 0.
+4. Multiply the remaining fraction 0. 20 by 2: 0.2× 2=0.40
+5. The integer part is 0 . Write down 0.
+6.Multiply the remaining fraction 0. 40 by 2: 0.4× 2=0.80
+7. The integer part is 0. Write down 0.
+8.Multiply the remaining fraction 0.80 by 2: 0.8 ×2=1.60
+9. The integer part is 1 . Write down 1. Now, the remaining fraction is 0.60
+…
+And so on
+…
+During the Gulf War of 1991, a US Patriot missile failed to intercept a Scud missile•A later study showed the problem was due to the 
+inaccuracy of the binary representation of 1/10
+•The Patriot system incremented the counter every 
+0.1 seconds, and multiplied the counter value by 0.1 to compute the actual time
+•The 24 -bit binary number of 0.1 is 
+0.099999904632568359375, which is off by 0.000000095367431640625
+•Big deal, right?
+•Nope!
+•After about 4 days, this error starts to add up to 0.34 seconds which allows the Scud to travel 500 meters
+•This caused the failure!
+
+Other IEEE 754 Formats
+Courtesy Dr. Lizy John, UT Austin

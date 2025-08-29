@@ -1,0 +1,208 @@
+Welcome to 
+CSE/CEN 598 Special Topics:
+Advanced Digital Design and Verification
+SUMMER 2025
+
+About your 
+instructor
+https://labs.engineering.asu.edu/advent/
+
+
+Career
+3Bachelor’s degree from 
+NIT Kurukshetra, India2003-07
+Master’s degree from 
+UT Austin2010- 12
+Assistant 
+Professor at 
+ASUAug 2023Worked at Freescale 
+Semiconductor2007- 10
+DFT
+Worked at NVIDIA2012-2020
+Design, 
+Verification, 
+Architecture
+PhD from UT Austin2020-23
+FPGAs and ML
+
+Instructional Assistant
+Ruthwik Sunketa
+4•Degree: Masters in Computer Engineering(EE)
+•Born and Raised: Hyderabad, India
+•Work Experience: 6-month internship in Systems 
+Validation at Medtronic
+•Hobbies :  Puzzles and Audiobooks
+
+
+Course Website
+
+https://amankbm.notion.site/addv -summer -2025 
+
+
+Important Things to Mention
+•This course is ASIC based. No FPGA experience is required.
+•All parts of the course (assignments, lectures, etc.) can be done 
+online. We will meet a few times in person.
+•This is my first time offering this course. I am open to feedback. Please do not hesitate to let me know what you think.
+•I’ve almost combined two courses into one. So, this is a heavy course. You’ll stay busy, but you’ll learn a lot.
+•On Discord, I will have notifications set to “@ mentions only” . Hopefully your questions will be resolved by the TA/IA and other 
+students. If not, @ me.
+
+Kickoff Quiz/Survey will be released later 
+today
+
+Let’s break the 
+ice!
+•Pair up with the person (breakout 
+rooms)
+•Introduce yourself
+•3Ps
+•Something personal
+•Something professional
+•Something peculiar
+9Personal
+Professional
+Peculiar
+
+Design Flow
+
+Design Flow
+11Specification
+Architecture
+Design
+Synthesis
+Place and Route
+Fabrication
+Board/Product
+Documents
+RTL
+Gates (Netlist)
+Masks
+ChipBlock Diagrams
+Focus of first part 
+of the course
+
+
+Design Flow
+12Specification
+Architecture
+Design
+Synthesis
+Place and Route
+Fabrication
+Board/ProductFront -End
+Back -End
+
+Specification
+Architecture
+Design
+Synthesis
+Place and Route
+Fabrication
+Board/ProductVerification is Everywhere
+Functional  
+and 
+Performance 
+Verification
+Timing, 
+Power, Layout 
+Verification
+Faults and 
+electrical 
+verificationFocus of second 
+part of the course
+
+Aside: What is an ECO (Engineering Change Order) ?
+Spec Freeze
+Logic FreezeTapeout
+•Base Layer
+•Metal Layer
+If an RTL bug is identified after Logic Freeze, it is 
+“surgically” implemented in the netlist. Avoid re-
+synthesis. This is called an ECO. Approvals required.
+
+Terminology
+
+Architecture, Microarchitecture, Design
+•Architecture: The abstract specification of system behavior (e.g., 
+instruction set, communication protocol, or functional model).
+•Defines “what” operation a system performs
+•Microarchitecture: The concrete implementation of that 
+behavior using registers, memories, gates, control paths, and 
+data paths.
+•Organization and structure of a digital system’s blocks
+•Defines “how” the system performs operations
+•Less abstract than architecture
+•Design: Implementing a microarchitecture
+•Microarchitecture guides design. Serves as a “plan” for design.
+•Slightly less abstract and more detailed than microarchitecture
+17Level of 
+abstraction
+
+Verification vs. Testing
+Verification
+•Target design bugs
+•Goal: Check that design 
+correctly implements the 
+specification
+•Performed when the chip is 
+being designed
+•Performed once prior to manufacturing
+•Responsible for quality of design
+•Can observe and control all nodes in the designTesting
+•Target manufacturing defects
+•Goal: Check that manufactured part correctly 
+implements design
+•Performed after the chip is 
+manufactured
+•Test application done for every chip
+•Responsible for quality of shipped parts
+•Can only control and observe primary inputs and outputs
+18
+Source: Prof. Nur Touba’s (UT Austin) lectures from the  VLSI testing course at UT Austin
+
+Validation
+•Performed on ‘alive’ silicon
+•ie. after the device has passed ‘manufacturing test’
+•Develop validation boards (EVB)
+•Simple functionality checks
+•Boot the OS and run “actual” tests or benchmarks
+•Perform power and electrical measurements
+19
+
+Emulation
+•Using specialized hardware to realize your design before the ‘actual Silicon’
+•Either FPGA based (like Veloce  from Siemens (Mentor Graphics))
+•Or processor based (like Palladium  from Cadence)
+•Simulation acceleration
+•Simulation is slow
+•Prepares you for Validation
+•Can run software/drivers/ etc before Silicon arrives
+•When Silicon arrives, re- use design/test collateral 
+•Thereby, aiding Silicon bring- up
+•Emulation has limitations
+•Analog blocks
+•Real clocking/reset logic
+•Real timing verification
+•Difficult to debug!!! [Simulation is slow. But you can see everything!]
+20
+
+What happens when?
+DesignVerification
++
+EmulationFabrication Testing Validation Software Customer
+21
+
+Verification, Validation, Testing, Emulation
+•Verification a.k.a. 
+Design Verification
+•Validation
+•Emulation
+•Testing a.k.a. Manufacturing Test
+22Intel Freescale NVIDIA
+Design 
+VerificationPre-Si Validation Verification Verification/DV
+Validation Post -Si Validation Post -Si Validation No specific name (“Bringup ?”)
+Emulation Emulation Pre-Si Validation Emulation
+Manufacturing  
+TestTesting DFT DFT

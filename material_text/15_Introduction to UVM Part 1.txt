@@ -1,0 +1,585 @@
+Introduction to UVM
+Part I
+Joel Feldman
+Design Verification Engineer, NVIDIA Corp
+
+•UVM (Universal Verification Methodology) is open source 
+and subject to the following copyrights and usage license:
+•
+•Copyright 2010 AMD
+•Copyright 2007 -2018 Cadence Design Systems, Inc.
+•Copyright 2007 -2011 Mentor Graphics Corporation
+•Copyright 2013 -2024 NVIDIA Corporation
+•Copyright 2010 -2011 Synopsys, Inc.
+•All Rights Reserved Worldwide
+•Licensed under the Apache License, Version 2.0 (the 
+"License"); you may not use this file except in compliance 
+with the License.  You may obtain a copy of the License at
+•http://www.apache.org/licenses/LICENSE -2.0• Used with permission from Joel D Feldman exclusively for:
+• Arizona State University  CSE/CEN 598
+• Advanced Digital Design and Verification  -Dr. Aman Arora
+• Contents copyright © 2025 Joel D. Feldman extended for this academic course 
+work only, pursuant to this ASU course copyright policy and Academic Affairs 
+ACD 304 -06
+• All contents and implementations demonstrated in this presentation reflect 
+state of the art public domain industry knowledge and best practices
+• UVM is available from the Accellera Systems Initiative UVM Working Group
+• Download UVM (Universal Verification Methodology) -Accellera Systems 
+Initiative
+• No corporate confidential information (IP or methodology) is contained in this 
+presentation
+• Specman is a registered trademark of Cadence Design Systems
+• VMM is a product of Synopsys, Inc
+• AVM is a product of Siemens EDACompliance & Permission
+Copyright © 2025 Joel D Feldman
+
+Objectives
+•Quick Background on UVM
+•Understand a bit about simulation control and test flow
+•Basic principles in UVM and verification
+•Building blocks for creating UVM testbench
+•Learn some UVM magic tricks! 
+Copyright © 2025 Joel D Feldman
+
+So what does UVM offer?
+•A Framework to hang your testbench on
+•Standard look & feel for unit, cluster, or fullchip /SoC testbenches
+•Code organization
+•Configuration database API
+•Messaging/logfile controls
+•Testbench component hierarchy
+•Basic flow for a simulation in terms of order of events
+•Means to separate process of compiling/building design & testbench files 
+(model) from running simulations (regressions)
+•Compile all code once, simulate many times
+•Promotes a mindset of configurability where the testbench can be adapted at 
+runtime for a given simulation/scenario
+•Each test describes the intent -> configures testbench capabilities to control the design -
+under -test (enable only parts needed to meet objective of a given test)
+Copyright © 2025 Joel D Feldman
+
+UVM Code Contains
+•Single package of class & types (written in SystemVerilog  TB)
+•Automation macros (code shortcuts)
+•Message reporting macros and interface
+•Class field automation macros (large code shortcuts)
+•Mechanisms for:
+•component management
+•unified simulation runtime phase management
+•resource sharing database
+•simulation event management
+•register abstraction/access layer
+•template class definitions
+•transaction handling (queuing, exchanging, TLM implementations)
+Copyright © 2025 Joel D Feldman
+
+Learning to Drive
+•Doesn’t come from reading the owners manual of your car!
+•Reading the UVM NaturalDocs  pages or classes will not teach you how to 
+use UVM
+•Watching YouTube videos of cars driving will not teach you how to drive, 
+just as reading a book about UVM won’t teach you how to do design 
+verification
+•Before getting on the road, understand the rules of the road 
+(dealing with other drivers)
+Copyright © 2025 Joel D Feldman
+
+Old Way
+program my_test ();
+ initial begin
+   reg desired_val  = 32’h1234_5678;
+    force tb_top.dut.signalA  = 1’b0;
+   #1ns;
+    release tb_top.dut.signalA ;
+    force tb_top.dut.signalB  = 16’hff00;
+     force tb_top.dut.signalC  = 32’habcd_6789;
+     wait (tb_top.dut.ack  == 1’b1);
+     if (tb_top.dut.dout  == desired_val )
+          $display(“test passed);
+   $finish;
+ end
+endprogramNew Way
+program test ();
+  import uvm_pkg::*;
+  `include uvm_macros.svh
+  import my_uvm_env_pkg ::*;
+  import my_uvm_test_pkg *;
+   initial begin
+       uvm_pkg::run_test (“my_test”);
+   end
+endprogramDV Paradigm Shifttb_top
+dutsignalA
+signalB
+signalCack
+dout
+module my_dut(
+signalA, 
+signalB,
+signalC, 
+ack, 
+dout
+);
+input        signalA;
+input [15:0] signalB;
+input [31:0] signalC;
+output ack;
+output [31:0] dout;
+ 
+endmodule
+Copyright © 2025 Joel D Feldman
+
+UVM Test Takes Charge
+•UVM takes control of the entire simulation from start to $finish by 
+controlling the order of events & operations
+•Code is organized into classes, containing functions and tasks
+•Basic behavior is managed through each UVM test class
+•Test acts as the director for the simulation
+•construct selected test 
+class object
+•Complete simulation 
+($finish)run_test•Implements UVM 
+component standard 
+virtual methods 
+(tasks/functions)
+•UVM test controller 
+executes simulation 
+phases
+•Configures and 
+constructs the TB 
+environment
+•Launches stimulus 
+sequences (tasks)my_testImplements UVM 
+component standard 
+virtual methods to 
+configure the testbench 
+environmentmy_environment
+Copyright © 2025 Joel D Feldman
+
+task xyz (input bit [7:0] desired);
+   @(actual) begin
+      if (actual == desired)
+         $display(“Correct value”);
+     else
+         $display(“Incorrect value”);
+   end
+endtaskfunction void abc(bit [7:0] desired, 
+   bit [7:0] actual);
+    if (actual == desired)
+        $display(“Correct value”);
+   else
+       $display(“Incorrect value”);
+endfunctionSystemVerilog  Function vs Task?
+•Task can behave similar to function (can even return value, if necessary)
+•Task can also  consume simulation time (a function may NOT consume time)
+•wait (signal change, event)
+•delay (absolute time)
+•blocking on another process
+•calling other tasks (which may also consume time)
+Copyright © 2025 Joel D Feldman
+
+•Some events should occur 
+only at time = 0 (or end of 
+simulation/quiescent state)
+•Class construction
+•Setup of configurations
+•Building & configuring testbench 
+components and objects
+•Checking results
+•These utilize functions
+•Cannot consume time•Some events consume time or 
+allow simulation time to 
+advance
+•Reset
+•Stimulus (clock, control, data)
+•Waiting for signal changes and 
+events
+•Sampling/recording values
+•These utilize tasks
+•Can consume timeUnderstanding Simulation Phasing
+Copyright © 2025 Joel D Feldman
+
+•@ time = 0
+•build_phase
+•connect_phase
+•end_of_elaboration_phase
+•start_of_simulation_phase•@ time >= 0
+•run_phase
+•reset_phase
+•configuration_phase
+•main_phase
+•shutdown_phase
+•@time=N (end)
+•extract_phase
+•report_phase
+•final_phaseUVM Phasing
+Functions
+Tasks
+Functions
+Copyright © 2025 Joel D Feldman
+
+Component Phase Flow
+•build_phase
+•connect_phase
+•end_of_elaboration_phase
+•start_of_simulation_phase
+Time = 0•run_phase
+•reset_phase
+•configure_phase
+•main_phase
+•shutdown_phaseTime > 0•extract_phase
+•report_phase
+•final_phase
+Time = N
+Test
+Environment
+Sub -
+EnvironmentAgent
+Driver Monitor SequencerScoreboardbuild_phase  executed 
+top-down
+ from test
+other phases 
+executed bottom -up
+ in hierarchy
+UVM Component HierarchyCopyright © 2025 Joel D Feldman
+
+Phase Control
+•Time -consuming run_phase  supports optional sub -phases run in this 
+order:
+1. (pre_/post_) reset_phase
+2. (pre_/post_) configure_phase
+3. (pre_/post_) main_phase
+4. (pre_/post_) shutdown_phase
+•Each component’s phase/sub -phase should use an objection to 
+prevent early termination of its phase while it is busy 
+•phase.raise_objection (this)
+•phase.drop_objection (this)
+•Example:  Monitor is watching a transaction and needs to wait on an 
+event to indicate the transaction is complete
+Copyright © 2025 Joel D Feldman
+
+Components vs Objects
+•Every class is an object (utilizing OOP in SystemVerilog  TB)
+•UVM defines a special subset of objects called “components”
+•Components make up the standard template building blocks 
+(runtime infrastructure) for a testbench and give all UVM 
+testbenches a common framework or pallet to work from
+•Components enforce simulation phase flow
+•Components lay down basic mechanics and virtual methods 
+(tasks/functions) for their intended purpose
+•Components are constructed only at time=0
+•Component objects stay “alive” for the entire simulation
+Copyright © 2025 Joel D Feldman
+
+•UVM package defines base classes to be 
+derived/extended
+•Class definition hierarchy can be confusing at 
+first glance – these are just based on class 
+ancestry (derived classes)
+•Not same as hierarchy of components in a TB
+•Class construction and testbench hierarchy  is 
+harder to visualize from code inspection
+•Some classes are intended to be constructed at 
+time=0 and remain “static” (not same as static 
+type)
+•uvm_component
+•Objects of other classes are created/destroyed 
+throughout the simuation
+•uvm_sequence_item
+•uvm_transactionuvm_object
+root object
+uvm_transaction
+dynamic
+uvm_sequence_itemuvm_component
+“static” root component
+uvm_root uvm_test
+uvm_env uvm_agent
+uvm_driver uvm_monitor
+uvm_sequenceruvm_scorebo
+ardBasic UVM Class Hierarchy
+Copyright © 2025 Joel D Feldman
+
+Magic of Abstraction Layers
+•Transactions are high -level descriptions using data types
+•Transactions abstracted away from the lower -level implementation details of the 
+design and hardware signal interfaces
+•Declared as struct or class encapsulating fields & operands
+•Access to interface signals (asserting or watching signals) is performed 
+by lower -level components – transactors
+•Driver:  Actively controls input signal values
+•Monitor: Passively watches I/O signal values
+•Layers of abstraction insulate test writer from directly connecting to 
+physical signals
+Copyright © 2025 Joel D Feldman
+
+uvm_sequence•Transactions declared as 
+uvm_sequence_items
+•Just a special type of object
+•A sequence is a collection of 1 or 
+more sequence items•A sequencer only unpacks sequences of a 
+given sequence_item  type
+•Driver receives each sequence_item  
+request from its sequencer
+•Optionally may return a response of the 
+same or different sequence_item  type
+•A monitor can also observe signal activity 
+and transcribe it into a 
+transaction/ sequence_itemTransactions Handled by Transactor 
+Components 
+uvm_sequence_itemuvm_sequenceruvm_driver tb_top
+DUTsignalA
+signalB
+signalCack
+dout…
+uvm_monitor
+Copyright © 2025 Joel D Feldman
+
+•Sequence Item: Each item you 
+select (separate items and/or  
+multiple quantities)
+•Sequence:  Collection of items 
+(your cart or basket – or even a 
+basket inside a cart!)
+•Sequencer:  Conveyor belt
+•Driver: Cashier (operates the 
+cash register, not the shopper)
+•Monitor:  UPC ScannerFunctionality Abstraction – Real World 
+Analogy (The Grocery Store)
+Copyright © 2025 Joel D Feldman
+
+•Agent:  The checkout line
+•Agent contains/constructs: 
+•Driver
+•Monitor
+•Sequencer
+•Agent typically built by the environment
+•Environment:  The grocery store 
+(multiple agents/checkouts, other 
+operations), store within store
+•Environment contains:
+•Agent(s)
+•Scoreboard
+•Other components (coverage collectors)
+•Sub -environmentsFunctionality Abstraction  - Component 
+Groups
+Copyright © 2025 Joel D Feldman
+
+•Imposes the abstraction layer 
+behaviors for requests and 
+responses between high -level 
+transaction objects & low -level 
+transactor components•Transactor components 
+(uvm_sequencer  & uvm_driver ) 
+implement TLM ports/exports 
+and FIFOs internally to handle 
+the transfer of 
+uvm_sequence_item  requests 
+(and optionally, responses) Transaction Level Model (TLM)
+Copyright © 2025 Joel D Feldman
+
+•Port
+•Element that offers a way for a transaction to request 
+something external
+•Port only issues the request but doesn’t need to 
+know what’s on the “other side” or what it gets 
+connected to
+Ex:  driver issues request for transaction
+•Analysis Port
+•Similar to a port, but allows multiple subscribers to 
+be connected
+•Ex: monitor may use an analysis port to multicast 
+transactions to both scoreboard & coverage collector
+•Export
+•Element that implements the method requested by 
+the port
+•Ex: sequencer services the request to provide a 
+transaction to a driver, provided the port/export are 
+connected
+•FIFO
+•Queue to store & retrieve transactions•UVM implements all TLM -
+based capabilities under the 
+hood
+•User needs only to instantiate 
+appropriate 
+components/objects and invoke 
+TLM connect() method to bind 
+ports/exports of communicating 
+elementsTransaction Level Model (TLM)
+Copyright © 2025 Joel D Feldman
+
+model
+(executable)•Elaborated Simulation Model
+•Binary executable
+•Compiled once•Runtime Environment
+•Exists in program memory
+•Dynamically created with each 
+simulation
+•Cannot directly look inside simulation 
+model without special mechanisms 
+(PLIs)
+•Illegal cross -module reference:
+•force top.DUT.ack  = 1’b1;Abstraction: How Transactors Access the RTL 
+Signals
+RTL
+Interfaces
+TB files
+uvm_pkg
+Testbench
+Packagesupport
+packagesDUTsignalA
+signalB
+signalCack
+dout
+OS RAM
+Copyright © 2025 Joel D Feldman
+
+interface dut_signals  ();
+  logic signalA;
+  logic [15:0] signalB;
+  logic [31:0] signalC;
+  logic ack;
+  logic [31:0] dout;
+endinterface
+module tb_top ();
+   rtltop   DUT(); //design under test
+   dut_signals    dut_if(); //interface
+   initial begin
+      my_driver   drv = new();
+      //”pass handle (pointer) of dut_if to simulation”
+       drv.get_dut_if_pointer ();
+   end
+endmoduleclass my_driver ;
+   
+ virtual dut_signals   dut_vif(); //TBD – it’s null!!
+    function void get_dut_if_pointer ();
+        //”retrieve handle (pointer) of dut_vif”
+    endfunction
+endclassAbstraction: How Transactors Access the RTL 
+Signals
+Copyright © 2025 Joel D Feldman
+
+
+Abstraction: How Transactors Access the RTL 
+Signals
+•UVM doesn’t address this!
+•It’s a simulator / SystemVerilog  issue
+•Fortunately, UVM provides a generic, yet powerful mechanism to 
+exchange values of any data type across the simulation/testbench
+•uvm_resource_db #( <type > )::set
+•uvm_resource_db #( <type > ):: read_by_name
+•<type > can be any defined data type, even a (virtual) interface!!
+Copyright © 2025 Joel D Feldman
+
+interface dut_signals  ();
+  logic signalA;
+  logic [15:0] signalB;
+  logic [31:0] signalC;
+  logic ack;
+  logic [31:0] dout;
+endinterface
+module tb_top ();
+   import uvm_pkg::*;
+   rtltop DUT();  //design under test
+   dut_signals    dut_if();
+  initial begin
+     my_driver   drv = new();
+      uvm_resource_db #( virtual dut_signals )::set(
+                     “*”,”dut_if_ptr ”, dut_if);
+      drv.get_dut_if_pointer ();
+   end
+endmoduleclass my_driver ;
+  virtual dut_signals   dut_vif;   //TBD – it’s null!!
+  function void get_dut_if_pointer ();
+    uvm_resource_db #(virtual dut_signals )::read_by_name (
+             get_full_name (),"dut_if_ ptr",dut_vif, this);    
+ //dut_vif now points to the interface within the model!
+  endfunction
+endclassAbstraction: How Transactors Access the RTL 
+Signals using uvm_resource_db
+Copyright © 2025 Joel D Feldman
+
+How Do We Implement This in UVM?
+•Come back next time for another exciting episode!
+Copyright © 2025 Joel D Feldman
+
+Backup
+Copyright © 2025 Joel D Feldman
+
+Managing Expectations 
+•Claiming a methodology (or anything) to be “universal” is overzealous
+•The “open -source” nature of OVM moniker is more descriptive of what UVM offers
+•UVM still only really targets digital RTL hardware verification
+•No means for analog/mixed -signal
+•Limited “plugin” vendor solutions for handling mixed -language/methodology  (i.e. SystemC  or Specman  transactions)
+•No real software/firmware co -verification layer
+•config/status register verification (RAL) capabilities are skeletal
+•very limited register attribute modeling
+•no mechanisms for hardware -variant (volatile) register modeling
+•No methodology defined around:
+•checkers/scoreboards
+•coverage
+•protocol verification
+•portable stimulus and reuse across multiple verification platforms (logic simulation, FPGA, emulation, post -silicon)
+•clock and reset domains
+•low power features
+Copyright © 2025 Joel D Feldman
+
+Universal Verification Methodology?
+•How did we get here?
+•Is it really universal (is that even a thing)?
+•What’s the purpose and real value of UVM?
+•Learning UVM
+Copyright © 2025 Joel D Feldman
+
+•Long, long ago, RTL designers were mainly responsible for 
+performing their own verification
+•Tedious, inflexible testbenches to instantiate a Design -
+Under -Test (DUT)
+•Testbench and verification open to artistic expression 
+without a goal of cross -project or vertical reuse
+•Mostly directed -style tests, or requiring non -Verilog/VHDL 
+programs to generate “random” stimulus and post -
+processing checks
+•“Visual” logfile & waveform inspection from logic simulator
+•Focus on targeting RTL code coverage 
+(line/toggle/conditions)
+•100% code coverage !=  functional coverage
+•Eventually, EDA vendors starting packaging their own 
+proprietary verification methodologies/tools coupled to 
+their logic simulators
+•Generally the same motivations, but completely 
+incompatible solutions across vendors
+•Goal in EDA is to (up)sell licenses and lock -in customers
+•Not much incentive to collaborate across industryHow Did We Get Here?
+Designer
+Built
+TestbenchSpecman /
+eRMVMM
+AVMOVM UVM
+Dark             2000        2005                      2009    2012                                 Present
+Ages
+Copyright © 2025 Joel D Feldman
+
+•Specman /eRM
+•Verisity ->Cadence
+•Aspect Oriented eRM  language
+•Quite ahead of its time
+•AVM
+•Mentor Graphics (Siemens EDA)
+•SystemVerilog  Testbench
+•VMM
+•Synopsys
+•Proprietary for VCS/Vera tools•“Open” Verification Methodology (OVM) 
+•Born in Accellera  standards workgroup
+•Merge the best of Specman  features & 
+methodolgoy  into SVTB/AVM APIs
+•Open and free to the public domain
+•Synopsys watched from sidelines
+•Industry said “compete on the tools, 
+collaborate on the methodology”
+•Synopsys balked but saved face by convincing 
+them to change names
+•OVM v3.0 released by Accellera  as “Universal” 
+Verification Methodology (UVM)
+•UVM eventually became an IEEE Standard 
+derived from P1800 specE Plurbus  Unum
+Copyright © 2025 Joel D Feldman

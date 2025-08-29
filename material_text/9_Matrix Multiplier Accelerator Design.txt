@@ -1,0 +1,254 @@
+Matrix Multiplication 
+Accelerator Design
+
+Basics
+•What does it mean to compute in software?
+•Using a “general purpose” CPU
+•What does it mean to compute in hardware?
+•Not using a CPU
+•Using specialized hardware instead
+
+What is hardware acceleration?
+•Offload certain tasks to ‘hardware’ to ‘accelerate’ them
+•Why?
+•Run more efficiently
+•Lower power
+•Lower time
+•Lower energy consumption
+
+Flexibility –Efficiency Tradeoff
+But why is the CPU less energy efficient?
+
+Energy breakdown for an instruction
+
+
+Main sources of acceleration
+•Reduced overhead
+•Fetch, decode, etc.
+•Specialization
+•Domain specific data types
+•Parallelism
+•Many processing elements
+•Optimized memory
+•Optimized communication
+W. Dally, Y. Turakhia , S. Han. Domain -Specific Hardware Accelerators . CACM 2020.
+
+Hardware Acceleration of ML
+
+Deep Neural Networks
+The most prevalent computation in DNNs is….
+…. matrix -matrix multiplication!Weight Matrix Input Matrix Output Matrix
+
+
+Processing ElementDot Product Unit
+MAC
+Many independent MACsScalar
+ScalarScalar Dot Product Unit
+Many independent Dot Product UnitsScalarTwo 
+Vectors
+MVMDot Product Unit
+Dot Product Unit
+Dot Product Unit
+Vector
+Many independent MVMsBroadcast…VectorMatrix
+MMM(Will discuss later 
+in this lecture)
+Many independent MMMsMAC
+
+Processing Element
+Google TPU 
+(ASIC)
+Microsoft 
+Brainwave 
+(FPGA)NVIDIA GPU
+Added a new instruction called HMMA
+
+Systolic Arrays
+1D array of PEs 
+arranged in a daisy 
+chain topologyPE = 
+Processing 
+Element
+
+Systolic Arrays
+2D array of PEs arranged in a 
+mesh topologyData enters/leaves at mesh 
+boundaries and is communicated 
+with neighboring PEs while being 
+processed at each PE.
+Inner PEs only have near -neighbor 
+connections.Very efficient use of memory
+Very symmetric dataflowReduced wire usage. No global 
+wires.
+
+3 X 3 Matrix Multiply Example    Time T = 0
+
+
+3 X 3 Matrix Multiply Example    Time T = 1
+
+
+3 X 3 Matrix Multiply Example    Time T = 2
+
+
+3 X 3 Matrix Multiply Example    Time T = 3
+
+
+3 X 3 Matrix Multiply Example    Time T = 4
+
+
+3 X 3 Matrix Multiply Example    Time T = 5
+
+
+3 X 3 Matrix Multiply Example    Time T = 6
+
+
+3 X 3 Matrix Multiply Example    Time T = 7
+
+
+3 X 3 Matrix Multiply Example    Time T = 7
+P0 P1 P2
+P3P4 P5
+P6 P7 P8
+3 more cycles to shift them outNow we have the results in each PE
+
+3 X 3 Matrix Multiply Example    Time T = 8
+P2
+P5
+P8P0
+P3
+P6P1
+P4
+P7
+
+3 X 3 Matrix Multiply Example    Time T = 9
+P2
+P5
+P8P0
+P3
+P6P1
+P4
+P7
+
+3 X 3 Matrix Multiply Example    Time T = 10
+P2
+P5
+P8P0
+P3
+P6P1
+P4
+P7
+
+What operation is each PE doing?
+The MAC operationMultiplier 
+(*)Adder (+)Accumul
+ator 
+(Register)A
+BY
+Y = A*B + Y_prev
+
+What operation is each PE doing?
+And, also, shifting the received data…
+
+
+Properties of Systolic Matrix Multiplier
+•Number of PEs = N2
+•Cycles taken = 4N -2 (+Number of cycles in the MAC)
+•Number of memory accesses = 3*N2
+•N2 for input matrix A
+•N2 for input matrix B
+•N2 for output matrix C
+•Peak memory bandwidth required (reads) = 2N elements per clock
+•Peak memory bandwidth required (writes) = N elements per clock
+•Number of MAC operations = N3
+
+T=0T=3
+T=6
+T=8
+T=10T=1 T=2
+T=4 T=5
+T=7
+T=8 T=9
+
+3x3 Systolic Array for Matrix Multiplication
+
+
+Making Larger Matrix Multipliers
+Making a 8x8 matmul using 4 4x4 matmuls
+
+Designing a Systolic MatMul  in Verilog
+Processing elements (PEs)Systolic Matrix MultiplierSystolic data 
+setup circuitsOutput data 
+interface
+
+Designing a Systolic MatMul  in Verilog
+RAM RAMRAM
+dataaddr
+dataaddrdataaddr
+Systolic Matrix MultiplierInput matrix B
+Input 
+matrix 
+AOutput 
+matrix 
+C
+Signals of a RAM:
+1.Addr
+2.Data In
+3.Data Out
+4.Write Enable
+
+Designing a Systolic MatMul  in Verilog
+State 
+MachineRAM RAMRAM
+dataaddr
+dataaddrdataaddr
+Systolic Matrix MultiplierControl Logic
+
+Designing a Systolic MatMul  in Verilog
+State 
+MachineRAM RAMRAM
+dataaddr
+dataaddrdataaddr
+Systolic Matrix MultiplierStart
+DoneStart
+Done
+
+Designing a Systolic MatMul  in Verilog
+RAM RAMRAM
+dataaddr
+dataaddrdataaddr
+Systolic Matrix MultiplierState 
+Machine
+Port #2Port #1•Dual Ported Memories
+•Port 1: Connected to 
+matmul
+•Signals not needed are tied off
+•Port 2: Connected to external world
+•Loading/unloading these RAMs
+•addr_ext , wdata_ext , 
+rdata_ext , we_ext
+
+Designing a Systolic MatMul  in Verilog
+State 
+MachineRAM RAMRAM
+dataaddr
+dataaddrdataaddr
+Systolic Matrix Multiplier
+TestbenchTestbench Code:
+1. Load input memories2. Deassert  Reset
+3. Trigger Start4. Wait for Done5. Compare results6. Finish
+
+Designing a Systolic MatMul  in Verilog
+
+
+Designing a Systolic MatMul  in Verilog
+Shift Register
+Movement of input matrices Movement of output matrix
+
+Data layout in RAMs
+•Row Major in RAM for matrix A
+•Column Major in RAM for matrix B
+Matmul
+
+Designing a Systolic MatMul  in Verilog
+Ports/Interface
+PrecisionMemory port widthsAddress StridesValidity MaskClock countingPE meshPE architectureRoundingMemory instances ( ext ports)

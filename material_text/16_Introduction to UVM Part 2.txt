@@ -1,0 +1,449 @@
+Introduction to UVM
+Part II
+Joel Feldman
+Design Verification Engineer, NVIDIA Corp
+
+Compliance & Permission
+UVM (Universal Verification Methodology) is open source and subject to the 
+following copyrights and usage license:
+Copyright 2010 AMD
+Copyright 2007 -2018 Cadence Design Systems, Inc.
+Copyright 2007 -2011 Mentor Graphics Corporation
+Copyright 2013 -2024 NVIDIA Corporation
+Copyright 2010 -2011 Synopsys, Inc.
+All Rights Reserved Worldwide
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
+this file except in compliance with the License.  You may obtain a copy of the 
+License at
+http://www.apache.org/licenses/LICENSE -2.0•Used with permission from Joel D Feldman exclusively for:
+• Arizona State University  CSE/CEN 598
+• Advanced Digital Design and Verification  -Dr. Aman Arora
+•Contents copyright © 2025 Joel D. Feldman extended for this academic 
+course work only , pursuant to this ASU course copyright policy and 
+Academic Affairs ACD 304 -06
+•All contents and implementations demonstrated in this presentation 
+reflect state of the art public domain industry knowledge and best 
+practices
+•UVM is available from the Accellera Systems Initiative UVM Working 
+Group
+• Download UVM (Universal Verification Methodology) -Accellera
+Systems Initiative
+•No corporate confidential information (IP or methodology) is contained 
+in this presentation
+•Specman is a registered trademark of Cadence Design Systems
+•VMM is a product of Synopsys, Inc
+•AVM is a product of Siemens EDA
+Copyright © 2025 Joel D Feldman
+
+Part I Recap
+•Verification Focus on stimulus through transactions
+•Controlling flow of simulation
+•zero -time functionality & setup
+•time -consuming methods
+•Abstraction of runtime environment (classes, virtual interfaces) 
+from physical/elaborated design in simulation model
+•Transactions vs Transactors
+•UVM components 
+Copyright © 2025 Joel D Feldman
+
+How to Get Started?tb_top
+dutsignalA
+signalB
+signalCack
+dout
+module my_dut(
+signalA, 
+signalB,
+signalC, 
+ack, 
+dout
+);
+input        signalA;
+input [15:0] signalB;
+input [31:0] signalC;
+output ack;
+output [31:0] dout;
+ 
+endmodule•Old Way
+program my_test ();
+ initial begin
+   reg desired_val  = 32’h1234_5678;
+    force tb_top.dut.signalA  = 1’b0;
+   #1ns;
+    release tb_top.dut.signalA ;
+    force tb_top.dut.signalB  = 16’hff00;
+     force tb_top.dut.signalC  = 32’habcd_6789;
+     wait (tb_top.dut.ack  == 1’b1);
+     if (tb_top.dut.dout  == desired_val )
+          $display(“test passed);
+   $finish;
+ end
+endprogram
+Copyright © 2025 Joel D Feldman
+
+Creating a Transaction
+•Start by describing ports at a behavioral level (like a 
+struct)
+•bit reset;
+•bit [7:0] address;
+•bit [31:0] data_in ;
+•bit [31:0] data_out ;•Define a uvm_sequence_item  class with 
+these fields:
+class dut_ctrl  extends uvm_sequence_item ;
+bit reset;
+bit [7:0] address;
+bit [31:0] data_in;
+bit [31:0] data_out ;
+  function new(string name=“ dut_ctrl ”);
+     super.new (name);
+  endfunction
+`uvm_object_utils_begin (dut_ctrl )
+   `uvm_field_int (reset, UVM_ALL_ON)
+   `uvm_field_int (address, UVM_ALL_ON)
+   `uvm_field_int (data_in, UVM_ALL_ON)
+   `uvm_field_int (data_out , UVM_ALL_ON)
+`uvm_object_utils_end
+endclassdut(reset )    signalA
+(address ) signalB
+(data_in ) signalCack
+dout  (data_out )
+Copyright © 2025 Joel D Feldman
+
+Creating Components
+•Inside ->outside (closest to design/interface first)
+1.Transactors
+2.Reusable agents
+3.Reusable environments
+Copyright © 2025 Joel D Feldman
+
+Defining a Sequencer Component
+class my_sequencer  extends uvm_sequencer  #(dut_ctrl );
+ //Constructor
+  function new(string name=“ my_sequencer ”, uvm_component  parent = null);
+     super.new (name, parent);
+  endfunction
+  `uvm_component_utils (my_sequencer )
+endclass
+Copyright © 2025 Joel D Feldman
+
+Defining a Driver Component
+1. Declare class with transaction 
+type parameter
+2. Define the constructor
+3. Get handle to virtual interface
+4. Implement component 
+“run_phase ” task with loop to:
+a. take sequence_item  from sequencer
+b. interpret the request
+c. drive the interface signals
+d. release sequence_item•uvm_driver  class comes pre -
+plumbed with TLM mechanism 
+for sequence_item_port  to 
+handle requests ( req) and 
+responses ( rsp) based on the 
+parameter override
+•uvm_driver  run_phase () will 
+automatically start after earlier 
+phases have completed!
+Copyright © 2025 Joel D Feldman
+
+Defining a Driver Component
+class my_driver  extends uvm_driver #(dut_ctrl);
+  `uvm_component_utils (my_driver )
+   virtual dut_signals   dut_vif;
+//Constructor
+  function new(string name=“ my_sequencer ”,
+          uvm_component    parent = null);
+     super.new (name, parent);
+  endfunction
+  function void connect_phase (uvm_phase  phase);
+    super.connect_phase (phase);
+   uvm_resource_db #(virtual 
+dut_signals )::read_by_name (
+           get_full_name (),"dut_if_ ptr",dut_vif, 
+this);
+endfunction
+  
+endclasstask run_phase (uvm_phase  phase);
+    super.run_phase (phase);
+  forever begin
+       seq_item_port.get_next_item (req);
+       phase.raise_objection (this);
+        if (req.reset ) begin
+           dut_vif.signalA  = 1’b0;
+           #1ns dut_vif.signalA  = 1’b1;
+        end 
+        else begin
+            dut_vif.signalB  = req.address ;
+            dut_vif.signalC  = req.data_in ;
+        end
+        seq_item_port.item_done ;
+        phase.drop_objection (this);
+      end
+endtaskinterface  dut_signals  ();
+  logic        signalA;
+  logic [15:0] signalB;
+  logic [31:0] signalC;
+  logic        ack;
+  logic [31:0] dout;
+endinterface
+Copyright © 2025 Joel D Feldman
+
+Defining a Monitor Component
+1. Define the constructor
+•Create a TLM analysis port
+2. Get handle to virtual interface
+3. Implement component 
+“run_phase ” task with loop to:
+a. wait for interface signal changes
+b. create transaction
+c. transcribe signals into transaction 
+details
+d. write transaction to analysis port•uvm_monitor  class does not 
+include any built -in TLM features 
+(or any unique features) – it is not 
+a parameterized class 
+•uvm_monitor  run_phase () will 
+automatically start after earlier 
+phases have completed!
+Copyright © 2025 Joel D Feldman
+
+Defining a Monitor Component
+class my_monitor  extends uvm_monitor ;
+  `uvm_component_utils (my_monitor )
+   dut_ctrl   my_trans ;
+   uvm_analysis_port  #(dut_ctrl) trans_port ;
+   virtual dut_signals   dut_vif;
+//Constructor
+  function new(string name=“ my_sequencer ”,
+          uvm_component    parent = null);
+     super.new (name, parent);
+     trans_port  = new(“trans_port ”, this);
+  endfunction
+function void connect_phase (uvm_phase  phase);
+   super.connect_phase (phase);
+   uvm_resource_db #(virtual dut_signals )::read_by_name (
+           get_full_name (),"dut_if_ ptr",dut_vif, this);   
+endfunction
+endclass task run_phase (uvm_phase  phase);
+    super.run_phase (phase);
+    forever begin
+     my_trans  = new(“my_trans ”);
+       @(dut_vif.ack);
+        phase.raise_objection (this);
+            my_trans.address  = dut_vif.signalB ;
+            my_trans.data_in  = dut_vif.signalC ;
+            my_trans.data_out  = dut_vif.dout ;
+          phase.drop_objection (this);
+       trans_port.write (my_trans );
+    end
+endtaskinterface  dut_signals  ();
+  logic        signalA;
+  logic [15:0] signalB;
+  logic [31:0] signalC;
+  logic        ack;
+  logic [31:0] dout;
+endinterface
+Copyright © 2025 Joel D Feldman
+
+Active vs Passive Components
+•Transactors that alter the 
+interface signals are 
+considered active
+•uvm_driver
+•Transactors that only 
+observe interface signals 
+are considered passive
+•uvm_monitor•In other verification 
+environments/levels, a driver may be 
+disabled 
+•Monitor can still serve a purposedutsignalA
+signalB
+signalCack
+dout
+Block BsignalA
+signalB
+signalCack
+doutBlock Auvm_driver uvm_monitor
+uvm_monitor
+Copyright © 2025 Joel D Feldman
+
+Building a Reusable Agent Component
+•UVM includes an enumerated 
+type:
+typedef enum bit { 
+UVM_PASSIVE=0, UVM_ACTIVE=1 } 
+uvm_active_passive_enum ;
+•This is an example of creating a 
+runtime -configurable component
+•If active:
+•Build driver & sequencer (and monitor)
+•If passive:
+•Only build monitor•Encapsulate transactors into 
+an agent container component:
+•driver
+•sequencer
+•monitor
+•Use build_phase  to:
+•construct the agent’s sub -
+components
+•Use connect_phase  to:
+•Couple TLM -level port/export 
+between driver & sequencerAgent
+Monitor Sequencer Driver
+(when active) Copyright © 2025 Joel D Feldman
+
+Building a Reusable Agent Component
+class my_agent  extends uvm_agent ;
+`uvm_component_utils_begin (my_agent )
+  `uvm_field_enum (uvm_active_passive_enum , is_active ,
+                                UVM_ALL_ON)
+`uvm_component_utils_end
+ uvm_active_passive_enum   is_active  = UVM_ACTIVE ;
+ my_monitor   mon;
+ my_driver    drv;
+ my_sequencer   seqr;
+function new (string name=“ my_agent ”, 
+            uvm_component  parent = null);
+   super.new (name, parent);
+endfunction    
+ function void build_phase (uvm_phase  phase);
+  super.build_phase (phase);
+  if (is_active  == UVM_ACTIVE) begin 
+   drv = my_driver ::type_id::create(“ drv”, this);
+   seqr = my_sequencer ::type_id::create (“seqr”, this);
+  end
+  mon = my_monitor ::type_id::create (“mon”, this);
+endfunction
+function void connect_phase (uvm_phase  phase);
+  super.connect_phase (phase);
+  if (is_active  == UVM_ACTIVE) begin 
+    drv.seq_item_port.
+ connect (seqr.seq_item_export );
+  end
+endfunction
+endclass
+Copyright © 2025 Joel D Feldman
+
+Exposing Some “Magic”
+•How does the value of “ is_active ” get retrieved?
+•Happens “auto -magically” because:
+1. is_active  variable  was declared in the field -automation macro, which includes that variable for query in 
+a central UVM resource database
+2. uvm_component  build_phase   (called through super.build_phase ) retrieved any override values on 
+is_active  from the UVM resource database
+•Why weren’t driver/monitor/sequencer instances constructed using new() ?
+•Constructing objects using ::type_id ::create()  instructs the UVM factory * to call the 
+constructor of the requested class type  (more on this later…)
+•Why was drv.seq_item_port.
+ connect (seqr.seq_item_export ) used between the driver & 
+sequencer?
+•uvm_driver  class comes with its own embedded TLM port  which implements the functionality 
+needed to request each sequence_item  (transaction)
+•uvm_sequencer  class comes with its own embedded TLM export  which implements the 
+functionality needed to service each request to fetch the next sequence_item  in the queue
+•The TLM  connect() method couples the driver & sequencer together to facilitate this 
+communication
+Copyright © 2025 Joel D Feldman
+
+Building a Reusable Environment Component
+•Encapsulate related components into an 
+environment  component:
+•agent
+•scoreboard
+•coverage
+•Use build_phase  to:
+•construct the agent and other components
+•Use connect_phase  to:
+•Couple TLM -level ports/exports between 
+monitor & scoreboardEnvironment
+Coverage
+CollectorAgent
+Monitor Sequencer DriverScoreboard
+(when active)
+Copyright © 2025 Joel D Feldman
+
+Building a Reusable Environment Component
+class my_env extends uvm_env;
+`uvm_component_utils (my_env)
+ uvm_active_passive_enum   is_active  = UVM_ACTIVE ;
+ my_agent   agt;
+ my_scoreboard    scorebrd ;
+ my_coverage      cvr;
+function new (string name=“ my_env”, 
+            uvm_component  parent = null);
+   super.new (name, parent);
+endfunction    
+  function void build_phase (uvm_phase  phase);
+   super.build_phase (phase);
+   agt = my_agent ::type_id::create (“agt”, this);
+   scorebrd  = my_agent ::type_id::create (“scorebrd ”, this);
+   cvr = my_coverage ::type_id::create (“cvr”, this);
+ endfunction
+ function void connect_phase (uvm_phase  phase);
+   agt.mon.trans_port .
+connect (scorebrd .trans_fifo );
+ endfunction
+endclass
+Copyright © 2025 Joel D Feldman
+
+UVM Factory
+•Think of a factory as a foundry that can take a list of available 
+items in a catalog and build them on -the-fly
+•Each time an object/component type is registered with the factory,
+`uvm_object_utils (<typename >)
+`uvm_component_utils (<typename >)
+  the type declaration is added into a central registry
+•These macros define a create() method for the class type
+•The type_id::create() method requests the factory  to construct 
+the object by calling new() on the class type. 
+Copyright © 2025 Joel D Feldman
+
+But First…
+•The factory checks the registry for any requested type overrides
+•If a global or instance -specific override was requested by another 
+existing component, type_id::create() will automatically 
+substitute the override/derived class to be constructed instead
+•This allows run -time overrides of components without modifying 
+lower -level code (i.e. agents)
+Copyright © 2025 Joel D Feldman
+
+Factory Type Overrides
+class usb2_driver extends uvm_driver ;
+  `uvm_component_utils (usb2_driver)
+   …
+endclass
+class usb3_driver extends usb2_driver;
+ `uvm_component_utils (usb3_driver)
+  task run_phase (uvm_phase  phase);
+    //implement USB3 protocol 
+  endtask
+endclassclass my_agent  extends uvm_agent ;
+ `uvm_component_utils (my_agent )
+  usb2_driver  usb_drv;
+…
+  function void build_phase (uvm_phase  phase);
+     super.build_phase (phase);
+     usb_drv =
+        usb2_driver:: type_id::create (“usb_drv”, this);
+  endfunction
+endclass
+class test1 extends uvm_test ;
+ `uvm_component_utils (test1)
+  function void build_phase  (uvm_phase  phase);
+     super.build_phase (phase);
+     set_type_override_by_type (
+           usb2_driver:: get_type (), 
+           usb3_driver:: get_type ());
+  endfunction
+endclassmy_agent
+Monitor Sequencer usb2_driver usb3_driverComponent Library:
+• test1
+• my_agent
+• usb2_driver
+• usb3_driver
+Copyright © 2025 Joel D Feldman
+
+How Do We Put This All Together & Run a Test ?
+•See you next time for the exciting conclusion !
+Copyright © 2025 Joel D Feldman

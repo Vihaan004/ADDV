@@ -1,0 +1,520 @@
+System Verilog 
+for Design
+
+Assumption: You’re familiar with Verilog
+
+HDL vs. Programming Languages (PLs)
+•Syntactically similar constructs; Very different semantics
+•Statements are evaluated in parallel (generally)
+•In PLs, statements are evaluated serially
+•Modules are “instantiated” and connected using wires
+•In PLs, subroutines are “called” and they pass/return values
+Think hardware! Draw hardware first. Then write code.
+
+Ending the Wire vs.Reg Confusion
+Verilog
+●wire forLHSofassign statements
+●regforLHSofcode inside always @ 
+blocks
+Both: thecontext determines sequential orcombinational logicSystemVerilog
+●logic forLHSofassign statements
+●logic forLHSofcode inside always @ 
+blocks
+●logic is 4 -state 0,1,x,z
+wire a;
+reg b, c;
+a= ;
+@(*)b= ;assign 
+always
+always @(posedge clk) c <= ;logic 
+assign 
+always alwaysa, b, c;
+a=
+;
+@(*)b= ;
+@(posedge clk) c <= ;
+Another commonly mentioned new type is “bit” . Two -state logic. Use only in verification.
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+Signal Your Intent With Specific Always Blocks
+Verilog SystemVerilog
+Coding style isused toverify thatcinfers 
+asaregister andbascomb logicelsealways @(*)begin 
+if(x)   b=a
+b=!a;
+end
+begin
+elsealways @(posedge clk) 
+if(x) c<=!a;
+c<=a;
+endalways_comb
+if(x) b 
+elsebegin
+=a
+b=!a;
+end
+always_ff
+if@(posedge clk) begin
+(x) c<=!a;
+else c<=a;
+end
+New always_comb andalways_ff 
+statements forsafety
+Provides some type checking. Still need @posedge or @negedge and non -blocking 
+assignments in always_ff to infer sequential logic.
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+Autoconnect (Implicit Port Connections)
+●Howmany times have youdone this?
+module mod (input a,b,
+reg a,b; wire c; 
+mod x(.a(a), .b(b), .c(c));output c); endmodule
+●InSystemV erilog, there’s aconcise shortcut
+mod x(.*); 
+●Implicit connections onlywork ifportnames andwidths match
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+Typedefs (Type Aliases)
+●User-defined type
+○typedef isused toexpose user-defined types
+●Theyhelp attach semantic meaning toyourdesign
+
+
+Use Enums Over localparams
+Verilog SystemVerilog
+localparam
+localparam
+localparamSTATE_IDLE =2’b00; 
+STATE_A =2’b01; 
+STATE_B =2’b10;
+reg [1:0]state;
+always @(posedge clk) begin 
+case (state)
+STATE_IDLE: state <=STATE_A ;
+state 
+state<=STATE_B ;
+<=STATE_IDLE ;STATE_A: STATE_B:
+endcase
+endtypedef enum logic [1:0]{ 
+STATE_IDLE, STATE_A ,
+}state_t; 
+state_t state;STATE_B
+always_ff @(posedge clk) 
+case (state)
+STATE_IDLE: statebegin
+<=STATE_A
+<=STATE_B ;
+<=STATE_IDLE ;STATE_A: state 
+STATE_B: state
+endcase
+end
+Enums automatically check whether allvalues canfit.
+Addsemantic meaning toconstants.Enhance FSM descriptions by 
+using enums
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+More onEnums
+●Common touseenums forattaching semantic strings tovalues
+typedef  enum logic { 
+READ ,WRITE
+}mem_op_t;
+module memory (
+[4:0]addr, 
+mem_op_t op, 
+[31:0]din,input 
+input input output logic [31:0]dout
+);
+Note thatinput/output nettypes arebydefault ‘wire’, youcanoverride them as logic
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+Even More onEnums
+●Enums areafirst-class datatype inSystemV erilog
+○Enum instances have native functions defined onthem
+●next(): nextvalue fromcurrent value
+●prev(): previous value fromcurrent value
+●num(): number ofelements inenum
+●name(): returns astring withtheenum’s name (useful forprinting using
+$display )
+●They areweakly typechecked
+○Youcan’t assign abinary literal toanenum typenet
+●They show upinwaveforms
+○Nomore confusion trying tocorrelate literals toasemantic name
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+Structs
+○Allows designer togroup netstogether, helps encapsulation ofsignals, easydeclaration
+○Canbeused within amodule orinamodule’s ports
+module alu (input instruction_word_t  IW, clock);
+Source: Chris Spear’s book on SV for Design
+
+Multidimensional Arrays
+●Packed dimensions aretotheleftofthe variable name
+○Packed dimensions arecontiguous (e.g.logic [7:0]a).
+○Packed arrays are used when you want to treat a group of bits as a single word 
+or vector (e.g., for arithmetic or bitwise operations).
+●Unpacked dimensions aretotheright ofthevariable name
+○Unpacked  dimensions are non-contiguous (e.g. logic a [8])
+○Unpacked arrays are used when you want to treat each element as an 
+independent variable (e.g., an array of registers or signals).
+●SystemVerilog  allows multiple packed and unpacked dimensions
+Typically only 1 packed and 1 unpacked dimensions are used in designs
+
+Interfaces
+●Interfaces allow designers togroup ports  together
+○Simplify connections between parent andchild modules
+Source: Synopsys Training
+
+Modports
+●ButIdidn’t specify thedirection (input/output) oftheinterface ports!
+○Thiscancause multi- driver issues withimproper connections
+●Solution: usemodports
+Source: Synopsys Training
+
+Packages /Namespacing
+●Verilog hasaglobal namespace
+○Often naming conflicts inlarge projects
+○`include ishacky andrequires `ifdef guards
+●SystemVerilog allows youtoencapsulate constructs inapackage
+○modules, functions, structs, typedefs, classes
+package my_pkg;
+typedef 
+functionenum logic [1:0]{STATE [4]}state_t; 
+show_vals();
+state_t s =STATE0 ;
+for (int i=0;i<s.num; i
+$display (s.name());=i+1)begin
+s=s.next();
+end 
+endfunction
+endpackageimport my_pkg::* ;
+module ex(input clk); 
+state_t s;
+always_ff @(posedge clk) 
+s<=STATE0 ;
+end 
+endmodulebegin
+Slide adapted from Vignesh Iyer, UC Berkeley
+
+Unsized literals
+•Verilog had unsized literals
+•x = 0;
+•Treated as 32 -bit value
+•SV adds intelligent unsized literals
+•x = ‘0;
+•Aware of the bit -width of the signal
+•Fills target with that single value
+Source: Cadence Training
+
+Enhanced Timescale Management
+•New keywords introduced
+•timeunit  
+•timeprecision
+•Equivalent to `timescale but without file 
+order compilation dependency
+•timeunit and timeprecision  are
+•Declarations, not directives
+•Placed inside a module
+•Only visible to the design element where 
+they are declared and any nested units
+Source: Cadence Training
+
+Tasks and Functions
+•Several syntactical improvements
+function logic [15:0] square(logic [7:0] x);
+return x*x;
+endfunction
+Source: Cadence Training
+
+Enhancements to Generate Statements
+•“generate” keyword optional
+•Can use “i ++” instead of “ i=i+1”
+// T h e  fo r -l oop cr eat es 16 assi gn st at em ent s 
+genvar  i; 
+f or (i=0; i < 16; i++)  begi n 
+  assi gn  t e mp [ i]  = ( s el ect  == i ) ? m ux_i n [i] : 0; 
+end
+
+Guidelines
+21Simple combinational Logic
+Sequential Logic
+logic Q;
+always_ff @(posedge clk)
+begin
+  Q <= D;       
+endlogic D;
+assign  D = A || B;
+Complex combinational Logic
+logic D;
+always_comb  
+begin  if (C) D = A 
+  else D = B;       
+endTestbenches
+bit D;
+initial  begin
+  #10 D = A || B;
+endCombined combinational and sequential Logic
+logic Q;
+always_ff @(posedge clk)
+begin  Q <= A || B;       
+end
+
+Guidelines
+•Do not mix blocking and non -blocking assignments in the same 
+always block
+•Always use a reset signal (sync or async) to initialize flops
+•No multiple drivers (unless explicitly driving a wire with “bus” 
+semantics)
+•Avoid latch inference (define all cases in if/case statements for combinational logic)It’s not a program , it’s a design .
+You’re not calling . You’re instantiating .
+
+Building Blocks
+•Combinational Logic
+•Gates, Multiplexer, Decoder
+•Sequential Logic
+•FF , Register, Counter
+•Control Logic
+•FSM
+•Arithmetic
+•Adder, Multiplier
+•Memories
+•Single -port, Dual -port memory
+•Clocked read, Combinational read
+•Interconnect
+•Crossbar
+
+Multiplexer
+module mux4to1 (
+input logic [1:0] sel, //2-bitselect line
+input logic in0, //Input 0
+input logic in1, //Input 1
+input logic in2, //Input 2
+input logic in3, //Input 3
+output logic out //Output
+);
+always_comb begin
+case (sel)
+2'b00: out=in0;
+2'b01: out=in1;
+2'b10: out=in2;
+2'b11: out=in3;
+default: out=1'b0; //Optional: default case
+endcase
+end
+endmodule
+
+Countermodule counter (
+input logic clk,//Clock signal
+input logic rst_n ,//Active -low asynchronous reset
+input logic clear, //Synchronous clear
+input logic load, //Synchronous load
+input logic enable, //Enable counting
+input logic [3:0] data_in, //Data toload
+output logic [3:0] count //Counter output
+);
+always_ff @(posedge clkornegedge rst_n )begin
+if(!rst_n )
+count <=4'b0000; //Asynchronous reset
+else begin
+if(clear)
+count <=4'b0000; //Synchronous clear
+else if(load)
+count <=data_in; //Load data
+else if(enable)
+count <=count +1;//Increment counter
+end
+end
+endmodule
+
+FSM
+module fsm(
+input logic clk,
+input logic rst_n ,//Active -low reset
+input logic in, //Input signal
+output logic [1:0] out//2-bitoutput
+);
+//Define state encoding
+typedef enum logic [1:0] {
+IDLE =2'b00,
+S1=2'b01,
+S2=2'b10,
+S3=2'b11
+}state_t ;
+state_t current_state, next_state;
+//State transition logic
+always_ff @(posedge clk)begin
+if(!rst_n )
+current_state <=IDLE;
+else
+current_state <=next_state;
+end//Next state logic
+always_comb begin
+case (current_state)
+IDLE: if (in) next_state =S1else next_state =IDLE;
+S1: if (in) next_state =S2else next_state =IDLE;
+S2: if (in) next_state =S3else next_state =S2;
+S3: if (in) next_state =S3else next_state =IDLE;
+default: next_state =IDLE;
+endcase
+end
+//Output logic (Moore: depends only oncurrent state)
+always_comb begin
+case (current_state)
+IDLE: out=2'b00;
+S1: out=2'b01;
+S2: out=2'b10;
+S3: out=2'b11;
+default: out=2'b00;
+endcase
+end
+endmodule
+
+Adder
+module full_adder (
+input logic a,b,cin,
+output logic sum, cout
+);
+assign sum =a^b^cin;
+assign cout =(a&b)|(b&cin)|(a&cin);
+endmodulemodule ripple_carry_adder (
+input logic [3:0] a,b, //4-bitinputs
+input logic cin,   //Initial carry -in
+output logic [3:0] sum, //4-bitsum output
+output logic cout //Final carry -out
+);
+logic [4:0] carry; //Carry chain (5bits: cin+4internal carries)
+assign carry[0] =cin;
+genvar i;
+for(i=0;i<4;i++)begin :adder_stage
+full_adder fa(
+.a(a[i]),
+.b(b[i]),
+.cin(carry[ i]),
+.sum (sum[ i]),
+.cout (carry[i+1])
+);
+end
+assign cout =carry[4]; //Final carry -out
+endmodule
+
+Memorymodule single_port_memory  #(
+parameter DATA_WIDTH =8,
+parameter ADDR_WIDTH =8
+)(
+input logic clk,
+input logic we, //Write enable
+input logic [ADDR_WIDTH-1:0] addr,//Address
+input logic [DATA_WIDTH-1:0] din, //Data input
+output logic [DATA_WIDTH-1:0] dout //Data output
+);
+//Memory array
+logic [DATA_WIDTH-1:0] mem [0:(1<< addr_width)-1];
+ 
+//Write logic (synchronous)
+always_ff @(posedge clk)begin
+if(we)
+mem[ addr]<=din;
+end
+//Read logic (combinational)
+assign dout =mem[ addr];
+endmodule
+
+Memory using Interfaces
+interface mem_if #(parameter ADDR_WIDTH =4,
+DATA_WIDTH =8);
+logic clk;
+logic we;
+logic [ADDR_WIDTH-1:0] addr;
+logic [DATA_WIDTH-1:0] din;
+logic [DATA_WIDTH-1:0] dout;
+//Modport formemory module
+modport mem_side (
+input clk,we,addr,din,
+output dout
+);
+//Modport fortestbench
+modport tb_side (
+output clk,we,addr,din,
+input dout
+);
+endinterfacemodule single_port_mem (
+mem_if.mem_side mem
+);
+parameter DEPTH =1<<mem.ADDR_WIDTH;
+logic [mem.DATA_WIDTH -1:0] mem_array [0:DEPTH -1];
+always_ff @(posedge mem.clk) begin
+if(mem.we )
+mem_array [mem.addr ]<=mem.din;
+mem.dout <=mem_array [mem.addr ];
+end
+endmodule
+
+Memory using Interfaces
+module top_tb;
+//Instantiate theinterface
+mem_if #(4,8)mem_bus ();
+//DUT instantiation
+single_port_mem dut(
+.mem(mem_bus )
+);
+    //Test instantiation
+     tb u_tb(
+          .mem(mem_bus )
+     );
+endmodulemodule tb(
+mem_if. tb_side mem
+);
+//Clock generation
+initial mem.clk =0;
+always #5mem.clk =~mem.clk;
+initial begin
+//Write toaddress 3
+mem.we =1;
+mem.addr =4'd3;
+mem.din =8'hA5;
+#10;//Read from address 3
+mem.we =0;
+mem.addr =4'd3;
+#10;$display("Read data: %h", mem.dout );
+$finish;
+end
+endmodule
+
+Crossbar
+package crossbar_pkg ;
+parameter intDATA_WIDTH =8;
+parameter intN=4;//Number ofinputs
+parameter intM=4;//Number ofoutputs
+endpackageimport crossbar_pkg ::*;
+module crossbar (
+input logic [DATA_WIDTH-1:0] in[N],
+input logic [N-1:0]            sel [M],
+output logic [DATA_WIDTH-1:0] out[M]
+);
+genvar i,j;
+generate
+for(i=0;i<M;i++)begin :output_loop
+always_comb begin
+out[i]='0;
+for(j=0;j<N;j++)begin
+if(sel[i][j])
+out[i]=in[j];
+end
+end
+end
+endgenerate
+endmodule
+
+Reference Material
+•LRM
+•1800-2023 - IEEE Standard for SystemVerilog --Unified Hardware Design, 
+Specification, and Verification Language | IEEE Standard | IEEE Xplore
+•SV for Design book
+•SystemVerilog  for Design Second Edition: A Guide to Using SystemVerilog  
+for Hardware Design and Modeling | SpringerLink
+
+Synopsys Trainings
+•Please complete this training: “ SystemVerilog for RTL Design”
+
+A good review
+•https://compas.cs.stonybrook.edu/~nhonarmand/courses/sp18/c
+se502/slides/03 -systemverilog.pdf

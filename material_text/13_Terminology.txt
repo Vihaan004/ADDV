@@ -1,0 +1,29 @@
+SoC Architecture
+•Chiplets, 2.5D, 3D, Die, UCIe
+•DVFS, PMU
+•NPU, Accelerator Subsystem
+•Security: TZ, AES
+•Safety: ISO 26262, SECDED, RAS
+•PIM, JEDEC, DRAM
+•Padring , Pinmuxing
+
+
+Verification
+•Stimulus, Checking, Coverage
+•BFM, Agent, Transactor
+•Irritator
+•Active, Passive/Reactive Stimulus
+•Self -checking Stimulus
+•XMR
+
+
+Misc
+•QoS driven vs. Bandwidth driven
+•Valid -Ready, Valid -Credit
+•Master -Slave, Initiator -Target, Rootport -Endpoint
+•Compute bound, Memory bound (used differently in the CPU 
+lecture)
+•Jitter, Skew
+•Isolation cells, UPF
+
+TX, RX on each side
