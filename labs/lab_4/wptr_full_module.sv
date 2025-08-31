@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 // =============================================================================
 // Write Pointer and Full Generation Logic  
 // Generates write address, full flag, and almost_full flag

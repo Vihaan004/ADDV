@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 // =============================================================================
 // Read Pointer and Empty Generation Logic
 // Generates read address, empty flag, and almost_empty flag

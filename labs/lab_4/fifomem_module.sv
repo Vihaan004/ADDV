@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 // =============================================================================
 // FIFO Memory Buffer Module
 // Dual-port synchronous memory for FIFO data storage

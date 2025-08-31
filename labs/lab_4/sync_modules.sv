@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 // =============================================================================
 // Read-domain to Write-domain Synchronizer
 // Synchronizes read pointer into write clock domain

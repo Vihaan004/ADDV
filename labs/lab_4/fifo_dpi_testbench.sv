@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 // Import the C functions using DPI
 import "DPI-C" function void fifo_init();
 import "DPI-C" function int fifo_push(int data);
@@ -5,8 +7,6 @@ import "DPI-C" function int fifo_pop();
 import "DPI-C" function int fifo_is_empty();
 import "DPI-C" function int fifo_is_full();
 import "DPI-C" function int fifo_get_count();
-
-`timescale 1ns/1ns
 
 //////////////////////
 // FIFO Checker Module

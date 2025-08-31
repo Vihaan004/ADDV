@@ -1,3 +1,5 @@
+`timescale 1ns/1ns
+
 // =============================================================================
 // Asynchronous FIFO - Top Level Module
 // Based on Cliff Cummings SNUG 2002 paper, modified for Lab #1 requirements
