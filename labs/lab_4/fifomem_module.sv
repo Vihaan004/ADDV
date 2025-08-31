@@ -23,8 +23,10 @@ module fifomem #(
     
     // Bug injection variables
     int bug_drop_every = 0;
-    int write_count = 0;
     logic inject_bug = 0;
+    
+    // Bug injection counter (static to persist across calls)
+    static int write_count = 0;
     
     // Check for plusargs during initialization
     initial begin
@@ -47,7 +49,7 @@ module fifomem #(
     // Synchronous write with enable and full protection
     always_ff @(posedge wclk) begin
         if (wclken && !wfull) begin
-            write_count <= write_count + 1;
+            write_count++;
             
             // Bug injection: drop every Nth write
             if (inject_bug && bug_drop_every > 0 && (write_count % bug_drop_every == 0)) begin
