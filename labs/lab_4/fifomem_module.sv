@@ -26,10 +26,11 @@ module fifomem #(
     logic inject_bug = 0;
     
     // Bug injection counter (static to persist across calls)
-    static int write_count = 0;
+    static int write_count;
     
     // Check for plusargs during initialization
     initial begin
+        write_count = 0;  // Initialize counter
         if ($test$plusargs("inject_bug")) begin
             inject_bug = 1;
             if ($value$plusargs("bug_drop_every=%d", bug_drop_every)) begin
