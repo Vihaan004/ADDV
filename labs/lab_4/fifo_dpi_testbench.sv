@@ -166,9 +166,9 @@ module testbench;
         
         // Waveform dump if requested
         if ($test$plusargs("vcd")) begin
-            $dumpfile("fifo_dpi.vcd");
-            $dumpvars(0, testbench);
-            $display("VCD dump enabled");
+            $fsdbDumpfile("novas.fsdb");
+            $fsdbDumpvars(0, testbench);
+            $display("FSDB dump enabled for Verdi");
         end
         
         // Reset sequence
