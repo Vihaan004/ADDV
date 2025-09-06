@@ -17,17 +17,22 @@ compile:
 # Compile and run normal simulation (no bugs)
 run_normal: compile
 	@echo "=== Running FIFO DPI Verification (Normal) ==="
-	./simv +no_bug |& tee run_normal.log
+	./simv +vcd |& tee run_normal.log
 
-# Compile and run with bug injection
+# Compile and run with bug injection (drops every 3rd write)
 run_with_bug: compile
-	@echo "=== Running FIFO DPI Verification (With Bug) ==="
-	./simv +inject_bug +bug_drop_every=3 |& tee run_with_bug.log
+	@echo "=== Running FIFO DPI Verification (With Bug - Drop Every 3rd) ==="
+	./simv +inject_bug +drop_every=3 +vcd |& tee run_with_bug.log
+
+# Compile and run with bug injection (drops every 5th write)
+run_with_bug5: compile
+	@echo "=== Running FIFO DPI Verification (With Bug - Drop Every 5th) ==="
+	./simv +inject_bug +drop_every=5 +vcd |& tee run_with_bug5.log
 
 # Run with waveform dump (for Verdi)
 run_waves: compile
 	@echo "=== Running with Waveform Dump ==="
-	./simv +no_bug +vcd |& tee run_waves.log
+	./simv +vcd |& tee run_waves.log
 
 # Launch Verdi for waveform viewing
 waves_verdi:
@@ -44,7 +49,8 @@ help:
 	@echo "Available targets:"
 	@echo "  compile       - Compile the design and testbench"
 	@echo "  run_normal    - Run simulation without bugs"
-	@echo "  run_with_bug  - Run simulation with bug injection"
+	@echo "  run_with_bug  - Run simulation with bug injection (drop every 3rd)"
+	@echo "  run_with_bug5 - Run simulation with bug injection (drop every 5th)"
 	@echo "  run_waves     - Run with waveform generation"
 	@echo "  waves_verdi   - Launch Verdi for waveform viewing"
 	@echo "  clean         - Remove generated files"

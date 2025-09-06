@@ -26,19 +26,19 @@ module fifomem #(
     logic inject_bug = 0;
     
     // Bug injection counter
-    int write_count;
+    int write_count = 0;
 
     // Check for plusargs during initialization
     initial begin
         if ($test$plusargs("inject_bug")) begin
             inject_bug = 1;
-            if ($value$plusargs("bug_drop_every=%d", bug_drop_every)) begin
+            if ($value$plusargs("drop_every=%d", bug_drop_every)) begin
                 $display("Bug injection enabled: dropping every %0d write", bug_drop_every);
             end else begin
                 bug_drop_every = 3; // Default to every 3rd write
                 $display("Bug injection enabled: dropping every %0d write (default)", bug_drop_every);
             end
-    end else begin
+        end else begin
             $display("Bug injection disabled");
         end
     end

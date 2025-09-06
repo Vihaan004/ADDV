@@ -171,6 +171,13 @@ module testbench;
             $display("FSDB dump enabled for Verdi");
         end
         
+        // Display test mode
+        if ($test$plusargs("inject_bug")) begin
+            $display("=== RUNNING WITH BUG INJECTION ===");
+        end else begin
+            $display("=== RUNNING NORMAL VERIFICATION ===");
+        end
+        
         // Reset sequence
         #20;
         wrst_n = 1;
