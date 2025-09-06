@@ -164,12 +164,9 @@ module testbench;
         wrst_n = 0;
         rrst_n = 0;
         
-        // Waveform dump if requested
-        if ($test$plusargs("vcd")) begin
-            $fsdbDumpfile("novas.fsdb");
-            $fsdbDumpvars(0, testbench);
-            $display("FSDB dump enabled for Verdi");
-        end
+        // Waveform dump (following Lab 0 approach)
+        $fsdbDumpvars();
+        $display("FSDB dump enabled for Verdi");
         
         // Display test mode
         if ($test$plusargs("inject_bug")) begin

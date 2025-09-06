@@ -35,13 +35,19 @@ compile_and_sim_bug:
 compile_and_sim_bug5:
 	${VCS_HOME}/bin/vcs -R -full64 -sverilog $(SV_FILES) $(C_FILES) -debug_access+all +inject_bug +drop_every=5 |& tee compile_and_sim_bug5.log
 
-# Run normal simulation after compiling with Verdi support
+# Run normal simulation after compiling with Verdi support (generates FSDB)
 run_normal_verdi: compile_verdi
 	./simv |& tee run_normal_verdi.log
 
-# Run bug injection simulation after compiling with Verdi support
+# Run bug injection simulation after compiling with Verdi support (generates FSDB)
 run_bug_verdi: compile_verdi
 	./simv +inject_bug +drop_every=3 |& tee run_bug_verdi.log
+
+# Compile with Verdi support and run normal simulation in one step
+verdi_normal: compile_verdi run_normal_verdi
+
+# Compile with Verdi support and run bug injection in one step  
+verdi_bug: compile_verdi run_bug_verdi
 
 # Launch Verdi for waveform viewing
 waves_verdi:
