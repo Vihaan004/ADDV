@@ -28,12 +28,8 @@ module fifomem #(
     // Bug injection counter
     int write_count;
 
-    // Initialize variables
+    // Check for plusargs during initialization
     initial begin
-        // Initialize bug injection counter
-        write_count = 0;
-        
-        // Check for plusargs during initialization
         if ($test$plusargs("inject_bug")) begin
             inject_bug = 1;
             if ($value$plusargs("drop_every=%d", bug_drop_every)) begin
@@ -53,12 +49,18 @@ module fifomem #(
     // Synchronous write with enable and full protection
     always_ff @(posedge wclk) begin
         if (wclken && !wfull) begin
-            write_count++;
+            // Initialize counter on first access (self-initializing)
+            if (write_count === 'x || write_count === 'z) begin
+                write_count <= 1;
+            end else begin
+                write_count <= write_count + 1;
+            end
             
-            // Bug injection: drop every Nth write
-            if (inject_bug && bug_drop_every > 0 && (write_count % bug_drop_every == 0)) begin
+            // Bug injection: drop every Nth write (use non-blocking for counter)
+            if (inject_bug && bug_drop_every > 0 && 
+                ((write_count === 'x || write_count === 'z) ? 1 : (write_count + 1)) % bug_drop_every == 0) begin
                 $display("Time %0t: BUG INJECTED - Dropping write #%0d (data=0x%02x)", 
-                        $time, write_count, wdata);
+                        $time, (write_count === 'x || write_count === 'z) ? 1 : (write_count + 1), wdata);
                 // Don't write to memory - simulate dropped write
             end else begin
                 mem[waddr] <= wdata;
