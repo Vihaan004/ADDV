@@ -79,6 +79,15 @@ minimal_verdi:
 	${VCS_HOME}/bin/vcs -full64 -sverilog $(MINIMAL_SV_FILES) -debug_access+all -kdb -lca |& tee minimal_verdi.log
 	./simv |& tee minimal_run.log
 
+# Minimal test with bug injection
+minimal_bug:
+	${VCS_HOME}/bin/vcs -R -full64 -sverilog $(MINIMAL_SV_FILES) -debug_access+all +inject_bug +drop_every=3 |& tee minimal_bug.log
+
+# Minimal test with bug injection and Verdi support  
+minimal_bug_verdi:
+	${VCS_HOME}/bin/vcs -full64 -sverilog $(MINIMAL_SV_FILES) -debug_access+all -kdb -lca |& tee minimal_bug_verdi.log
+	./simv +inject_bug +drop_every=3 |& tee minimal_bug_run.log
+
 # Help
 help:
 	@echo "Available targets (following Lab 0 Makefile style):"
@@ -94,6 +103,8 @@ help:
 	@echo "  simple_verdi           - Simple test with Verdi waveforms"
 	@echo "  minimal_test           - Minimal FIFO test (basic write/read)"
 	@echo "  minimal_verdi          - Minimal test with Verdi waveforms"
+	@echo "  minimal_bug            - Minimal test with bug injection"
+	@echo "  minimal_bug_verdi      - Minimal test with bug injection + Verdi"
 	@echo "  waves_verdi            - Launch Verdi for waveform viewing"
 	@echo "  clean                  - Remove generated files"
 	@echo "  help                   - Show this help message"

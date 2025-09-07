@@ -63,7 +63,12 @@ module minimal_fifo_test;
         wrst_n = 0;
         rrst_n = 0;
         
-        $display("Time %0t: Starting minimal FIFO test", $time);
+        // Display test mode
+        if ($test$plusargs("inject_bug")) begin
+            $display("Time %0t: Starting minimal FIFO test WITH BUG INJECTION", $time);
+        end else begin
+            $display("Time %0t: Starting minimal FIFO test - NORMAL MODE", $time);
+        end
         
         // Reset sequence
         #20;
@@ -72,26 +77,32 @@ module minimal_fifo_test;
         #20;
         $display("Time %0t: Reset released - rempty=%b, wfull=%b", $time, rempty, wfull);
         
-        // Test 1: Write 5 simple values
+        // Test 1: Write 5 simple values (3rd write will be dropped if bug injection enabled)
         $display("Time %0t: === Writing 5 values ===", $time);
-        write_single(8'h11);
-        write_single(8'h22);
-        write_single(8'h33);
-        write_single(8'h44);
-        write_single(8'h55);
+        write_single(8'h11);  // Write #1
+        write_single(8'h22);  // Write #2
+        write_single(8'h33);  // Write #3 - WILL BE DROPPED if bug injection on
+        write_single(8'h44);  // Write #4
+        write_single(8'h55);  // Write #5
         
         $display("Time %0t: After writes - rempty=%b, wfull=%b", $time, rempty, wfull);
         
         // Wait a bit to see stable state
         #50;
         
-        // Test 2: Read 5 values back
-        $display("Time %0t: === Reading 5 values ===", $time);
-        read_single();  // Should get 0x11
-        read_single();  // Should get 0x22
-        read_single();  // Should get 0x33
-        read_single();  // Should get 0x44
-        read_single();  // Should get 0x55
+        // Test 2: Read values back
+        $display("Time %0t: === Reading values back ===", $time);
+        if ($test$plusargs("inject_bug")) begin
+            $display("Time %0t: With bug injection: expecting 0x11, 0x22, 0x44, 0x55 (0x33 dropped)", $time);
+        end else begin
+            $display("Time %0t: Normal mode: expecting 0x11, 0x22, 0x33, 0x44, 0x55", $time);
+        end
+        
+        read_single();  // Should get 0x11 (normal) or 0x11 (bug)
+        read_single();  // Should get 0x22 (normal) or 0x22 (bug)
+        read_single();  // Should get 0x33 (normal) or 0x44 (bug) <- DIFFERENCE
+        read_single();  // Should get 0x44 (normal) or 0x55 (bug) <- DIFFERENCE  
+        read_single();  // Should get 0x55 (normal) or ??? (bug)  <- DIFFERENCE
         
         $display("Time %0t: After reads - rempty=%b, wfull=%b", $time, rempty, wfull);
         
