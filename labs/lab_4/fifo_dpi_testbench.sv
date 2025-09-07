@@ -54,15 +54,20 @@ module fifo_checker(
         end
     end
 
-    // Check read operations  
+    // Check read operations - Fixed for asynchronous read FIFO timing  
+    logic [7:0] expected_read_data;
+    
     always @(posedge rclk) begin
         if (rrst_n && rinc && !rempty) begin
+            // For asynchronous read FIFO, capture data before rinc takes effect
+            expected_read_data = rdata;  // This is the data available before read
             c_pop_result = fifo_pop();
-            @(negedge rclk); // Wait for DUT output to settle
-            if (c_pop_result != rdata) begin
-                $error("Time %0t: Data mismatch - C Model=0x%02x, DUT=0x%02x", $time, c_pop_result, rdata);
+            
+            // Compare C model result with the data that was available
+            if (c_pop_result != expected_read_data) begin
+                $error("Time %0t: Data mismatch - C Model=0x%02x, DUT=0x%02x", $time, c_pop_result, expected_read_data);
             end else begin
-                $display("Time %0t: Read Check PASS - data=0x%02x", $time, rdata);
+                $display("Time %0t: Read Check PASS - data=0x%02x", $time, expected_read_data);
             end
         end else if (rrst_n && rinc && rempty) begin
             // Try to pop from empty FIFO - should fail in C model too

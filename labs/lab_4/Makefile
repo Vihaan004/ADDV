@@ -59,6 +59,7 @@ clean:
 
 # Simple FIFO test targets
 SIMPLE_SV_FILES = async_fifo_top.sv fifomem_module.sv sync_modules.sv rptr_empty_module.sv wptr_full_module.sv simple_fifo_test.sv
+MINIMAL_SV_FILES = async_fifo_top.sv fifomem_module.sv sync_modules.sv rptr_empty_module.sv wptr_full_module.sv minimal_fifo_test.sv
 
 # Compile and run simple FIFO test
 simple_test: 
@@ -68,6 +69,15 @@ simple_test:
 simple_verdi:
 	${VCS_HOME}/bin/vcs -full64 -sverilog $(SIMPLE_SV_FILES) $(C_FILES) -debug_access+all -kdb -lca |& tee simple_verdi.log
 	./simv |& tee simple_run.log
+
+# Minimal FIFO test - just basic functionality for waveform viewing
+minimal_test:
+	${VCS_HOME}/bin/vcs -R -full64 -sverilog $(MINIMAL_SV_FILES) -debug_access+all |& tee minimal_test.log
+
+# Minimal test with Verdi support for waveforms
+minimal_verdi:
+	${VCS_HOME}/bin/vcs -full64 -sverilog $(MINIMAL_SV_FILES) -debug_access+all -kdb -lca |& tee minimal_verdi.log
+	./simv |& tee minimal_run.log
 
 # Help
 help:
@@ -82,6 +92,8 @@ help:
 	@echo "  run_bug_verdi          - Run with bugs after compile_verdi"
 	@echo "  simple_test            - Simple FIFO functionality test"
 	@echo "  simple_verdi           - Simple test with Verdi waveforms"
+	@echo "  minimal_test           - Minimal FIFO test (basic write/read)"
+	@echo "  minimal_verdi          - Minimal test with Verdi waveforms"
 	@echo "  waves_verdi            - Launch Verdi for waveform viewing"
 	@echo "  clean                  - Remove generated files"
 	@echo "  help                   - Show this help message"
