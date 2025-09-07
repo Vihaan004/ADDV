@@ -57,6 +57,18 @@ waves_verdi:
 clean:
 	\rm -rf *.log *.h csrc DVEFiles simv.daidir simv ucli.key vcdplus.vpd *.syn *.pvl *.mr *.svf command.log *.txt novas.conf novas.rc verdi_config_file verdiLog novas.fsdb novas.log novas_dump.log
 
+# Simple FIFO test targets
+SIMPLE_SV_FILES = async_fifo_top.sv fifomem_module.sv sync_modules.sv rptr_empty_module.sv wptr_full_module.sv simple_fifo_test.sv
+
+# Compile and run simple FIFO test
+simple_test: 
+	${VCS_HOME}/bin/vcs -R -full64 -sverilog $(SIMPLE_SV_FILES) $(C_FILES) -debug_access+all |& tee simple_test.log
+
+# Compile simple test with Verdi support
+simple_verdi:
+	${VCS_HOME}/bin/vcs -full64 -sverilog $(SIMPLE_SV_FILES) $(C_FILES) -debug_access+all -kdb -lca |& tee simple_verdi.log
+	./simv |& tee simple_run.log
+
 # Help
 help:
 	@echo "Available targets (following Lab 0 Makefile style):"
@@ -68,6 +80,8 @@ help:
 	@echo "  compile_and_sim_bug5   - Compile and run with bug injection (every 5th)"
 	@echo "  run_normal_verdi       - Run normal after compile_verdi"
 	@echo "  run_bug_verdi          - Run with bugs after compile_verdi"
+	@echo "  simple_test            - Simple FIFO functionality test"
+	@echo "  simple_verdi           - Simple test with Verdi waveforms"
 	@echo "  waves_verdi            - Launch Verdi for waveform viewing"
 	@echo "  clean                  - Remove generated files"
 	@echo "  help                   - Show this help message"
