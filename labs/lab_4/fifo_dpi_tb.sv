@@ -150,7 +150,7 @@ module fifo_dpi_tb;
     end
     
     always #5 wclk = ~wclk;   // 10ns period (100MHz)
-    always #5 rclk = ~rclk;   // Same frequency
+    always #7 rclk = ~rclk;   // 14ns period (~71MHz) - Different frequency for async FIFO
 
     // DUT instantiation
     async_fifo_wrapper #(.DSIZE(DSIZE), .ASIZE(ASIZE)) dut_inst (
