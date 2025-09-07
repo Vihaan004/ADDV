@@ -60,6 +60,7 @@ clean:
 # Simple FIFO test targets
 SIMPLE_SV_FILES = async_fifo_top.sv fifomem_module.sv sync_modules.sv rptr_empty_module.sv wptr_full_module.sv simple_fifo_test.sv
 MINIMAL_SV_FILES = async_fifo_top.sv fifomem_module.sv sync_modules.sv rptr_empty_module.sv wptr_full_module.sv minimal_fifo_test.sv
+DPI_TB_FILES = async_fifo_top.sv fifomem_module.sv sync_modules.sv rptr_empty_module.sv wptr_full_module.sv fifo_dpi_tb.sv
 
 # Compile and run simple FIFO test
 simple_test: 
@@ -88,6 +89,24 @@ minimal_bug_verdi:
 	${VCS_HOME}/bin/vcs -full64 -sverilog $(MINIMAL_SV_FILES) -debug_access+all -kdb -lca |& tee minimal_bug_verdi.log
 	./simv +inject_bug +drop_every=3 |& tee minimal_bug_run.log
 
+# New DPI testbench - Normal mode
+dpi_tb_normal:
+	${VCS_HOME}/bin/vcs -R -full64 -sverilog $(DPI_TB_FILES) $(C_FILES) -debug_access+all |& tee dpi_tb_normal.log
+
+# New DPI testbench - With bug injection
+dpi_tb_bug:
+	${VCS_HOME}/bin/vcs -R -full64 -sverilog $(DPI_TB_FILES) $(C_FILES) -debug_access+all +inject_bug +drop_every=3 |& tee dpi_tb_bug.log
+
+# New DPI testbench - Normal mode with Verdi
+dpi_tb_normal_verdi:
+	${VCS_HOME}/bin/vcs -full64 -sverilog $(DPI_TB_FILES) $(C_FILES) -debug_access+all -kdb -lca |& tee dpi_tb_normal_verdi.log
+	./simv |& tee dpi_tb_normal_run.log
+
+# New DPI testbench - Bug injection with Verdi
+dpi_tb_bug_verdi:
+	${VCS_HOME}/bin/vcs -full64 -sverilog $(DPI_TB_FILES) $(C_FILES) -debug_access+all -kdb -lca |& tee dpi_tb_bug_verdi.log
+	./simv +inject_bug +drop_every=3 |& tee dpi_tb_bug_run.log
+
 # Help
 help:
 	@echo "Available targets (following Lab 0 Makefile style):"
@@ -105,6 +124,10 @@ help:
 	@echo "  minimal_verdi          - Minimal test with Verdi waveforms"
 	@echo "  minimal_bug            - Minimal test with bug injection"
 	@echo "  minimal_bug_verdi      - Minimal test with bug injection + Verdi"
+	@echo "  dpi_tb_normal          - DPI testbench normal mode"
+	@echo "  dpi_tb_bug             - DPI testbench with bug injection"
+	@echo "  dpi_tb_normal_verdi    - DPI testbench normal mode + Verdi"
+	@echo "  dpi_tb_bug_verdi       - DPI testbench bug injection + Verdi"
 	@echo "  waves_verdi            - Launch Verdi for waveform viewing"
 	@echo "  clean                  - Remove generated files"
 	@echo "  help                   - Show this help message"
