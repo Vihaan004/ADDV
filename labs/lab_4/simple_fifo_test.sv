@@ -147,27 +147,29 @@ module simple_fifo_test;
         end
     endtask
 
-    // Task to read and check data
+    // Task to read and check data - Fixed timing for proper FIFO read
     task read_and_check();
         begin
+            // Capture the data BEFORE asserting rinc (this is the data we should get)
+            logic [7:0] expected_data;
+            expected_data = rdata;  // This is the current data available
+            
             @(posedge rclk);
             rinc = 1;
             
-            // Call C model pop
+            // Call C model pop (should match the data that was visible before rinc)
             c_result = fifo_pop();
             
             @(posedge rclk);
             rinc = 0;
             
-            // Wait for DUT output to settle
-            @(negedge rclk);
+            // For asynchronous read FIFO, compare with the data that was available
+            $display("Time %0t: READ - Expected data (before rinc)=0x%02x, C Model pop result=0x%02x", $time, expected_data, c_result);
             
-            $display("Time %0t: READ - DUT: rdata=0x%02x, rinc=0, C Model pop result=0x%02x", $time, rdata, c_result);
-            
-            if (c_result != rdata) begin
-                $error("Time %0t: MISMATCH - C Model=0x%02x, DUT=0x%02x", $time, c_result, rdata);
+            if (c_result != expected_data) begin
+                $error("Time %0t: MISMATCH - C Model=0x%02x, DUT Expected=0x%02x", $time, c_result, expected_data);
             end else begin
-                $display("Time %0t: MATCH - Both show 0x%02x", $time, rdata);
+                $display("Time %0t: MATCH - Both show 0x%02x", $time, expected_data);
             end
             
             // Give some settling time
