@@ -1,0 +1,61 @@
+=== FIFO DPI TEST - NORMAL MODE ===
+Bug injection disabled
+FIFO Golden Model Initialized
+Time 0: C Model initialized due to reset
+Time 40: Reset released - rempty=1, wfull=0
+Time 40: === Writing 5 values (3rd will be dropped if bug injection) ===
+Time 45: Writing 0x11
+C Model: Pushed data=0x11, count=1, wptr=1
+Time 45: C Model WRITE SUCCESS - data=0x11
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 46 ns
+Time 46: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 50 ns
+Time 50: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 56 ns
+Time 56: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 64 ns
+Time 64: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 66 ns
+Time 66: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 76 ns
+Time 76: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 78 ns
+Time 78: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Time 85: Writing 0x22
+C Model: Pushed data=0x22, count=2, wptr=2
+Time 85: C Model WRITE SUCCESS - data=0x22
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 86 ns
+Time 86: EMPTY FLAG MISMATCH - C Model=0, DUT=1
+Time 125: Writing 0x33
+C Model: Pushed data=0x33, count=3, wptr=3
+Time 125: C Model WRITE SUCCESS - data=0x33
+Time 165: Writing 0x44
+C Model: Pushed data=0x44, count=4, wptr=4
+Time 165: C Model WRITE SUCCESS - data=0x44
+Time 205: Writing 0x55
+C Model: Pushed data=0x55, count=5, wptr=5
+Time 205: C Model WRITE SUCCESS - data=0x55
+Time 235: After writes - rempty=0, wfull=0
+Time 285: === Reading values back (checker will verify) ===
+Normal: expecting all reads to match C model
+Time 287: Reading - data available: 0x11
+C Model: Popped data=0x11, count=4, rptr=1
+Time 287: READ MATCH - data=0x11
+Time 343: Reading - data available: 0x22
+C Model: Popped data=0x22, count=3, rptr=2
+Time 343: READ MATCH - data=0x22
+Time 399: Reading - data available: 0x33
+C Model: Popped data=0x33, count=2, rptr=3
+Time 399: READ MATCH - data=0x33
+Time 455: Reading - data available: 0x44
+C Model: Popped data=0x44, count=1, rptr=4
+Time 455: READ MATCH - data=0x44
+Time 511: Reading - data available: 0x55
+C Model: Popped data=0x55, count=0, rptr=5
+Time 511: READ MATCH - data=0x55
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 512 ns
+Time 512: EMPTY FLAG MISMATCH - C Model=1, DUT=0
+Error: "fifo_dpi_tb.sv", 112: fifo_dpi_tb.checker_inst: at time 516 ns
+Time 516: EMPTY FLAG MISMATCH - C Model=1, DUT=0
+Time 553: After reads - rempty=1, wfull=0
+=== FIFO DPI Test Complete ===

@@ -1,0 +1,317 @@
+Parsing design file 'async_fifo_top.sv'
+Parsing design file 'fifomem_module.sv'
+Parsing design file 'sync_modules.sv'
+Parsing design file 'rptr_empty_module.sv'
+Parsing design file 'wptr_full_module.sv'
+Parsing design file 'fifo_dpi_testbench.sv'
+Top Level Modules:
+       testbench
+TimeScale is 1 ns / 1 ns
+Starting vcs inline pass...
+
+1 module and 0 UDP read.
+	However, due to incremental compilation, no re-compilation is necessary.
+make[1]: Entering directory '/home/a23308_asu/Desktop/ADDV/labs/lab_4/csrc'
+make[1]: Leaving directory '/home/a23308_asu/Desktop/ADDV/labs/lab_4/csrc'
+make[1]: Entering directory '/home/a23308_asu/Desktop/ADDV/labs/lab_4/csrc'
+rm -f _cuarc*.so _csrc*.so pre_vcsobj_*.so share_vcsobj_*.so
+gcc -w  -pipe -fPIC -O -I/usr/local2/synopsys/vcs_2022.06/include    -c ../dpi.c
+if [ -x ../simv ]; then chmod a-x ../simv; fi
+g++  -o ../simv      -rdynamic  -Wl,-rpath='$ORIGIN'/simv.daidir -Wl,-rpath=./simv.daidir -Wl,-rpath=/usr/local2/synopsys/vcs_2022.06/linux64/lib -L/usr/local2/synopsys/vcs_2022.06/linux64/lib  -Wl,-rpath-link=./  /usr/lib64/libnuma.so.1 dpi.o   objs/amcQw_d.o   _25760_archive_1.so _prev_archive_1.so  SIM_l.o      rmapats_mop.o rmapats.o rmar.o rmar_nd.o  rmar_llvm_0_1.o rmar_llvm_0_0.o            -lvirsim -lerrorinf -lsnpsmalloc -lvfs    -lvcsnew -lsimprofile -luclinative /usr/local2/synopsys/vcs_2022.06/linux64/lib/vcs_tls.o   -Wl,-whole-archive  -lvcsucli    -Wl,-no-whole-archive       ./../simv.daidir/vc_hdrs.o  _vcs_pli_stub_.o   /usr/local2/synopsys/vcs_2022.06/linux64/lib/vcs_save_restore_new.o /usr/local2/synopsys/verdi_2022.06/verdi/T-2022.06-SP2-1/share/PLI/VCS/LINUX64/pli.a -ldl  -lc -lm -lpthread -ldl 
+../simv up to date
+make[1]: Leaving directory '/home/a23308_asu/Desktop/ADDV/labs/lab_4/csrc'
+Chronologic VCS simulator copyright 1991-2022
+Contains Synopsys proprietary information.
+Compiler version T-2022.06-SP2-1_Full64; Runtime version T-2022.06-SP2-1_Full64;  Sep  6 21:05 2025
+=== RUNNING WITH BUG INJECTION ===
+Bug injection enabled: dropping every 3 write
+FIFO Golden Model Initialized
+FIFO Golden Model Initialized
+Time 0: C Model reinitialized due to reset
+Time 0: wfull=0, rempty=1, wdata=0x00, winc=0, rinc=0, rdata=0xxx
+=== Starting FIFO DPI Verification ===
+
+--- Test 1: Write Sequential Data ---
+C Model: Pushed data=0x10, count=1, wptr=1
+Time 45: wfull=0, rempty=1, wdata=0x10, winc=1, rinc=0, rdata=0x10
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 46 ns
+Time 46: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 50 ns
+Time 50: Empty flag mismatch - C Model=0, DUT=1
+Time 55: wfull=0, rempty=1, wdata=0x10, winc=0, rinc=0, rdata=0x10
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 56 ns
+Time 56: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 64 ns
+Time 64: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 66 ns
+Time 66: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 76 ns
+Time 76: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 78 ns
+Time 78: Empty flag mismatch - C Model=0, DUT=1
+C Model: Pushed data=0x11, count=2, wptr=2
+Time 85: wfull=0, rempty=1, wdata=0x11, winc=1, rinc=0, rdata=0x10
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 86 ns
+Time 86: Empty flag mismatch - C Model=0, DUT=1
+Time 91: wfull=0, rempty=0, wdata=0x11, winc=1, rinc=0, rdata=0x10
+Time 95: wfull=0, rempty=0, wdata=0x11, winc=0, rinc=0, rdata=0x10
+Time 125: BUG INJECTED - Dropping write #3 (data=0x12)
+C Model: Pushed data=0x12, count=3, wptr=3
+Time 125: wfull=0, rempty=0, wdata=0x12, winc=1, rinc=0, rdata=0x10
+Time 135: wfull=0, rempty=0, wdata=0x12, winc=0, rinc=0, rdata=0x10
+C Model: Pushed data=0x13, count=4, wptr=4
+Time 165: wfull=0, rempty=0, wdata=0x13, winc=1, rinc=0, rdata=0x10
+Time 175: wfull=0, rempty=0, wdata=0x13, winc=0, rinc=0, rdata=0x10
+C Model: Pushed data=0x14, count=5, wptr=5
+Time 205: wfull=0, rempty=0, wdata=0x14, winc=1, rinc=0, rdata=0x10
+Time 215: wfull=0, rempty=0, wdata=0x14, winc=0, rinc=0, rdata=0x10
+Time 245: BUG INJECTED - Dropping write #6 (data=0x15)
+C Model: Pushed data=0x15, count=6, wptr=6
+Time 245: wfull=0, rempty=0, wdata=0x15, winc=1, rinc=0, rdata=0x10
+Time 255: wfull=0, rempty=0, wdata=0x15, winc=0, rinc=0, rdata=0x10
+C Model: Pushed data=0x16, count=7, wptr=7
+Time 285: wfull=0, rempty=0, wdata=0x16, winc=1, rinc=0, rdata=0x10
+Time 295: wfull=0, rempty=0, wdata=0x16, winc=0, rinc=0, rdata=0x10
+C Model: Pushed data=0x17, count=8, wptr=8
+Time 325: wfull=0, rempty=0, wdata=0x17, winc=1, rinc=0, rdata=0x10
+Time 335: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0x10
+
+--- Test 2: Read Back Data ---
+C Model: Popped data=0x10, count=7, rptr=1
+Time 357: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=1, rdata=0x10
+Time 364: Read Check PASS - data=0x10
+Time 371: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0x11
+C Model: Popped data=0x11, count=6, rptr=2
+Time 413: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=1, rdata=0x11
+Time 420: Read Check PASS - data=0x11
+Time 427: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0xxx
+C Model: Popped data=0x12, count=5, rptr=3
+Time 469: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=1, rdata=0xxx
+Time 476: Read Check PASS - data=0xxx
+Time 483: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0x13
+C Model: Popped data=0x13, count=4, rptr=4
+Time 525: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=1, rdata=0x13
+Time 532: Read Check PASS - data=0x13
+Time 539: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0x14
+C Model: Popped data=0x14, count=3, rptr=5
+Time 581: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=1, rdata=0x14
+Time 588: Read Check PASS - data=0x14
+Time 595: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0xxx
+C Model: Popped data=0x15, count=2, rptr=6
+Time 637: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=1, rdata=0xxx
+Time 644: Read Check PASS - data=0xxx
+Time 651: wfull=0, rempty=0, wdata=0x17, winc=0, rinc=0, rdata=0x16
+
+--- Test 3: Fill FIFO to Full ---
+Time 685: BUG INJECTED - Dropping write #9 (data=0xa0)
+C Model: Pushed data=0xa0, count=3, wptr=9
+Time 685: wfull=0, rempty=0, wdata=0xa0, winc=1, rinc=0, rdata=0x16
+Time 695: wfull=0, rempty=0, wdata=0xa0, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xa1, count=4, wptr=10
+Time 715: wfull=0, rempty=0, wdata=0xa1, winc=1, rinc=0, rdata=0x16
+Time 725: wfull=0, rempty=0, wdata=0xa1, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xa2, count=5, wptr=11
+Time 745: wfull=0, rempty=0, wdata=0xa2, winc=1, rinc=0, rdata=0x16
+Time 755: wfull=0, rempty=0, wdata=0xa2, winc=0, rinc=0, rdata=0x16
+Time 775: BUG INJECTED - Dropping write #12 (data=0xa3)
+C Model: Pushed data=0xa3, count=6, wptr=12
+Time 775: wfull=0, rempty=0, wdata=0xa3, winc=1, rinc=0, rdata=0x16
+Time 785: wfull=0, rempty=0, wdata=0xa3, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xa4, count=7, wptr=13
+Time 805: wfull=0, rempty=0, wdata=0xa4, winc=1, rinc=0, rdata=0x16
+Time 815: wfull=0, rempty=0, wdata=0xa4, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xa5, count=8, wptr=14
+Time 835: wfull=0, rempty=0, wdata=0xa5, winc=1, rinc=0, rdata=0x16
+Time 845: wfull=0, rempty=0, wdata=0xa5, winc=0, rinc=0, rdata=0x16
+Time 865: BUG INJECTED - Dropping write #15 (data=0xa6)
+C Model: Pushed data=0xa6, count=9, wptr=15
+Time 865: wfull=0, rempty=0, wdata=0xa6, winc=1, rinc=0, rdata=0x16
+Time 875: wfull=0, rempty=0, wdata=0xa6, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xa7, count=10, wptr=0
+Time 895: wfull=0, rempty=0, wdata=0xa7, winc=1, rinc=0, rdata=0x16
+Time 905: wfull=0, rempty=0, wdata=0xa7, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xa8, count=11, wptr=1
+Time 925: wfull=0, rempty=0, wdata=0xa8, winc=1, rinc=0, rdata=0x16
+Time 935: wfull=0, rempty=0, wdata=0xa8, winc=0, rinc=0, rdata=0x16
+Time 955: BUG INJECTED - Dropping write #18 (data=0xa9)
+C Model: Pushed data=0xa9, count=12, wptr=2
+Time 955: wfull=0, rempty=0, wdata=0xa9, winc=1, rinc=0, rdata=0x16
+Time 965: wfull=0, rempty=0, wdata=0xa9, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xaa, count=13, wptr=3
+Time 985: wfull=0, rempty=0, wdata=0xaa, winc=1, rinc=0, rdata=0x16
+Time 995: wfull=0, rempty=0, wdata=0xaa, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xab, count=14, wptr=4
+Time 1015: wfull=0, rempty=0, wdata=0xab, winc=1, rinc=0, rdata=0x16
+Time 1025: wfull=0, rempty=0, wdata=0xab, winc=0, rinc=0, rdata=0x16
+
+--- Test 4: Attempt Write to Full FIFO ---
+Time 1045: BUG INJECTED - Dropping write #21 (data=0xff)
+C Model: Pushed data=0xff, count=15, wptr=5
+Time 1045: wfull=0, rempty=0, wdata=0xff, winc=1, rinc=0, rdata=0x16
+Time 1055: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0x16
+C Model: Pushed data=0xff, count=16, wptr=6
+Time 1075: wfull=0, rempty=0, wdata=0xff, winc=1, rinc=0, rdata=0x16
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1076 ns
+Time 1076: Full flag mismatch - C Model=1, DUT=0
+Time 1085: wfull=1, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0x16
+
+--- Test 5: Empty FIFO Completely ---
+C Model: Popped data=0x16, count=15, rptr=7
+Time 1099: wfull=1, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0x16
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1100 ns
+Time 1100: Full flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1106 ns
+Time 1106: Full flag mismatch - C Model=0, DUT=1
+Time 1106: Read Check PASS - data=0x16
+Time 1113: wfull=1, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0x17
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1114 ns
+Time 1114: Full flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1116 ns
+Time 1116: Full flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1126 ns
+Time 1126: Full flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 89: testbench.checker_inst: at time 1128 ns
+Time 1128: Full flag mismatch - C Model=0, DUT=1
+Time 1135: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0x17
+C Model: Popped data=0x17, count=14, rptr=8
+Time 1155: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0x17
+Time 1162: Read Check PASS - data=0x17
+Time 1169: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xxx
+C Model: Popped data=0xa0, count=13, rptr=9
+Time 1211: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xxx
+Time 1218: Read Check PASS - data=0xxx
+Time 1225: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xa1
+C Model: Popped data=0xa1, count=12, rptr=10
+Time 1267: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xa1
+Time 1274: Read Check PASS - data=0xa1
+Time 1281: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xa2
+C Model: Popped data=0xa2, count=11, rptr=11
+Time 1323: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xa2
+Time 1330: Read Check PASS - data=0xa2
+Time 1337: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xxx
+C Model: Popped data=0xa3, count=10, rptr=12
+Time 1379: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xxx
+Time 1386: Read Check PASS - data=0xxx
+Time 1393: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xa4
+C Model: Popped data=0xa4, count=9, rptr=13
+Time 1435: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xa4
+Time 1442: Read Check PASS - data=0xa4
+Time 1449: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xa5
+C Model: Popped data=0xa5, count=8, rptr=14
+Time 1491: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xa5
+Time 1498: Read Check PASS - data=0xa5
+Time 1505: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xxx
+C Model: Popped data=0xa6, count=7, rptr=15
+Time 1547: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xxx
+Time 1554: Read Check PASS - data=0xxx
+Time 1561: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xa7
+C Model: Popped data=0xa7, count=6, rptr=0
+Time 1603: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xa7
+Time 1610: Read Check PASS - data=0xa7
+Time 1617: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xa8
+C Model: Popped data=0xa8, count=5, rptr=1
+Time 1659: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xa8
+Time 1666: Read Check PASS - data=0xa8
+Time 1673: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0x11
+C Model: Popped data=0xa9, count=4, rptr=2
+Time 1715: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0x11
+Error: "fifo_dpi_testbench.sv", 63: testbench.checker_inst: at time 1722 ns
+Time 1722: Data mismatch - C Model=0xa9, DUT=0x11
+Time 1729: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xaa
+C Model: Popped data=0xaa, count=3, rptr=3
+Time 1771: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xaa
+Time 1778: Read Check PASS - data=0xaa
+Time 1785: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xab
+C Model: Popped data=0xab, count=2, rptr=4
+Time 1827: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xab
+Time 1834: Read Check PASS - data=0xab
+Time 1841: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0x14
+C Model: Popped data=0xff, count=1, rptr=5
+Time 1883: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0x14
+Error: "fifo_dpi_testbench.sv", 63: testbench.checker_inst: at time 1890 ns
+Time 1890: Data mismatch - C Model=0xff, DUT=0x14
+Time 1897: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=0, rdata=0xff
+C Model: Popped data=0xff, count=0, rptr=6
+Time 1939: wfull=0, rempty=0, wdata=0xff, winc=0, rinc=1, rdata=0xff
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 1940 ns
+Time 1940: Empty flag mismatch - C Model=1, DUT=0
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 1946 ns
+Time 1946: Empty flag mismatch - C Model=1, DUT=0
+Time 1946: Read Check PASS - data=0xff
+Time 1953: wfull=0, rempty=1, wdata=0xff, winc=0, rinc=0, rdata=0x16
+FIFO is empty, stopping reads
+
+--- Test 6: Attempt Read from Empty FIFO ---
+C Model: FIFO Empty, cannot pop
+Time 2009: wfull=0, rempty=1, wdata=0xff, winc=0, rinc=1, rdata=0x16
+Time 2023: wfull=0, rempty=1, wdata=0xff, winc=0, rinc=0, rdata=0x16
+C Model: FIFO Empty, cannot pop
+Time 2051: wfull=0, rempty=1, wdata=0xff, winc=0, rinc=1, rdata=0x16
+Time 2065: wfull=0, rempty=1, wdata=0xff, winc=0, rinc=0, rdata=0x16
+
+--- Test 7: Concurrent Write/Read Operations ---
+C Model: Pushed data=0x50, count=1, wptr=7
+Time 2085: wfull=0, rempty=1, wdata=0x50, winc=1, rinc=0, rdata=0x50
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2086 ns
+Time 2086: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2094 ns
+Time 2094: Empty flag mismatch - C Model=0, DUT=1
+Time 2095: wfull=0, rempty=1, wdata=0x50, winc=0, rinc=0, rdata=0x50
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2096 ns
+Time 2096: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2106 ns
+Time 2106: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2108 ns
+Time 2108: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2116 ns
+Time 2116: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2122 ns
+Time 2122: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2126 ns
+Time 2126: Empty flag mismatch - C Model=0, DUT=1
+Time 2135: BUG INJECTED - Dropping write #24 (data=0x51)
+C Model: Pushed data=0x51, count=2, wptr=8
+Time 2135: wfull=0, rempty=0, wdata=0x51, winc=1, rinc=0, rdata=0x50
+Time 2145: wfull=0, rempty=0, wdata=0x51, winc=0, rinc=0, rdata=0x50
+C Model: Popped data=0x50, count=1, rptr=7
+Time 2149: wfull=0, rempty=0, wdata=0x51, winc=0, rinc=1, rdata=0x50
+Time 2156: Read Check PASS - data=0x50
+Time 2163: wfull=0, rempty=1, wdata=0x51, winc=0, rinc=0, rdata=0x17
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2164 ns
+Time 2164: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2166 ns
+Time 2166: Empty flag mismatch - C Model=0, DUT=1
+Error: "fifo_dpi_testbench.sv", 85: testbench.checker_inst: at time 2176 ns
+Time 2176: Empty flag mismatch - C Model=0, DUT=1
+Time 2177: wfull=0, rempty=0, wdata=0x51, winc=0, rinc=0, rdata=0x17
+C Model: Pushed data=0x52, count=2, wptr=9
+Time 2185: wfull=0, rempty=0, wdata=0x52, winc=1, rinc=0, rdata=0x17
+Time 2195: wfull=0, rempty=0, wdata=0x52, winc=0, rinc=0, rdata=0x17
+C Model: Popped data=0x51, count=1, rptr=8
+Time 2233: wfull=0, rempty=0, wdata=0x52, winc=0, rinc=1, rdata=0x17
+C Model: Pushed data=0x53, count=2, wptr=10
+Time 2235: wfull=0, rempty=0, wdata=0x53, winc=1, rinc=1, rdata=0x17
+Error: "fifo_dpi_testbench.sv", 63: testbench.checker_inst: at time 2240 ns
+Time 2240: Data mismatch - C Model=0x51, DUT=0x17
+Time 2245: wfull=0, rempty=0, wdata=0x53, winc=0, rinc=1, rdata=0x17
+Time 2247: wfull=0, rempty=0, wdata=0x53, winc=0, rinc=0, rdata=0x52
+Time 2285: BUG INJECTED - Dropping write #27 (data=0x54)
+C Model: Pushed data=0x54, count=3, wptr=11
+Time 2285: wfull=0, rempty=0, wdata=0x54, winc=1, rinc=0, rdata=0x52
+Time 2295: wfull=0, rempty=0, wdata=0x54, winc=0, rinc=0, rdata=0x52
+C Model: Popped data=0x52, count=2, rptr=9
+Time 2317: wfull=0, rempty=0, wdata=0x54, winc=0, rinc=1, rdata=0x52
+Time 2324: Read Check PASS - data=0x52
+Time 2331: wfull=0, rempty=0, wdata=0x54, winc=0, rinc=0, rdata=0x53
+C Model: Pushed data=0x55, count=3, wptr=12
+Time 2335: wfull=0, rempty=0, wdata=0x55, winc=1, rinc=0, rdata=0x53
+Time 2345: wfull=0, rempty=0, wdata=0x55, winc=0, rinc=0, rdata=0x53
+
+=== FIFO DPI Verification Complete ===
+$finish called from file "fifo_dpi_testbench.sv", line 296.
+$finish at simulation time                 2587
+           V C S   S i m u l a t i o n   R e p o r t 
+Time: 2587 ns
+CPU Time:      0.200 seconds;       Data structure size:   0.0Mb
+Sat Sep  6 21:05:24 2025
+CPU time: .198 seconds to compile + .199 seconds to elab + .235 seconds to link + .217 seconds in simulation

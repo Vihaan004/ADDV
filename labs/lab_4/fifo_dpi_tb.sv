@@ -102,7 +102,6 @@ module fifo_checker(
 
     // Optional: Check empty/full flags (commented out due to async timing differences)
     // The C model updates immediately, but DUT flags have cross-clock domain delays
-    // For Lab 4, data verification is more important than flag timing verification
     /*
     always @(posedge wclk or posedge rclk) begin
         if (wrst_n && rrst_n) begin
@@ -147,7 +146,6 @@ module fifo_dpi_tb;
     logic             rclk;
     logic             rrst_n;
 
-    // Clock generation - Same frequency for simplicity
     initial begin
         wclk = 0;
         rclk = 0;

@@ -1,0 +1,66 @@
+ime 0: Starting minimal FIFO test
+Bug injection disabled
+Time 40: Reset released - rempty=1, wfull=0
+Time 40: === Writing 5 values ===
+Time 45: Writing 0x11
+Time 45: wdata=0x11 winc=1 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 55: wdata=0x11 winc=0 | rdata=0x11 rinc=0 | empty=1 full=0
+Time 65: wdata=0x11 winc=0 | rdata=0x11 rinc=0 | empty=1 full=0
+Time 75: wdata=0x11 winc=0 | rdata=0x11 rinc=0 | empty=1 full=0
+Time 85: Writing 0x22
+Time 85: wdata=0x22 winc=1 | rdata=0x11 rinc=0 | empty=1 full=0
+Time 95: wdata=0x22 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 105: wdata=0x22 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 115: wdata=0x22 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 125: Writing 0x33
+Time 125: wdata=0x33 winc=1 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 135: wdata=0x33 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 145: wdata=0x33 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 155: wdata=0x33 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 165: Writing 0x44
+Time 165: wdata=0x44 winc=1 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 175: wdata=0x44 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 185: wdata=0x44 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 195: wdata=0x44 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 205: Writing 0x55
+Time 205: wdata=0x55 winc=1 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 215: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 225: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 235: After writes - rempty=0, wfull=0
+Time 235: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 245: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 255: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 265: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 275: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 285: === Reading 5 values ===
+Time 285: wdata=0x55 winc=0 | rdata=0x11 rinc=0 | empty=0 full=0
+Time 285: Reading - data available: 0x11
+Time 295: wdata=0x55 winc=0 | rdata=0x11 rinc=1 | empty=0 full=0
+Time 305: wdata=0x55 winc=0 | rdata=0x22 rinc=0 | empty=0 full=0
+Time 315: wdata=0x55 winc=0 | rdata=0x22 rinc=0 | empty=0 full=0
+Time 325: wdata=0x55 winc=0 | rdata=0x22 rinc=0 | empty=0 full=0
+Time 325: Reading - data available: 0x22
+Time 335: wdata=0x55 winc=0 | rdata=0x22 rinc=1 | empty=0 full=0
+Time 345: wdata=0x55 winc=0 | rdata=0x33 rinc=0 | empty=0 full=0
+Time 355: wdata=0x55 winc=0 | rdata=0x33 rinc=0 | empty=0 full=0
+Time 365: wdata=0x55 winc=0 | rdata=0x33 rinc=0 | empty=0 full=0
+Time 365: Reading - data available: 0x33
+Time 375: wdata=0x55 winc=0 | rdata=0x33 rinc=1 | empty=0 full=0
+Time 385: wdata=0x55 winc=0 | rdata=0x44 rinc=0 | empty=0 full=0
+Time 395: wdata=0x55 winc=0 | rdata=0x44 rinc=0 | empty=0 full=0
+Time 405: wdata=0x55 winc=0 | rdata=0x44 rinc=0 | empty=0 full=0
+Time 405: Reading - data available: 0x44
+Time 415: wdata=0x55 winc=0 | rdata=0x44 rinc=1 | empty=0 full=0
+Time 425: wdata=0x55 winc=0 | rdata=0x55 rinc=0 | empty=0 full=0
+Time 435: wdata=0x55 winc=0 | rdata=0x55 rinc=0 | empty=0 full=0
+Time 445: wdata=0x55 winc=0 | rdata=0x55 rinc=0 | empty=0 full=0
+Time 445: Reading - data available: 0x55
+Time 455: wdata=0x55 winc=0 | rdata=0x55 rinc=1 | empty=0 full=0
+Time 465: wdata=0x55 winc=0 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 475: wdata=0x55 winc=0 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 475: After reads - rempty=1, wfull=0
+Time 485: wdata=0x55 winc=0 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 495: wdata=0x55 winc=0 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 505: wdata=0x55 winc=0 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 515: wdata=0x55 winc=0 | rdata=0xxx rinc=0 | empty=1 full=0
+Time 525: Minimal FIFO test complete

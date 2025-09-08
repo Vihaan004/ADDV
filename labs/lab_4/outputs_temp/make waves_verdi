@@ -1,0 +1,6 @@
+rcfile = /usr/local2/synopsys/verdi_2022.06/verdi/T-2022.06-SP2-1/etc/novas.rc
+*WARN* Cannot open /home/a23308_asu/Desktop/ADDV/labs/lab_4/novas.conf for read access. No such file or directory
+*WARN* Cannot open /home/a23308_asu/novas.conf for read access. No such file or directory
+guiConfFile (read)= N/A (default)
+guiConfFile (write)= /home/a23308_asu/Desktop/ADDV/labs/lab_4/novas.conf (working directory)
+*WARN* Verdi-Elite (Verdi) license is not available. Try to check out Verdi-Apex (Verdi-Ultra) license.
