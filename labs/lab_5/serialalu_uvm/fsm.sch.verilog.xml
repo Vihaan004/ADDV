@@ -1,0 +1,8 @@
+<Command name="schRTLInfo"  delimiter="."  >
+<RTLBlock >
+<RTLInfo   name="state_0"  type="2"  fileName="serialalu.v"  >
+    <Seg beginLine="32"  endLine="68"  />
+  </RTLInfo>
+ <Instance name="serialalu_tb_top.dut"  />
+</RTLBlock>
+ </Command>
