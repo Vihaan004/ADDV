@@ -1,0 +1,67 @@
+#==============================================================================
+# Lab 5: MIPS Instruction Generator Makefile
+#==============================================================================
+
+# Tools
+VCS = vcs
+VERDI = verdi
+
+# Lab 2 MIPS processor files
+LAB2_DIR = ../lab_2
+MIPS_FILES = $(LAB2_DIR)/top.v $(LAB2_DIR)/controller.v $(LAB2_DIR)/datapath.v
+
+# Lab 5 files
+LAB5_FILES = mips_instruction_generator.sv mips_instr_gen_tb.sv
+
+# VCS compilation flags
+VCS_FLAGS = -sverilog -ntb_opts uvm -debug_access+all -kdb -lca
+VCS_FLAGS += +incdir+$(VCS_HOME)/etc/uvm-1.2/src
+VCS_FLAGS += $(VCS_HOME)/etc/uvm-1.2/src/dpi/uvm_dpi.cc
+
+# Simulation flags
+SIM_FLAGS = +UVM_TESTNAME=mips_instr_test +UVM_VERBOSITY=UVM_LOW
+
+# Default target
+all: compile
+
+# Compile
+compile:
+	$(VCS) $(VCS_FLAGS) $(MIPS_FILES) $(LAB5_FILES) -o simv_instr_gen
+
+# Run simulation
+sim: compile
+	./simv_instr_gen $(SIM_FLAGS)
+
+# Run with specific seed
+sim_seed: compile
+	./simv_instr_gen $(SIM_FLAGS) +ntb_random_seed=12345
+
+# Run Verdi for waveform viewing
+verdi: compile
+	$(VERDI) -ssf dump.fsdb &
+
+# Debug with Verdi
+debug: compile
+	./simv_instr_gen $(SIM_FLAGS) -gui &
+
+# Clean up
+clean:
+	rm -rf simv* csrc *.daidir *.fsdb *.vpd *.vdb *.key *.log DVE*
+	rm -rf urgReport transcript *.log *.txt *.dat
+
+# Create directory structure
+setup:
+	mkdir -p outputs
+
+# Help
+help:
+	@echo "Available targets:"
+	@echo "  compile    - Compile the design"
+	@echo "  sim        - Run simulation" 
+	@echo "  sim_seed   - Run simulation with specific seed"
+	@echo "  verdi      - Open Verdi for waveform viewing"
+	@echo "  debug      - Run simulation with GUI debug"
+	@echo "  clean      - Clean up generated files"
+	@echo "  help       - Show this help"
+
+.PHONY: all compile sim sim_seed verdi debug clean setup help

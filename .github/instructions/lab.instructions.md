@@ -14,3 +14,4 @@ To get started with assisting with and developing lab projects, please follow th
 4. Guide the user step by step in completeing a lab. Focus on completing each part in a lab before proceeding to the next.
 5. If there are any documents being referred to in the instructions that you need knowledge of, as the user to provide them to you before proceeding so you don't work on assumptions. 
 6. If there are references to other lab projects, you can simply refer them in the same codebased in the labs folder. The material_text folder contains lecture slides which may also be useful in completing the labs. 
+7. IMPORTANT: The user will actually be testing/running these labs on an external remote linux server with all required tools installed to run these labs. When it comes to testing or running code, guide them accordingly. 

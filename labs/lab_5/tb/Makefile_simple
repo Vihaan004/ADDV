@@ -1,0 +1,18 @@
+#==============================================================================
+# Simple Instruction Generator Test Makefile
+#==============================================================================
+
+VCS = vcs
+VCS_FLAGS = -sverilog -debug_access+all
+
+# Simple test without UVM
+simple_test:
+	$(VCS) $(VCS_FLAGS) simple_instr_test.sv -o simv_simple
+	./simv_simple
+
+# Clean
+clean_simple:
+	rm -rf simv_simple* csrc *.daidir *.vpd *.key *.log DVE*
+	rm -rf *.dat
+
+.PHONY: simple_test clean_simple
