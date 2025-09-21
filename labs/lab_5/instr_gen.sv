@@ -1,6 +1,10 @@
 
 //Add -ntb_opts uvm to the VCS command line
 
+// Import UVM package and macros
+import uvm_pkg::*;
+`include "uvm_macros.svh"
+
 class instruction extends uvm_transaction;
   // MIPS instruction fields - using proper bit widths
   rand bit [4:0] reg_a, reg_b, reg_c;  // Register fields (5 bits for 32 registers)
@@ -200,9 +204,6 @@ class instruction_generator;
 endclass
 
 module testbench;
-  import uvm_pkg::*;
-  `include "uvm_macros.svh"
-  
   instruction_generator gen;
   
   // Simple clock and reset

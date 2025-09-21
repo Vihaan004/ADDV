@@ -4,6 +4,7 @@
 # Test and verbosity settings
 UVM_VERBOSITY = UVM_MEDIUM
 TEST = testbench
+UVM_HOME = $(VCS_HOME)/etc/uvm
 
 # VCS compilation command with UVM support
 VCS = $(VCS_HOME)/bin/vcs -full64 -sverilog -timescale=1ns/1ns \
@@ -20,7 +21,7 @@ all: comp run
 
 # Compilation target
 comp:
-	$(VCS) +incdir+. instr_gen.sv
+	$(VCS) +incdir+$(UVM_HOME)/src $(UVM_HOME)/src/uvm_pkg.sv +incdir+. instr_gen.sv
 
 # Simulation target  
 run:
