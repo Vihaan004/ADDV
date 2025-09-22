@@ -168,6 +168,7 @@ class instruction_generator;
   function void generate_pairs();
     instruction first_i, second_i;
     int unsigned gap_n;
+    bit [4:0] produced_reg;
 
     // Make sure instr_list is initialized
     if (instr_list == null) instr_list = new[0];
@@ -179,8 +180,8 @@ class instruction_generator;
       return;
     end
 
-    // Choose the produced register for dependency (destination register)
-    bit [4:0] produced_reg = first_i.reg_a; // For both R-type and LW, reg_a is destination in this model
+  // Choose the produced register for dependency (destination register)
+  produced_reg = first_i.reg_a; // For both R-type and LW, reg_a is destination in this model
 
     // Randomize number of gaps between 1 and 4
     assert(std::randomize(gap_n) with { gap_n inside {[1:4]}; }) else gap_n = 1;
