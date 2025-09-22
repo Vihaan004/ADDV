@@ -55,6 +55,9 @@ class instruction extends uvm_sequence_item;
     }
   }
 
+  // SIMPLE FIX: ensure opcode is solved before mem_addr to avoid bias toward R-type
+  constraint opcode_first_c { solve opcode before mem_addr; }
+
   // Convert to machine code after randomization
   function void post_randomize();
     if (opcode == 6'h00) begin // R-type (ADD or AND instruction)
@@ -183,18 +186,14 @@ class instruction_generator;
     $display("=== Generated Instruction Sequence ===");
     $display("Total instructions: %0d", instr_list.size());
     $display("Breakdown:");
-    $display("  - Individual random: 10 instructions");
-    $display("  - Dependent pairs: 4 instructions (2 pairs)");
-    $display("  - Gap instructions: 2 instructions");
+    $display("  - Individual random: %0d instructions", instr_list.size());
     $display("=====================================");
     
     for (int i = 0; i < instr_list.size(); i++) begin
       $write("Instruction %2d: ", i+1);
       
       // Add markers for instruction types
-      if (i < 10) $write("[RANDOM] ");
-      else if (i < 14) $write("[DEPEND] ");
-      else $write("[GAP]    ");
+      $write("[RANDOM] ");
       
       instr_list[i].print_me();
     end
