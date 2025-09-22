@@ -174,7 +174,7 @@ class instruction_generator;
     int idx;
 
     // Make sure instr_list is initialized
-    if (instr_list == null) instr_list = new[0];
+    // if (instr_list == null) instr_list = new[0];
 
     // Randomize first instruction: must produce a value (R-type ADD/AND or LW)
     first_i = new();
