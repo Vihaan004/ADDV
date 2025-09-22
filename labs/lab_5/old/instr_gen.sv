@@ -160,9 +160,72 @@ class instruction_generator;
   // Generate complete instruction sequence
   function void generate_sequence();
     generate_individual(); // Generate 10 random instructions
-    // generate_pairs();      // Add 4 dependent instructions (2 pairs)
-    // insert_gaps();         // Add 2 NOP-like gap instructions
-    // Final sequence: 10 + 4 + 2 = 16 instructions total
+    generate_pairs();      // Append one dependent pair with 1-4 gap instructions between
+    // Final sequence size: 10 + (2 + gaps[1..4])
+  endfunction
+
+  // Create one dependent pair with 1-4 gap instructions in between, then append to instr_list
+  function void generate_pairs();
+    instruction first_i, second_i;
+    int unsigned gap_n;
+
+    // Make sure instr_list is initialized
+    if (instr_list == null) instr_list = new[0];
+
+    // Randomize first instruction: must produce a value (R-type ADD/AND or LW)
+    first_i = new();
+    if (!first_i.randomize() with { opcode inside {6'h00, 6'h23}; }) begin
+      $error("First instruction randomization failed for dependent pair");
+      return;
+    end
+
+    // Choose the produced register for dependency (destination register)
+    bit [4:0] produced_reg = first_i.reg_a; // For both R-type and LW, reg_a is destination in this model
+
+    // Randomize number of gaps between 1 and 4
+    assert(std::randomize(gap_n) with { gap_n inside {[1:4]}; }) else gap_n = 1;
+
+    // Randomize second instruction such that it reads 'produced_reg'
+    second_i = new();
+    if (!second_i.randomize() with {
+          // Allow any of the 4 supported opcodes
+          opcode inside {6'h00, 6'h23, 6'h2B, 6'h04};
+          // Enforce RAW dependency based on opcode read operands
+          if (opcode == 6'h00) { reg_b == produced_reg; }          // R-type reads reg_b/reg_c
+          if (opcode == 6'h23) { reg_b == produced_reg; }          // LW reads base (reg_b)
+          if (opcode == 6'h2B) { reg_a == produced_reg; }          // SW reads data from reg_a
+          if (opcode == 6'h04) { reg_b == produced_reg; }          // BEQ reads reg_b/reg_a
+        }) begin
+      $error("Second instruction randomization failed for dependent pair");
+      return;
+    end
+
+    // Build temporary list with first, gaps, and second
+    instruction tmp[];
+    tmp = new[instr_list.size() + gap_n + 2];
+
+    // Copy existing instructions
+    for (int i = 0; i < instr_list.size(); i++) tmp[i] = instr_list[i];
+
+    int idx = instr_list.size();
+    tmp[idx++] = first_i;
+
+    // Insert gap instructions (simple ALU ops that don't affect dependency)
+    for (int g = 0; g < gap_n; g++) begin
+      instruction gap_i = new();
+      // Create an ADD $1, $1, $1 as a NOP-like instruction under given constraints
+      gap_i.opcode = 6'h00;   // R-type
+      gap_i.funct  = 6'h20;   // ADD
+      gap_i.reg_a  = 5'd1;    // Within allowed set {1..4}
+      gap_i.reg_b  = 5'd1;
+      gap_i.reg_c  = 5'd1;
+      tmp[idx++] = gap_i;
+    end
+
+    tmp[idx++] = second_i;
+
+    // Update main list
+    instr_list = tmp;
   endfunction
 
   // Convert all instructions to machine code and write to file
