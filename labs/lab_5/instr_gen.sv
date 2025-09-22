@@ -92,9 +92,8 @@ class instruction_generator;
     end
   endfunction
 
-  // Generate pairs of dependent instructions (return pair_list; do not modify instr_list here)
-  function instruction generate_pairs[]();
-    instruction pair_list[];
+  // Generate pairs of dependent instructions (return first via return value; full list via output arg)
+  function instruction generate_pairs(output instruction pair_list[]);
     pair_list = new[4]; // Generate 2 pairs (4 instructions total)
 
     // Pair 1: Both instructions use register 1 (RAW dependency)
@@ -109,7 +108,7 @@ class instruction_generator;
     assert(pair_list[2].randomize() with { reg_a == 2; }); // First writes to $2
     assert(pair_list[3].randomize() with { reg_b == 2; }); // Second reads from $2
 
-    return pair_list;
+    return pair_list[0];
   endfunction
 
   // // Insert gaps between instructions (simple implementation)
@@ -141,17 +140,27 @@ class instruction_generator;
 
   // Generate complete instruction sequence (no gaps): 10 individual + 4 pairs = 14 total
   function void generate_sequence();
-    instruction pair_list[];
-    generate_individual(); // Generate 10 random instructions
+    // Allocate full list upfront
+    instr_list = new[14];
 
-    // Get dependent pairs and append to main list outside of generate_pairs
-    pair_list = generate_pairs();
-    if (instr_list == null) instr_list = new[0];
-    int old_size = instr_list.size();
-    instr_list = new[old_size + pair_list.size()] (instr_list);
-    for (int i = 0; i < pair_list.size(); i++) begin
-      instr_list[old_size + i] = pair_list[i];
+    // 10 individual random instructions
+    for (int i = 0; i < 10; i++) begin
+      instr_list[i] = new();
+      assert(instr_list[i].randomize());
     end
+
+    // Dependent Pairs (2 pairs = 4 instructions)
+    // Pair 1: RAW dependency on register $1
+    instr_list[10] = new();
+    assert(instr_list[10].randomize() with { reg_a == 1; });
+    instr_list[11] = new();
+    assert(instr_list[11].randomize() with { reg_b == 1; });
+
+    // Pair 2: RAW dependency on register $2
+    instr_list[12] = new();
+    assert(instr_list[12].randomize() with { reg_a == 2; });
+    instr_list[13] = new();
+    assert(instr_list[13].randomize() with { reg_b == 2; });
   endfunction
 
   // Convert all instructions to machine code and write to file

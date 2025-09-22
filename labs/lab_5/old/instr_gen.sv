@@ -94,71 +94,71 @@ class instruction_generator;
 
   // ------------------------------------?
   // Generate pairs of dependent instructions
-  function void generate_pairs();
-    instruction pair_list[];
-    pair_list = new[4]; // Generate 2 pairs (4 instructions total)
+  // function void generate_pairs();
+  //   instruction pair_list[];
+  //   pair_list = new[4]; // Generate 2 pairs (4 instructions total)
     
-    // Pair 1: Both instructions use register 1 (RAW dependency)
-    pair_list[0] = new();
-    pair_list[1] = new();
-    assert(pair_list[0].randomize() with { reg_a == 1; }); // First writes to $1
-    assert(pair_list[1].randomize() with { reg_b == 1; }); // Second reads from $1
+  //   // Pair 1: Both instructions use register 1 (RAW dependency)
+  //   pair_list[0] = new();
+  //   pair_list[1] = new();
+  //   assert(pair_list[0].randomize() with { reg_a == 1; }); // First writes to $1
+  //   assert(pair_list[1].randomize() with { reg_b == 1; }); // Second reads from $1
     
-    // Pair 2: Both instructions use register 2 (RAW dependency)
-    pair_list[2] = new();
-    pair_list[3] = new();
-    assert(pair_list[2].randomize() with { reg_a == 2; }); // First writes to $2
-    assert(pair_list[3].randomize() with { reg_b == 2; }); // Second reads from $2
+  //   // Pair 2: Both instructions use register 2 (RAW dependency)
+  //   pair_list[2] = new();
+  //   pair_list[3] = new();
+  //   assert(pair_list[2].randomize() with { reg_a == 2; }); // First writes to $2
+  //   assert(pair_list[3].randomize() with { reg_b == 2; }); // Second reads from $2
     
-    // Add pairs to main instruction list
-    if (instr_list == null) instr_list = new[0];
-    instruction temp_list[] = new[instr_list.size() + pair_list.size()];
+  //   // Add pairs to main instruction list
+  //   if (instr_list == null) instr_list = new[0];
+  //   instruction temp_list[] = new[instr_list.size() + pair_list.size()];
     
-    // Copy existing instructions
-    for (int i = 0; i < instr_list.size(); i++) begin
-      temp_list[i] = instr_list[i];
-    end
+  //   // Copy existing instructions
+  //   for (int i = 0; i < instr_list.size(); i++) begin
+  //     temp_list[i] = instr_list[i];
+  //   end
     
-    // Add new pairs
-    for (int i = 0; i < pair_list.size(); i++) begin
-      temp_list[instr_list.size() + i] = pair_list[i];
-    end
+  //   // Add new pairs
+  //   for (int i = 0; i < pair_list.size(); i++) begin
+  //     temp_list[instr_list.size() + i] = pair_list[i];
+  //   end
     
-    instr_list = temp_list;
-  endfunction
+  //   instr_list = temp_list;
+  // endfunction
 
-  // Insert gaps between instructions (simple implementation)
-  function void insert_gaps();
-    if (instr_list == null || instr_list.size() == 0) return;
+  // // Insert gaps between instructions (simple implementation)
+  // function void insert_gaps();
+  //   if (instr_list == null || instr_list.size() == 0) return;
     
-    instruction temp_list[];
-    int gap_count = 2;
-    temp_list = new[instr_list.size() + gap_count];
+  //   instruction temp_list[];
+  //   int gap_count = 2;
+  //   temp_list = new[instr_list.size() + gap_count];
     
-    // Copy original instructions
-    for (int i = 0; i < instr_list.size(); i++) begin
-      temp_list[i] = instr_list[i];
-    end
+  //   // Copy original instructions
+  //   for (int i = 0; i < instr_list.size(); i++) begin
+  //     temp_list[i] = instr_list[i];
+  //   end
     
-    // Add gap instructions at the end
-    for (int i = 0; i < gap_count; i++) begin
-      temp_list[instr_list.size() + i] = new();
-      temp_list[instr_list.size() + i].opcode = 6'h00;  // R-type
-      temp_list[instr_list.size() + i].reg_a = 1;       // $1 = $1 + $1 (NOP-like)
-      temp_list[instr_list.size() + i].reg_b = 1;
-      temp_list[instr_list.size() + i].reg_c = 1;
-      temp_list[instr_list.size() + i].funct = 6'h20;   // ADD function
-    end
+  //   // Add gap instructions at the end
+  //   for (int i = 0; i < gap_count; i++) begin
+  //     temp_list[instr_list.size() + i] = new();
+  //     temp_list[instr_list.size() + i].opcode = 6'h00;  // R-type
+  //     temp_list[instr_list.size() + i].reg_a = 1;       // $1 = $1 + $1 (NOP-like)
+  //     temp_list[instr_list.size() + i].reg_b = 1;
+  //     temp_list[instr_list.size() + i].reg_c = 1;
+  //     temp_list[instr_list.size() + i].funct = 6'h20;   // ADD function
+  //   end
     
-    // Update instruction list
-    instr_list = temp_list;
-  endfunction
+  //   // Update instruction list
+  //   instr_list = temp_list;
+  // endfunction
 
   // Generate complete instruction sequence
   function void generate_sequence();
     generate_individual(); // Generate 10 random instructions
-    generate_pairs();      // Add 4 dependent instructions (2 pairs)
-    insert_gaps();         // Add 2 NOP-like gap instructions
+    // generate_pairs();      // Add 4 dependent instructions (2 pairs)
+    // insert_gaps();         // Add 2 NOP-like gap instructions
     // Final sequence: 10 + 4 + 2 = 16 instructions total
   endfunction
 
