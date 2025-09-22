@@ -38,7 +38,7 @@ make help
 ### Method 2: Manual Commands
 
 ```bash
-# Compile with VCS
+# Compile with VCS (UVM automatically included with -ntb_opts uvm)
 $VCS_HOME/bin/vcs -full64 -sverilog -timescale=1ns/1ns -ntb_opts uvm +incdir+. instr_gen.sv
 
 # Run simulation

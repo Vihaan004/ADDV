@@ -1,9 +1,9 @@
-# Makefile for MIPS Instruction Generator (Lab 5 Part 2)
-# Based on Lab 0 and serialalu_uvm examples
+# Makefile for MIPS Verification (Lab 5)
+# Based on serialalu_uvm/Makefile
 
 # Test and verbosity settings
 UVM_VERBOSITY = UVM_MEDIUM
-TEST = testbench
+TEST = mips_test
 
 # VCS compilation command with UVM support
 VCS = $(VCS_HOME)/bin/vcs -full64 -sverilog -timescale=1ns/1ns \
@@ -15,12 +15,12 @@ SIMV = ./simv +UVM_VERBOSITY=$(UVM_VERBOSITY) \
 	+UVM_TESTNAME=$(TEST) +UVM_TR_RECORD +UVM_LOG_RECORD \
 	+verbose=1 +ntb_random_seed=244 -l vcs.log -cm line+cond+fsm+branch+tgl
 
-# Default target
-all: comp run
+# Default target - matches serialalu pattern
+x: comp run
 
 # Compilation target
 comp:
-	$(VCS) +incdir+. instr_gen.sv
+	$(VCS) +incdir+. mips_tb_top.sv
 
 # Simulation target  
 run:
@@ -39,12 +39,12 @@ gui:
 
 # Clean up generated files
 clean:
-	rm -rf *.vdb csrc DVEfiles *.vpd *.fsdb simv simv.daidir ucli.key vc_hdrs.h vcs.log comp.log instructions.hex
+	rm -rf *.vdb csrc DVEfiles *.vpd *.fsdb simv simv.daidir ucli.key vc_hdrs.h vcs.log comp.log instructions.hex mips_verification.vcd
 
 # Help target
 help:
 	@echo "Available targets:"
-	@echo "  all           - Compile and run (default)"
+	@echo "  x             - Compile and run (default, matches serialalu)"
 	@echo "  comp          - Compile only"
 	@echo "  run           - Run simulation only"
 	@echo "  compile_and_run - Compile and run in sequence"
@@ -53,4 +53,4 @@ help:
 	@echo "  clean         - Remove generated files"
 	@echo "  help          - Show this help"
 
-.PHONY: all comp run compile_and_run gui cov clean help
+.PHONY: x comp run compile_and_run gui cov clean help
