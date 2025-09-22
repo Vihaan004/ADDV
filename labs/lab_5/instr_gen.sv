@@ -85,6 +85,9 @@ endclass
 class instruction_generator;
   instruction instr_list[];      // Dynamic array to store instructions
   bit [31:0] machine_code_list[]; // Machine code array
+  
+  // Class-level variables for pairs to avoid function declaration issues
+  instruction pair1_instr1, pair1_instr2, pair2_instr1, pair2_instr2;
 
   // Generate individual random instructions
   function void generate_individual();
@@ -101,31 +104,40 @@ class instruction_generator;
   function void generate_pairs();
     $display("[GEN] Generating 4 dependent pair instructions...");
     
-    // Extend instruction list to include 4 new instructions
-    instruction temp_list[] = new[instr_list.size() + 4];
+    // Create individual instruction objects at class level
+    pair1_instr1 = new();
+    pair1_instr2 = new();
+    pair2_instr1 = new();
+    pair2_instr2 = new();
     
-    // Copy existing instructions
-    for (int i = 0; i < instr_list.size(); i++) begin
-      temp_list[i] = instr_list[i];
-    end
+    // Pair 1: register 1 dependency
+    assert(pair1_instr1.randomize() with { reg_a == 1; });
+    pair1_instr1.post_randomize();
+    assert(pair1_instr2.randomize() with { reg_b == 1; });
+    pair1_instr2.post_randomize();
     
-    // Pair 1: Both instructions use register 1 (RAW dependency)
-    temp_list[instr_list.size() + 0] = new();
-    temp_list[instr_list.size() + 1] = new();
-    assert(temp_list[instr_list.size() + 0].randomize() with { reg_a == 1; }); // First writes to $1
-    assert(temp_list[instr_list.size() + 1].randomize() with { reg_b == 1; }); // Second reads from $1
-    temp_list[instr_list.size() + 0].post_randomize();
-    temp_list[instr_list.size() + 1].post_randomize();
+    // Pair 2: register 2 dependency  
+    assert(pair2_instr1.randomize() with { reg_a == 2; });
+    pair2_instr1.post_randomize();
+    assert(pair2_instr2.randomize() with { reg_b == 2; });
+    pair2_instr2.post_randomize();
     
-    // Pair 2: Both instructions use register 2 (RAW dependency)
-    temp_list[instr_list.size() + 2] = new();
-    temp_list[instr_list.size() + 3] = new();
-    assert(temp_list[instr_list.size() + 2].randomize() with { reg_a == 2; }); // First writes to $2
-    assert(temp_list[instr_list.size() + 3].randomize() with { reg_b == 2; }); // Second reads from $2
-    temp_list[instr_list.size() + 2].post_randomize();
-    temp_list[instr_list.size() + 3].post_randomize();
+    // Now resize and copy - this avoids declaring arrays in functions
+    resize_and_add_pairs();
+  endfunction
+  
+  // Helper function to resize array and add pairs
+  function void resize_and_add_pairs();
+    int old_size = instr_list.size();
     
-    instr_list = temp_list;
+    // Create new array with space for 4 more instructions
+    instr_list = new[old_size + 4] (instr_list);
+    
+    // Add the pairs we created
+    instr_list[old_size + 0] = pair1_instr1;
+    instr_list[old_size + 1] = pair1_instr2; 
+    instr_list[old_size + 2] = pair2_instr1;
+    instr_list[old_size + 3] = pair2_instr2;
   endfunction
 
   // Insert gap instructions (NOP-like)
