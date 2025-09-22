@@ -169,6 +169,9 @@ class instruction_generator;
     instruction first_i, second_i;
     int unsigned gap_n;
     bit [4:0] produced_reg;
+    instruction tmp[];
+    instruction gap_i;
+    int idx;
 
     // Make sure instr_list is initialized
     if (instr_list == null) instr_list = new[0];
@@ -202,18 +205,17 @@ class instruction_generator;
     end
 
     // Build temporary list with first, gaps, and second
-    instruction tmp[];
     tmp = new[instr_list.size() + gap_n + 2];
 
     // Copy existing instructions
     for (int i = 0; i < instr_list.size(); i++) tmp[i] = instr_list[i];
 
-    int idx = instr_list.size();
+    idx = instr_list.size();
     tmp[idx++] = first_i;
 
     // Insert gap instructions (simple ALU ops that don't affect dependency)
     for (int g = 0; g < gap_n; g++) begin
-      instruction gap_i = new();
+      gap_i = new();
       // Create an ADD $1, $1, $1 as a NOP-like instruction under given constraints
       gap_i.opcode = 6'h00;   // R-type
       gap_i.funct  = 6'h20;   // ADD
