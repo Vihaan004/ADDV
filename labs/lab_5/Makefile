@@ -23,6 +23,17 @@ compile_simple:
 	@echo "=== Compiling Lab 5 Simple Template Solution ==="
 	vcs $(VCS_FLAGS) $(TEST_MODULE).sv
 
+# Compile just the instruction generator
+compile_gen:
+	@echo "=== Compiling Instruction Generator ==="
+	vcs $(VCS_FLAGS) instr_gen.sv
+	@if [ -f simv ]; then \
+		echo "=== Compilation successful ==="; \
+	else \
+		echo "=== Compilation failed, check compile.log ==="; \
+		cat compile.log; \
+	fi
+
 # Run the simple demo
 run_simple:
 	@echo "=== Running Lab 5 Simple Demo ==="
@@ -31,8 +42,15 @@ run_simple:
 # Alternative: instruction generator only
 gen_only:
 	@echo "=== Running Instruction Generator Only ==="
-	vcs $(VCS_FLAGS) instr_gen_simple.sv
-	./simv $(SIM_FLAGS)
+	vcs $(VCS_FLAGS) instr_gen.sv
+	@if [ -f simv ]; then \
+		echo "=== Compilation successful, running simulation ==="; \
+		./simv $(SIM_FLAGS); \
+	else \
+		echo "=== Compilation failed, check compile.log ==="; \
+		cat compile.log; \
+		exit 1; \
+	fi
 
 # Alternative: UVM version
 uvm_demo:
