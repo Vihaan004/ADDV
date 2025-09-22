@@ -100,23 +100,23 @@ class instruction_generator;
   // Generate pairs of dependent instructions
   function void generate_pairs();
     $display("[GEN] Generating 4 dependent pair instructions...");
-    instruction pair_instr[4]; // Fixed: use fixed array instead of dynamic
+    instruction instr1, instr2, instr3, instr4; // Simple individual variables
     
     // Pair 1: Both instructions use register 1 (RAW dependency)
-    pair_instr[0] = new();
-    pair_instr[1] = new();
-    assert(pair_instr[0].randomize() with { reg_a == 1; }); // First writes to $1
-    assert(pair_instr[1].randomize() with { reg_b == 1; }); // Second reads from $1
-    pair_instr[0].post_randomize();
-    pair_instr[1].post_randomize();
+    instr1 = new();
+    instr2 = new();
+    assert(instr1.randomize() with { reg_a == 1; }); // First writes to $1
+    assert(instr2.randomize() with { reg_b == 1; }); // Second reads from $1
+    instr1.post_randomize();
+    instr2.post_randomize();
     
     // Pair 2: Both instructions use register 2 (RAW dependency)
-    pair_instr[2] = new();
-    pair_instr[3] = new();
-    assert(pair_instr[2].randomize() with { reg_a == 2; }); // First writes to $2
-    assert(pair_instr[3].randomize() with { reg_b == 2; }); // Second reads from $2
-    pair_instr[2].post_randomize();
-    pair_instr[3].post_randomize();
+    instr3 = new();
+    instr4 = new();
+    assert(instr3.randomize() with { reg_a == 2; }); // First writes to $2
+    assert(instr4.randomize() with { reg_b == 2; }); // Second reads from $2
+    instr3.post_randomize();
+    instr4.post_randomize();
     
     // Extend instruction list to include pairs
     instruction temp_list[] = new[instr_list.size() + 4];
@@ -127,9 +127,10 @@ class instruction_generator;
     end
     
     // Add new pairs
-    for (int i = 0; i < 4; i++) begin
-      temp_list[instr_list.size() + i] = pair_instr[i];
-    end
+    temp_list[instr_list.size() + 0] = instr1;
+    temp_list[instr_list.size() + 1] = instr2;
+    temp_list[instr_list.size() + 2] = instr3;
+    temp_list[instr_list.size() + 3] = instr4;
     
     instr_list = temp_list;
   endfunction
