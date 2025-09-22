@@ -1,5 +1,6 @@
 //Add -ntb_opts uvm to the VCS command line
-
+`include "uvm_macros.svh"
+import uvm_pkg::*;
 class instruction extends uvm_sequence_item;
   rand bit [4:0] reg_a, reg_b, reg_c;
   rand bit [5:0] opcode;
