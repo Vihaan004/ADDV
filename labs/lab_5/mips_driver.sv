@@ -5,6 +5,7 @@ class mips_driver extends uvm_driver#(mips_transaction);
 	`uvm_component_utils(mips_driver)
 
 	virtual mips_if vif;
+	uvm_analysis_port #(mips_transaction) ap; // Analysis port to send to coverage
 	
 	// Array to store generated machine codes
 	bit [31:0] instruction_memory[1024]; // Instruction memory
@@ -19,6 +20,8 @@ class mips_driver extends uvm_driver#(mips_transaction);
 
 		void'(uvm_resource_db#(virtual mips_if)::read_by_name
 			(.scope("ifs"), .name("mips_if"), .val(vif)));
+		
+		ap = new(.name("ap"), .parent(this)); // Create analysis port
 	endfunction: build_phase
 
 	task run_phase(uvm_phase phase);
@@ -45,6 +48,9 @@ class mips_driver extends uvm_driver#(mips_transaction);
 			mips_tx.print_instruction();
 			
 			instruction_count++;
+			
+			// Send transaction to coverage collector via analysis port
+			ap.write(mips_tx);
 			
 			// Signal completion
 			seq_item_port.item_done();

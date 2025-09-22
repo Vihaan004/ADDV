@@ -30,7 +30,11 @@ class mips_agent extends uvm_agent;
 		// Connect driver to sequencer
 		mips_drvr.seq_item_port.connect(mips_seqr.seq_item_export);
 		
-		// Connect monitor to agent analysis port
-		mips_mon.ap.connect(agent_ap);
+		// For Lab 5 instruction generation focus: Connect driver to agent analysis port
+		// (Driver generates transactions, monitor observes interface)
+		mips_drvr.ap.connect(agent_ap);
+		
+		// Monitor can also connect (for actual processor monitoring)
+		// mips_mon.ap.connect(agent_ap);
 	endfunction: connect_phase
 endclass: mips_agent
