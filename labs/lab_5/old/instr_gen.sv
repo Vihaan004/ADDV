@@ -95,75 +95,6 @@ class instruction_generator;
     end
   endfunction
 
-  // ------------------------------------?
-  // Generate pairs of dependent instructions
-  // function void generate_pairs();
-  //   instruction pair_list[];
-  //   pair_list = new[4]; // Generate 2 pairs (4 instructions total)
-    
-  //   // Pair 1: Both instructions use register 1 (RAW dependency)
-  //   pair_list[0] = new();
-  //   pair_list[1] = new();
-  //   assert(pair_list[0].randomize() with { reg_a == 1; }); // First writes to $1
-  //   assert(pair_list[1].randomize() with { reg_b == 1; }); // Second reads from $1
-    
-  //   // Pair 2: Both instructions use register 2 (RAW dependency)
-  //   pair_list[2] = new();
-  //   pair_list[3] = new();
-  //   assert(pair_list[2].randomize() with { reg_a == 2; }); // First writes to $2
-  //   assert(pair_list[3].randomize() with { reg_b == 2; }); // Second reads from $2
-    
-  //   // Add pairs to main instruction list
-  //   if (instr_list == null) instr_list = new[0];
-  //   instruction temp_list[] = new[instr_list.size() + pair_list.size()];
-    
-  //   // Copy existing instructions
-  //   for (int i = 0; i < instr_list.size(); i++) begin
-  //     temp_list[i] = instr_list[i];
-  //   end
-    
-  //   // Add new pairs
-  //   for (int i = 0; i < pair_list.size(); i++) begin
-  //     temp_list[instr_list.size() + i] = pair_list[i];
-  //   end
-    
-  //   instr_list = temp_list;
-  // endfunction
-
-  // // Insert gaps between instructions (simple implementation)
-  // function void insert_gaps();
-  //   if (instr_list == null || instr_list.size() == 0) return;
-    
-  //   instruction temp_list[];
-  //   int gap_count = 2;
-  //   temp_list = new[instr_list.size() + gap_count];
-    
-  //   // Copy original instructions
-  //   for (int i = 0; i < instr_list.size(); i++) begin
-  //     temp_list[i] = instr_list[i];
-  //   end
-    
-  //   // Add gap instructions at the end
-  //   for (int i = 0; i < gap_count; i++) begin
-  //     temp_list[instr_list.size() + i] = new();
-  //     temp_list[instr_list.size() + i].opcode = 6'h00;  // R-type
-  //     temp_list[instr_list.size() + i].reg_a = 1;       // $1 = $1 + $1 (NOP-like)
-  //     temp_list[instr_list.size() + i].reg_b = 1;
-  //     temp_list[instr_list.size() + i].reg_c = 1;
-  //     temp_list[instr_list.size() + i].funct = 6'h20;   // ADD function
-  //   end
-    
-  //   // Update instruction list
-  //   instr_list = temp_list;
-  // endfunction
-
-  // Generate complete instruction sequence
-  function void generate_sequence();
-    generate_individual(); // Generate 10 random instructions
-    generate_pairs();      // Append one dependent pair with 1-4 gap instructions between
-    // Final sequence size: 10 + (2 + gaps[1..4])
-  endfunction
-
   // Create one dependent pair with 1-4 gap instructions in between, then append to instr_list
   function void generate_pairs();
     instruction first_i, second_i;
@@ -173,18 +104,17 @@ class instruction_generator;
     instruction gap_i;
     int idx;
 
-    // Make sure instr_list is initialized
     // if (instr_list == null) instr_list = new[0];
 
-    // Randomize first instruction: must produce a value (R-type ADD/AND or LW)
+    // Randomize first instruction
     first_i = new();
     if (!first_i.randomize() with { opcode inside {6'h00, 6'h23}; }) begin
       $error("First instruction randomization failed for dependent pair");
       return;
     end
 
-  // Choose the produced register for dependency (destination register)
-  produced_reg = first_i.reg_a; // For both R-type and LW, reg_a is destination in this model
+    // Choose the produced register for dependency (destination register)
+    produced_reg = first_i.reg_a; // reg_a is destination for both R-type and LW
 
     // Randomize number of gaps between 1 and 4
     assert(std::randomize(gap_n) with { gap_n inside {[1:4]}; }) else gap_n = 1;
@@ -231,6 +161,13 @@ class instruction_generator;
     instr_list = tmp;
   endfunction
 
+  // Generate complete instruction sequence
+  function void generate_sequence();
+    generate_individual(); // Generate 10 random instructions
+    generate_pairs();      // Append one dependent pair with 1-4 gap instructions between
+    // Final sequence size: 10 + (2 + gaps[1..4])
+  endfunction
+
   // Convert all instructions to machine code and write to file
   function void generate_machine_code();
     generate_sequence(); // First generate the instruction sequence
@@ -256,7 +193,7 @@ class instruction_generator;
     $display("=====================================");
     
     for (int i = 0; i < instr_list.size(); i++) begin
-      $write("Instruction %2d: ", i+1);
+      $write("Instr_%2d: ", i+1);
       
       // Add markers for instruction types
       $write("[RANDOM] ");
@@ -278,21 +215,18 @@ module testbench;
   always #5 clk = ~clk;
 
   initial begin
-    $display("=== MIPS Instruction Generator Test ===");
+    $display("=== MIPS Instruction Generator ===");
     
-    // Create and run generator
     gen = new();
     gen.generate_machine_code(); // Generate instructions and write to file
     gen.display_all();           // Show what was generated
 
     $display("\n=== Integration with MIPS CPU ===");
-    // In a real testbench, you would:
-    // 1. Copy memory from gen to the MIPS instruction memory
-    // 2. OR: Call $readmemh("instructions.hex", mips_cpu.instruction_memory);
-    // 3. Deassert reset to start MIPS processor
+    // Copy memory from gen to the MIPS instruction memory
+    // Call $readmemh("instructions.hex", mips_cpu.instruction_memory);
     
     #10 reset = 0; // Deassert reset
-    $display("Reset deasserted - MIPS processor would start executing instructions");
+    $display("Reset deasserted - start MIPS processor");
     
     // Run for some time
     #1000;
