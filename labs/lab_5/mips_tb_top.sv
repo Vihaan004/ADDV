@@ -37,7 +37,7 @@ module mips_tb_top;
 		uvm_resource_db#(virtual mips_if)::set
 			(.scope("ifs"), .name("mips_if"), .val(vif));
 
-		// Initialize signals
+		// Initialize signals at time 0 (no delays)
 		vif.reset = 1;
 		vif.pc = 0;
 		vif.instruction = 32'h00000000;
@@ -45,11 +45,14 @@ module mips_tb_top;
 		vif.writedata = 32'h00000000;
 		vif.dataadr = 32'h00000000;
 		
-		// Reset sequence
-		#20 vif.reset = 0;
-		
-		// Execute the test
+		// Execute the test at time 0
 		run_test("mips_test");
+	end
+	
+	// Separate initial block for reset sequence (after run_test starts)
+	initial begin
+		// Wait for simulation to start, then perform reset sequence
+		#20 vif.reset = 0;
 	end
 
 	// Optional: Generate some instruction fetch simulation for monitor testing
@@ -64,11 +67,5 @@ module mips_tb_top;
 			// In real scenario, instruction would come from instruction memory
 			// For demo, we'll use the generated instructions
 		end
-	end
-	
-	// Dump waveforms for debugging
-	initial begin
-		$dumpfile("mips_verification.vcd");
-		$dumpvars(0, mips_tb_top);
 	end
 endmodule: mips_tb_top
