@@ -1,24 +1,25 @@
 # Simple Makefile for Lab 5 Template-Based Solution
-# Easy to understand and demo
+# Based on working uvm_solution/Makefile
 
-# VCS compilation flags (simplified)
-VCS_FLAGS = -full64 -sverilog -timescale=1ns/1ns -ntb_opts uvm
+# VCS compilation flags (from working solution)
+VCS = $(VCS_HOME)/bin/vcs -full64 -sverilog -timescale=1ns/1ns \
+	-ntb_opts uvm -debug_access+all -kdb -lca
 
 # Simulation flags  
-SIM_FLAGS = +UVM_VERBOSITY=UVM_MEDIUM +ntb_random_seed=123
+SIMV = ./simv +UVM_VERBOSITY=UVM_MEDIUM +ntb_random_seed=123
 
 # Instruction generator only (simple)
 gen_only:
-	vcs $(VCS_FLAGS) instr_gen.sv
-	./simv $(SIM_FLAGS)
+	$(VCS) instr_gen.sv
+	$(SIMV)
 
 # Compile only
 compile_gen:
-	vcs $(VCS_FLAGS) instr_gen.sv
+	$(VCS) instr_gen.sv
 
 # Run only (if already compiled)
 run_gen:
-	./simv $(SIM_FLAGS)
+	$(SIMV)
 
 # Clean up
 clean:
