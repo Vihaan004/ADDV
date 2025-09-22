@@ -100,25 +100,8 @@ class instruction_generator;
   // Generate pairs of dependent instructions
   function void generate_pairs();
     $display("[GEN] Generating 4 dependent pair instructions...");
-    instruction instr1, instr2, instr3, instr4; // Simple individual variables
     
-    // Pair 1: Both instructions use register 1 (RAW dependency)
-    instr1 = new();
-    instr2 = new();
-    assert(instr1.randomize() with { reg_a == 1; }); // First writes to $1
-    assert(instr2.randomize() with { reg_b == 1; }); // Second reads from $1
-    instr1.post_randomize();
-    instr2.post_randomize();
-    
-    // Pair 2: Both instructions use register 2 (RAW dependency)
-    instr3 = new();
-    instr4 = new();
-    assert(instr3.randomize() with { reg_a == 2; }); // First writes to $2
-    assert(instr4.randomize() with { reg_b == 2; }); // Second reads from $2
-    instr3.post_randomize();
-    instr4.post_randomize();
-    
-    // Extend instruction list to include pairs
+    // Extend instruction list to include 4 new instructions
     instruction temp_list[] = new[instr_list.size() + 4];
     
     // Copy existing instructions
@@ -126,11 +109,21 @@ class instruction_generator;
       temp_list[i] = instr_list[i];
     end
     
-    // Add new pairs
-    temp_list[instr_list.size() + 0] = instr1;
-    temp_list[instr_list.size() + 1] = instr2;
-    temp_list[instr_list.size() + 2] = instr3;
-    temp_list[instr_list.size() + 3] = instr4;
+    // Pair 1: Both instructions use register 1 (RAW dependency)
+    temp_list[instr_list.size() + 0] = new();
+    temp_list[instr_list.size() + 1] = new();
+    assert(temp_list[instr_list.size() + 0].randomize() with { reg_a == 1; }); // First writes to $1
+    assert(temp_list[instr_list.size() + 1].randomize() with { reg_b == 1; }); // Second reads from $1
+    temp_list[instr_list.size() + 0].post_randomize();
+    temp_list[instr_list.size() + 1].post_randomize();
+    
+    // Pair 2: Both instructions use register 2 (RAW dependency)
+    temp_list[instr_list.size() + 2] = new();
+    temp_list[instr_list.size() + 3] = new();
+    assert(temp_list[instr_list.size() + 2].randomize() with { reg_a == 2; }); // First writes to $2
+    assert(temp_list[instr_list.size() + 3].randomize() with { reg_b == 2; }); // Second reads from $2
+    temp_list[instr_list.size() + 2].post_randomize();
+    temp_list[instr_list.size() + 3].post_randomize();
     
     instr_list = temp_list;
   endfunction
