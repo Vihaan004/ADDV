@@ -1,11 +1,8 @@
-
 //Add -ntb_opts uvm to the VCS command line
 
-// UVM imports and macros (at top level like serialalu pattern)
 `include "uvm_macros.svh"
 import uvm_pkg::*;
 
-// Instruction class definition - FIXED: extends uvm_sequence_item not uvm_transaction
 class instruction extends uvm_sequence_item;
   // MIPS instruction fields - using proper bit widths
   rand bit [4:0] reg_a, reg_b, reg_c;  // Register fields (5 bits for 32 registers)
@@ -95,6 +92,7 @@ class instruction_generator;
     end
   endfunction
 
+  // ------------------------------------?
   // Generate pairs of dependent instructions
   function void generate_pairs();
     instruction pair_list[];
