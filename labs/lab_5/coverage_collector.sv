@@ -2,6 +2,119 @@
 `include "uvm_macros.svh"
 import uvm_pkg::*;
 
+// Shared instruction transaction (same shape as Part 2 generator)
+class instruction extends uvm_transaction;
+  rand bit [4:0] reg_a, reg_b, reg_c;          // rt, rs, rd
+  rand bit [5:0] opcode, funct;                // opcode and funct for R-type
+  rand bit [31:0] mem_addr;                    // word address; we limit to 0,4,8,12
+  rand bit [15:0] immediate;                   // for ADDI setup
+  rand bit [15:0] branch_offset;               // 1..4 per lab limit
+
+  constraint unique_regs { soft reg_a inside {[1:4]}; soft reg_b inside {[1:4]}; soft reg_c inside {[1:4]}; }
+  constraint valid_opcode { soft opcode dist {6'b000000:=20, 6'b100011:=30, 6'b101011:=30, 6'b000100:=20}; }
+  constraint valid_funct  { if (opcode == 6'b000000) soft funct inside {6'b100000, 6'b100100}; else soft funct == 6'b000000; }
+  constraint small_immediate { soft immediate inside {[0:65535]}; }
+  constraint valid_mem_addr { (opcode == 6'b100011 || opcode == 6'b101011) -> (mem_addr inside {0,4,8,12} && reg_b == 0); }
+  constraint valid_branch_offset { if (opcode == 6'b000100) soft branch_offset inside {1,2,3,4}; else soft branch_offset == 0; }
+
+  `uvm_object_utils(instruction)
+  function new(string name = "instruction"); super.new(name); endfunction
+endclass
+
+// Instruction generator (copied minimally from Part 2)
+class instruction_generator;
+  instruction instr_list[$];
+  bit [31:0]  machine_code_list[$];
+
+  function new(string name = "gen"); endfunction
+
+  function void generate_individual();
+    instruction instr = new();
+    assert(instr.randomize());
+    instr_list.push_back(instr);
+  endfunction
+
+  function void generate_pairs();
+    instruction tx1 = new();
+    instruction tx2 = new();
+    bit [4:0]  dep_reg; bit [15:0] dep_mem;
+    assert(std::randomize(dep_reg) with {dep_reg inside {[1:4]};});
+    assert(std::randomize(dep_mem) with {dep_mem inside {0,4,8,12};});
+    assert(tx1.randomize() with { opcode inside {6'b000000, 6'b100011, 6'b101011}; });
+    if (tx1.opcode == 6'b000000) begin
+      tx1.reg_c = dep_reg; assert(tx2.randomize() with { opcode == 6'b000000 && (reg_a == dep_reg || reg_b == dep_reg); });
+    end else if (tx1.opcode == 6'b100011) begin
+      tx1.mem_addr = dep_mem; assert(tx2.randomize() with { opcode == 6'b101011 && mem_addr == dep_mem; });
+    end else begin
+      tx1.mem_addr = dep_mem; assert(tx2.randomize() with { opcode == 6'b100011 && mem_addr == dep_mem; });
+    end
+    instr_list.push_back(tx1); instr_list.push_back(tx2);
+  endfunction
+
+  function void insert_gaps();
+    instruction gap_instr; int gap; int j; instruction prev_instr;
+    prev_instr = instr_list[instr_list.size()-1];
+    gap = $urandom_range(1,4);
+    for (j = 0; j < gap; j++) begin
+      gap_instr = new();
+      assert(gap_instr.randomize() with { opcode == 6'b000000 && !(reg_a inside {prev_instr.reg_c}) && !(reg_b inside {prev_instr.reg_c}); });
+      instr_list.push_back(gap_instr);
+    end
+  endfunction
+
+  function void generate_branch();
+    instruction branch_instr; bit taken; bit [4:0] dep_reg; int offset; int t;
+    assert(std::randomize(taken));
+    assert(std::randomize(dep_reg) with { dep_reg inside {[1:4]}; });
+    branch_instr = new();
+    assert(branch_instr.randomize() with { opcode == 6'b000100 && reg_a == dep_reg && reg_b == (taken ? dep_reg : ((dep_reg % 4)+1)); });
+    offset = branch_instr.branch_offset; instr_list.push_back(branch_instr);
+    if (!taken) generate_individual();
+    for (t = 1; t < offset; t++) insert_gaps();
+    generate_individual();
+  endfunction
+
+  function void generate_sequence();
+    instruction setup_instr; int mem_val; int i; int j;
+    for (i = 5; i < 9; i++) begin
+      setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == i && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
+    end
+    mem_val = 0;
+    for (i = 5; i < 9; i++) begin
+      setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b101011 && reg_a == i && reg_b == 0 && mem_addr == mem_val; }); instr_list.push_back(setup_instr); mem_val += 4;
+    end
+    setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 1 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
+    setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 2 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
+    setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 3 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
+    setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 4 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
+    for (i = 0; i < 2; i++) begin
+      for (j = 0; j < 3; j++) generate_individual();
+      generate_pairs(); insert_gaps();
+      generate_branch();
+      for (j = 0; j < 3; j++) generate_individual();
+      for (j = 0; j < 3; j++) generate_pairs();
+    end
+  endfunction
+
+  function void generate_machine_code();
+    bit [31:0] instr_word; int k;
+    foreach (instr_list[k]) begin
+      instruction instr = instr_list[k];
+      case (instr.opcode)
+        6'b000000: instr_word = {instr.opcode, instr.reg_b, instr.reg_a, instr.reg_c, 5'b00000, instr.funct};
+        6'b001000: instr_word = {instr.opcode, instr.reg_b, instr.reg_a, instr.immediate};
+        6'b100011, 6'b101011: instr_word = {instr.opcode, instr.reg_b, instr.reg_a, instr.mem_addr[15:0]};
+        6'b000100: instr_word = {instr.opcode, instr.reg_b, instr.reg_a, instr.branch_offset};
+        default:   instr_word = 32'h0000_0000;
+      endcase
+      machine_code_list.push_back(instr_word);
+    end
+    $writememh("instruction_file.memh", machine_code_list);
+  endfunction
+
+  function void display_all(); foreach (instr_list[i]) instr_list[i].print(); endfunction
+endclass
+
 // Lightweight transaction observed by the monitor
 class instr_tx extends uvm_object;
   `uvm_object_utils(instr_tx)
