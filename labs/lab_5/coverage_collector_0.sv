@@ -1,3 +1,5 @@
+// this is a template
+
 class instr_monitor extends uvm_monitor;
   `uvm_component_utils(instr_monitor)
 
