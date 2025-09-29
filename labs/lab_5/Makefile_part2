@@ -1,4 +1,4 @@
-FILES=./instr_gen_0.sv ./top.sv ./datapath.sv ./controller.sv
+FILES=./instr_gen.sv ./top.sv ./datapath.sv ./controller.sv
 
 all: compile_and_sim clean
 

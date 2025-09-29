@@ -189,7 +189,7 @@ class instruction_generator;
       mem_val += 4;
     end
 
-  // Initialize $1..$4 for randomized ops
+    // Initialize $1..$4 for randomized ops
     setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 1 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
     setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 2 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
     setup_instr = new(); assert(setup_instr.randomize() with { opcode == 6'b001000 && reg_a == 3 && reg_b == 0 && immediate inside {[1:256]}; }); instr_list.push_back(setup_instr);
@@ -300,4 +300,3 @@ module testbench;
     $finish;
   end
 endmodule
-
