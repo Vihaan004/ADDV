@@ -367,23 +367,29 @@ module testbench;
   always #5 clk = ~clk;
 
   initial begin
+    // All actions in this block must consume 0 simulation time before run_test().
+    // Initialize, configure UVM, generate program, load imem, and start UVM immediately at t=0.
     clk = 0;
     reset = 1;
     uvm_config_db#(virtual instr_mem_if)::set(null, "uvm_test_top.*", "instr_mem_if", vif);
     $fsdbDumpMDA();
     $fsdbDumpvars();
 
-    // Build program and load into imem
+    // Build program and load into imem (no delays; zero sim time)
     gen = new();
     gen.generate_sequence();
     gen.generate_machine_code();
     gen.display_all();
     $readmemh("instruction_file.memh", dut.imem.RAM);
 
-    // Release reset and run UVM
+    // Start UVM at time 0
+    run_test("my_test");
+  end
+
+  // Handle reset sequencing with delays in a separate initial block to avoid delaying run_test()
+  initial begin
     repeat (2) @(posedge clk);
     reset = 0;
-    run_test("my_test");
   end
 
   initial begin
